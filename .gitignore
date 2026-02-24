@@ -1,0 +1,45 @@
+### === BACKEND (Spring Boot / Maven) === ###
+target/
+*.jar
+*.war
+*.ear
+*.log
+*.logs
+*.tmp
+*.pid
+*.lock
+**/mvnw
+**/mvnw.cmd
+**/.mvn
+
+### === FRONTEND (Angular) === ###
+frontend/node_modules/
+frontend/dist/
+frontend/tmp/
+frontend/out-tsc/
+
+### === Base de données et fichiers de config sensibles === ###
+# Fichiers de propriétés contenant des mots de passe 
+application-dev.properties
+application-prod.properties
+application-local.properties
+# Si vous utilisez des fichiers .env
+.env
+
+### === IDEs (IntelliJ, Eclipse, VS Code) === ###
+.idea/
+*.iws
+*.iml
+*.ipr
+.classpath
+.project
+.settings/
+.springBeans
+.vscode/
+.factorypath
+
+### === Logs et fichiers temporaires OS === ###
+logs/
+*.log
+.DS_Store
+Thumbs.db
