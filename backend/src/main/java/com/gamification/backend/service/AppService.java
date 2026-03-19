@@ -1,4 +1,3 @@
-// src/main/java/com/gamification/backend/service/AppService.java
 package com.gamification.backend.service;
 
 import com.gamification.backend.dto.app.AppResponse;
@@ -7,6 +6,12 @@ import com.gamification.backend.model.App;
 import com.gamification.backend.model.AppOwner;
 import com.gamification.backend.repository.AppOwnerRepository;
 import com.gamification.backend.repository.AppRepository;
+import com.gamification.backend.repository.IncomingEventRepository;
+import com.gamification.backend.repository.PointsRepository;
+import com.gamification.backend.repository.PointsTransactionRepository;
+import com.gamification.backend.repository.RegisteredEventRepository;
+import com.gamification.backend.repository.RuleRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,9 +27,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AppService {
     
-    private final AppRepository appRepository;
+   private final AppRepository appRepository;
     private final AppOwnerRepository ownerRepository;
     private final ApiKeyService apiKeyService;
+    private final RuleRepository ruleRepository;
+    private final IncomingEventRepository incomingEventRepository;
+    private final PointsRepository pointsRepository;
+    private final PointsTransactionRepository pointsTransactionRepository;
+    private final RegisteredEventRepository registeredEventRepository;
     
     private AppOwner getCurrentOwner() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -123,21 +133,25 @@ public class AppService {
         return mapToResponse(updatedApp);
     }
     
-    @Transactional
-    public void deleteApp(Long appId) {
-        AppOwner owner = getCurrentOwner();
-        
-        App app = appRepository.findById(appId)
-                .orElseThrow(() -> new RuntimeException("Application non trouvée avec ID: " + appId));
-        
-        // Vérifier que l'application appartient bien à l'owner connecté
-        if (!app.getOwner().getId().equals(owner.getId())) {
-            throw new RuntimeException("Vous n'êtes pas autorisé à supprimer cette application");
-        }
-        
-        appRepository.delete(app);
-        log.info("Application supprimée avec ID: {}", appId);
-    }
+ @Transactional
+public void deleteApp(Long appId) {
+    AppOwner owner = getCurrentOwner();
+    
+    App app = appRepository.findById(appId)
+        .orElseThrow(() -> new RuntimeException("Application non trouvée avec ID: " + appId));
+    
+    if (!app.getOwner().getId().equals(owner.getId()))
+        throw new RuntimeException("Vous n'êtes pas autorisé à supprimer cette application");
+
+    pointsTransactionRepository.deleteByAppId(appId);
+    pointsRepository.deleteByAppId(appId);
+    incomingEventRepository.deleteByAppId(appId);
+    registeredEventRepository.deleteByAppId(appId); // ← ajouté
+    ruleRepository.deleteByAppId(appId);
+    appRepository.delete(app);
+    
+    log.info("Application supprimée avec ID: {}", appId);
+}
     
     @Transactional
     public AppResponse regenerateApiKey(Long appId) {
@@ -171,12 +185,12 @@ public class AppService {
                 .build();
     }
 
-   
+
+
 public Long getCurrentAppId(String email) {
     AppOwner owner = ownerRepository.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
-    
-    // Récupère la première application (ou vous pouvez modifier la logique)
+
     return appRepository.findByOwnerId(owner.getId())
             .stream()
             .findFirst()
@@ -184,6 +198,16 @@ public Long getCurrentAppId(String email) {
             .orElseThrow(() -> new RuntimeException("Aucune application trouvée"));
 }
 
+public void verifyOwnership(String email, Long appId) {
+    AppOwner owner = ownerRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
 
+    App app = appRepository.findById(appId)
+            .orElseThrow(() -> new RuntimeException("Application non trouvée"));
+
+    if (!app.getOwner().getId().equals(owner.getId())) {
+        throw new RuntimeException("Accès refusé : cette app ne vous appartient pas");
+    }
+}
 
 }

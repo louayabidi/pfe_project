@@ -1,0 +1,39 @@
+<div class="apps-page">
+
+  <div class="page-header">
+    <div class="header-left">
+      <h1 class="page-title">Mes Applications</h1>
+      <p class="page-sub">
+        Gérez vos apps
+        <span class="sub-badge">{{ apps().length }} apps</span>
+      </p>
+    </div>
+    <button class="btn-new" (click)="newApp()">+ Nouvelle app</button>
+  </div>
+
+  <div class="error-bar" *ngIf="error()">{{ error() }}</div>
+
+  <div class="loading-grid" *ngIf="loading()">
+    <div class="skeleton" *ngFor="let i of [1,2,3]"></div>
+  </div>
+
+  <div class="empty-state" *ngIf="!loading() && apps().length === 0">
+    <div class="empty-icon">📱</div>
+    <h2>Aucune application</h2>
+    <button class="btn-new" (click)="newApp()">Créer une app</button>
+  </div>
+
+  <!-- ✅ Utilise le composant carte -->
+  <div class="apps-grid" *ngIf="!loading() && apps().length > 0">
+    <app-card
+      *ngFor="let app of apps(); trackBy: trackById"
+      [app]="app"
+      [isDeleting]="deletingId() === app.id"
+      [isCopied]="copiedKey() === app.id"
+      (copy)="copyApiKey($event)"
+      (delete)="deleteApp($event)"
+      (rules)="goToRules($event)">
+    </app-card>
+  </div>
+
+</div>

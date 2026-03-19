@@ -1,0 +1,85 @@
+<div class="auth-page">
+  <div class="auth-card">
+
+    <a routerLink="/home" class="auth-logo">
+      <span class="logo-gami">Gami</span><span class="logo-fy">fy</span>
+    </a>
+
+    <h1 class="auth-title">Create your account</h1>
+    <p class="auth-sub">Start gamifying your app in minutes. Free forever.</p>
+
+    <div class="auth-error" *ngIf="error()">
+      <span>⚠️</span> {{ error() }}
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="auth-form">
+
+      <div class="field">
+        <label for="fullName">Full name</label>
+        <input id="fullName" formControlName="fullName"
+               type="text" placeholder="John Doe"
+               [class.invalid]="f['fullName'].touched && f['fullName'].invalid"/>
+        <span class="field-error"
+              *ngIf="f['fullName'].touched && f['fullName'].errors?.['required']">
+          Name is required
+        </span>
+      </div>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" formControlName="email"
+               type="email" placeholder="you@company.com"
+               [class.invalid]="f['email'].touched && f['email'].invalid"/>
+        <span class="field-error"
+              *ngIf="f['email'].touched && f['email'].errors?.['email']">
+          Enter a valid email
+        </span>
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="input-wrap">
+          <input id="password" formControlName="password"
+                 [type]="showPass() ? 'text' : 'password'"
+                 placeholder="Min. 6 characters"
+                 [class.invalid]="f['password'].touched && f['password'].invalid"/>
+          <button type="button" class="toggle-pass"
+                  (click)="showPass.set(!showPass())"
+                  [attr.aria-label]="showPass() ? 'Hide password' : 'Show password'">
+            <svg *ngIf="!showPass()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <svg *ngIf="showPass()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/>
+              <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/>
+              <line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+          </button>
+        </div>
+        <span class="field-error"
+              *ngIf="f['password'].touched && f['password'].errors?.['minlength']">
+          At least 6 characters required
+        </span>
+      </div>
+
+      <button type="submit" class="btn-submit" [disabled]="loading()">
+        <span *ngIf="!loading()">
+          Get started free
+          <svg viewBox="0 0 16 16" fill="none">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor"
+                  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span *ngIf="loading()" class="spinner"></span>
+      </button>
+
+    </form>
+
+    <p class="auth-switch">
+      Already have an account?
+      <a routerLink="/login">Sign in</a>
+    </p>
+
+  </div>
+</div>

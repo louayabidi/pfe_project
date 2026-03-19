@@ -26,6 +26,7 @@ public class RuleService {
     
     @Transactional
     public RuleResponse createRule(Long appId, CreateRuleRequest request) {
+        log.info("=== RuleService.createRule appId={} ===", appId);
         App app = appRepository.findById(appId)
                 .orElseThrow(() -> new RuntimeException("Application non trouvée"));
         

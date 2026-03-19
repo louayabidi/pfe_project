@@ -10,6 +10,7 @@ import java.util.List;
 @Repository
 public interface IncomingEventRepository extends JpaRepository<IncomingEvent, Long> {
     List<IncomingEvent> findByAppIdAndProcessedFalse(Long appId);
+    void deleteByAppId(Long appId);
     List<IncomingEvent> findByUserIdAndEventName(String userId, String eventName);
     long countByUserIdAndEventNameAndCreatedAtBetween(String userId, String eventName, 
                                                       LocalDateTime start, LocalDateTime end);

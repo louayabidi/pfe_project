@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface PointsRepository extends JpaRepository<PointsBalance, Long> {
     Optional<PointsBalance> findByUserIdAndAppId(String userId, Long appId);
+    void deleteByAppId(Long appId);
 }

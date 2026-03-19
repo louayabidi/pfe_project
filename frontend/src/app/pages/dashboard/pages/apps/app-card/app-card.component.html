@@ -1,0 +1,58 @@
+<div class="app-card">
+
+  <div class="card-top">
+    <div class="card-header">
+      <div class="app-icon-wrap">🎯</div>
+      <div class="app-meta">
+        <div class="app-name">{{ app.name }}</div>
+        <div class="app-desc">{{ app.description || 'Pas de description' }}</div>
+      </div>
+      <div class="status-badge"
+           [class.active]="app.active"
+           [class.inactive]="!app.active">
+        {{ app.active ? 'Active' : 'Inactive' }}
+      </div>
+    </div>
+
+    <div class="api-section">
+      <div class="api-label">API KEY</div>
+      <div class="api-row">
+        <input
+          class="api-key"
+          [type]="showKey() ? 'text' : 'password'"
+          readonly
+          [value]="app.apiKey">
+        <button class="toggle-btn" (click)="toggleKey()">
+          {{ showKey() ? '🙈' : '👁' }}
+        </button>
+        <button
+          class="copy-btn"
+          (click)="onCopy()"
+          [class.copied]="isCopied">
+          {{ isCopied ? '✅ Copié !' : '📋 Copier' }}
+        </button>
+      </div>
+      <div class="api-hint">
+        dart pub global run gamif_scanner:setup .
+      </div>
+    </div>
+  </div>
+
+  <div class="card-footer">
+    <div class="created-at">
+      Créée le {{ app.createdAt | date:'dd/MM/yyyy' }}
+    </div>
+    <div class="footer-actions">
+      <button class="btn-rules" (click)="onRules()">
+        📋 Règles
+      </button>
+      <button
+        class="btn-del"
+        (click)="onDelete()"
+        [disabled]="isDeleting">
+        {{ isDeleting ? '⏳' : '🗑' }}
+      </button>
+    </div>
+  </div>
+
+</div>

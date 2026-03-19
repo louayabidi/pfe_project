@@ -1,0 +1,227 @@
+<div class="create-rule-page">
+
+  <!-- ── AMBIENT ────────────────────────────────────────────────────── -->
+  <div class="ambient-grid" aria-hidden="true">
+    <div class="grid-line" *ngFor="let n of [1,2,3,4,5]"></div>
+  </div>
+
+  <!-- ── HEADER ─────────────────────────────────────────────────────── -->
+  <header class="page-header">
+    <button class="back-btn"
+            [routerLink]="['/dashboard/rules']"
+            [queryParams]="{ appId: appId }">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M9 12L5 7l4-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Retour aux règles
+    </button>
+
+    <div class="header-body">
+      <div class="header-left">
+        <div class="breadcrumb">
+          <span class="mono accent">APP #{{ appId }}</span>
+          <svg width="10" height="10" viewBox="0 0 10 10"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+          <span class="mono">Règles</span>
+          <svg width="10" height="10" viewBox="0 0 10 10"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+          <span class="mono accent">Nouvelle</span>
+        </div>
+        <h1 class="page-title">
+          <span class="title-mark">+</span>
+          Créer une règle
+        </h1>
+        <p class="page-subtitle">Associez un événement Flutter à une récompense</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── FORM ───────────────────────────────────────────────────────── -->
+  <form [formGroup]="form" (ngSubmit)="submit()" class="rule-form" novalidate>
+
+    <!-- ── SECTION : IDENTITÉ ────────────────────────────────────────── -->
+    <div class="form-block">
+      <div class="block-label">
+        <span class="block-num">01</span>
+        <span>Identité</span>
+      </div>
+
+      <div class="field-row">
+        <!-- Nom -->
+        <div class="field field-grow">
+          <label>Nom de la règle <span class="req">*</span></label>
+          <div class="input-wrap">
+            <svg class="iico" width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 4h10M2 7h7M2 10h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <input formControlName="name" placeholder="ex : Mission terminée"/>
+          </div>
+          <span class="verr" *ngIf="form.get('name')?.invalid && form.get('name')?.touched">
+            Champ requis (min. 2 caractères)
+          </span>
+        </div>
+
+        <!-- Description -->
+        <div class="field field-grow">
+          <label>Description <span class="opt">optionnel</span></label>
+          <div class="input-wrap">
+            <svg class="iico" width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <rect x="2" y="2" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.3"/>
+              <path d="M5 5h4M5 7.5h2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+            <input formControlName="description" placeholder="Description courte..."/>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION : DÉCLENCHEUR ─────────────────────────────────────── -->
+    <div class="form-block">
+      <div class="block-label">
+        <span class="block-num">02</span>
+        <span>Événement déclencheur</span>
+      </div>
+
+      <!-- No events warning -->
+      <div class="warn-card" *ngIf="availableEvents().length === 0">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 1l7 14H1L8 1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+          <path d="M8 6v4M8 11.5v1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+        <div>
+          <strong>Aucun événement détecté</strong>
+          <p>Lance le scanner sur ton projet Flutter&nbsp;:
+             <code>dart run gamif_scanner:scan .</code>
+          </p>
+        </div>
+      </div>
+
+      <div class="field" *ngIf="availableEvents().length > 0">
+        <label>Sélectionner un événement <span class="req">*</span></label>
+        <div class="input-wrap select-wrap">
+          <svg class="iico" width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <polygon points="7,2 12,11 2,11" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linejoin="round"/>
+          </svg>
+          <select formControlName="triggerEvent">
+            <option value="">— Choisir un événement —</option>
+            <option *ngFor="let ev of availableEvents()" [value]="ev">{{ ev }}</option>
+          </select>
+          <svg class="sarrow" width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span class="hint">{{ availableEvents().length }} événement(s) disponible(s)</span>
+        <span class="verr" *ngIf="form.get('triggerEvent')?.invalid && form.get('triggerEvent')?.touched">
+          Sélectionnez un événement
+        </span>
+      </div>
+    </div>
+
+    <!-- ── SECTION : RÉCOMPENSE ──────────────────────────────────────── -->
+    <div class="form-block">
+      <div class="block-label">
+        <span class="block-num">03</span>
+        <span>Type de récompense</span>
+      </div>
+
+      <!-- POINTS / BADGE toggle -->
+      <div class="reward-toggle">
+        <label class="rtog-option" [class.selected]="isPoints">
+          <input type="radio" formControlName="actionType" value="POINTS"/>
+          <div class="rtog-card">
+            <div class="rtog-icon">★</div>
+            <div class="rtog-info">
+              <span class="rtog-name">Points</span>
+              <span class="rtog-desc">Créditer des points</span>
+            </div>
+            <div class="rtog-check">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+        </label>
+
+        <label class="rtog-option" [class.selected]="!isPoints">
+          <input type="radio" formControlName="actionType" value="BADGE"/>
+          <div class="rtog-card">
+            <div class="rtog-icon badge">🏅</div>
+            <div class="rtog-info">
+              <span class="rtog-name">Badge</span>
+              <span class="rtog-desc">Débloquer un badge</span>
+            </div>
+            <div class="rtog-check">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+        </label>
+      </div>
+
+      <!-- POINTS config -->
+      <div class="reward-config" *ngIf="isPoints">
+        <div class="field">
+          <label>Montant de points</label>
+          <div class="pts-control">
+            <input type="range" class="pts-slider" formControlName="pointsAmount"
+                   min="1" max="1000" step="5"/>
+            <div class="pts-display">
+              <input type="number" formControlName="pointsAmount" min="1" max="9999"/>
+              <span class="pts-unit">pts</span>
+            </div>
+          </div>
+          <div class="pts-presets">
+            <button type="button"
+                    *ngFor="let p of [10, 25, 50, 100, 250, 500]"
+                    [class.active]="form.get('pointsAmount')?.value == p"
+                    (click)="form.get('pointsAmount')?.setValue(p)">
+              {{ p }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- BADGE config -->
+      <div class="reward-config" *ngIf="!isPoints">
+        <div class="field">
+          <label>ID du Badge <span class="req">*</span></label>
+          <div class="input-wrap">
+            <svg class="iico" width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M7 1l1.5 3.5 3.5.5-2.5 2.5.6 3.5L7 9.5l-3.1 1.5.6-3.5L2 5l3.5-.5z"
+                    stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+            </svg>
+            <input type="number" formControlName="badgeId" placeholder="ex : 3"/>
+          </div>
+          <span class="hint">Trouvez l'ID dans la section Badges</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── FOOTER ───────────────────────────────────────────────────── -->
+    <div class="form-footer">
+      <div class="error-banner" *ngIf="error()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.3"/>
+          <path d="M7 4.5v3M7 9v1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+        {{ error() }}
+      </div>
+
+      <div class="footer-btns">
+        <button type="button" class="btn-ghost"
+                [routerLink]="['/dashboard/rules']"
+                [queryParams]="{ appId: appId }">
+          Annuler
+        </button>
+        <button type="submit" class="btn-submit" [disabled]="loading()">
+          <span class="spinner" *ngIf="loading()"></span>
+          <svg *ngIf="!loading()" width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7l4 4 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          {{ loading() ? 'Création...' : 'Créer la règle' }}
+        </button>
+      </div>
+    </div>
+
+  </form>
+
+</div>

@@ -1,16 +1,28 @@
-// src/main/java/com/gamification/backend/controller/RuleController.java
 @PostMapping
-public ResponseEntity<?> createRule(
+public ResponseEntity<RuleResponse> createRule(
         @RequestHeader("Authorization") String token,
+        @RequestParam Long appId,
         @Valid @RequestBody CreateRuleRequest request) {
     
-    // Exemple de règle : SI "USER_SIGNUP" ALORS badge "Bienvenue" + 50 points
-    Rule rule = Rule.builder()
-            .name(request.getName())
-            .triggerEvent(request.getEventName())  // "USER_SIGNUP"
-            .conditions(request.getConditions())   // ex: { "field": "plan", "value": "premium" }
-            .actions(request.getActions())         // ex: [{ "type": "badge", "id": 1 }, { "type": "points", "amount": 50 }]
-            .build();
-    
-    return ResponseEntity.ok(ruleService.createRule(rule));
+    log.info("=== createRule appelé avec appId={} ===", appId); 
+    String email = extractEmail(token);
+    appService.verifyOwnership(email, appId);
+    return new ResponseEntity<>(ruleService.createRule(appId, request), HttpStatus.CREATED);
+}
+
+@GetMapping
+public ResponseEntity<List<RuleResponse>> getRules(
+        @RequestHeader("Authorization") String token,
+        @RequestParam Long appId) {                  // ← ajouter
+    String email = extractEmail(token);
+    appService.verifyOwnership(email, appId);
+    return ResponseEntity.ok(ruleService.getRulesByAppId(appId));
+}
+
+// ← Remplacer getAppIdFromToken() par extractEmail()
+private String extractEmail(String token) {
+    if (token != null && token.startsWith("Bearer ")) {
+        return jwtService.extractEmail(token.substring(7));
+    }
+    throw new RuntimeException("Token invalide");
 }

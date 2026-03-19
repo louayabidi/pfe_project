@@ -1,0 +1,30 @@
+<div class="dashboard-layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">🎮 Dashboard</div>
+    <nav class="sidebar-nav">
+
+      <a routerLink="/dashboard/apps"
+         routerLinkActive="active"
+         class="nav-item">
+        📱 Applications
+      </a>
+
+      <a routerLink="/dashboard/rules"
+         routerLinkActive="active"
+         class="nav-item">
+        📋 Règles
+      </a>
+
+      <a routerLink="/dashboard/overview"
+         routerLinkActive="active"
+         class="nav-item">
+        📊 Overview
+      </a>
+
+    </nav>
+  </aside>
+
+  <main class="dashboard-main">
+    <router-outlet></router-outlet>
+  </main>
+</div>

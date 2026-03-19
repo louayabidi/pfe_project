@@ -1,0 +1,121 @@
+
+<footer class="footer">
+
+  <!-- Top glow line -->
+  <div class="footer-glow-line"></div>
+
+  <div class="footer-inner">
+
+    <!-- Brand column -->
+    <div class="footer-brand">
+      <a routerLink="/home" class="footer-logo">
+        <div class="footer-logo-icon">
+          <svg viewBox="0 0 36 36" fill="none">
+            <path d="M18 2L32 10V26L18 34L4 26V10L18 2Z"
+                  stroke="url(#flg1)" stroke-width="1.5" fill="none"/>
+            <path d="M12 14h12v5a6 6 0 01-12 0V14z" fill="url(#flg2)" opacity="0.8"/>
+            <circle cx="18" cy="17.5" r="2" fill="#FFD700"/>
+            <defs>
+              <linearGradient id="flg1" x1="4" y1="2" x2="32" y2="34">
+                <stop offset="0%"   stop-color="#6C63FF"/>
+                <stop offset="100%" stop-color="#FF6584"/>
+              </linearGradient>
+              <linearGradient id="flg2" x1="12" y1="14" x2="24" y2="28"
+                              gradientUnits="userSpaceOnUse">
+                <stop offset="0%"   stop-color="#FFD700"/>
+                <stop offset="100%" stop-color="#FF6584"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <span class="footer-logo-text">
+          <span class="logo-gami">Gami</span><span class="logo-fy">fy</span>
+        </span>
+      </a>
+
+      <p class="footer-tagline">
+        Turn every user action into a rewarding experience. The gamification
+        infrastructure built for modern SaaS.
+      </p>
+
+      <!-- Social links -->
+      <div class="social-links">
+        <a *ngFor="let s of socialLinks"
+   [href]="s.url"
+   target="_blank"
+   rel="noopener noreferrer"
+   class="social-link"
+   [attr.aria-label]="s.label"
+   [innerHTML]="sanitize(s.icon)">
+</a>
+      </div>
+
+      <!-- Newsletter -->
+      <div class="newsletter">
+        <p class="newsletter-label">Stay in the loop</p>
+        <div class="newsletter-form">
+          <input type="email" placeholder="your@email.com" class="newsletter-input"
+                 aria-label="Email for newsletter"/>
+          <button class="newsletter-btn" type="button">
+            <svg viewBox="0 0 16 16" fill="none">
+              <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor"
+                    stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Link columns -->
+    <div class="footer-links">
+
+      <div class="link-group">
+        <h5 class="link-group-title">Product</h5>
+        <a *ngFor="let link of productLinks"
+           [routerLink]="link.path"
+           class="footer-link">
+          {{ link.label }}
+        </a>
+      </div>
+
+      <div class="link-group">
+        <h5 class="link-group-title">Company</h5>
+        <a *ngFor="let link of companyLinks"
+           [routerLink]="link.path"
+           class="footer-link">
+          {{ link.label }}
+        </a>
+      </div>
+
+      <div class="link-group">
+        <h5 class="link-group-title">Legal</h5>
+        <a *ngFor="let link of legalLinks"
+           [routerLink]="link.path"
+           class="footer-link">
+          {{ link.label }}
+        </a>
+
+        <!-- Status badge -->
+        <div class="status-badge">
+          <span class="status-dot"></span>
+          All systems operational
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bottom bar -->
+  <div class="footer-bottom">
+    <div class="footer-bottom-inner">
+      <p class="copyright">
+        © {{ currentYear }} Gamify. All rights reserved.
+      </p>
+      <p class="made-with">
+        Built for developers who care about engagement
+        <span class="heart">✦</span>
+      </p>
+    </div>
+  </div>
+
+</footer>

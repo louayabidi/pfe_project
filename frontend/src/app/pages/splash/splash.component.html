@@ -1,0 +1,106 @@
+<!-- src/app/pages/splash/splash.component.html -->
+<div class="splash-wrapper" [class.exit]="exitActive">
+
+  <!-- Canvas for particle animation -->
+  <canvas #canvas class="particle-canvas"></canvas>
+
+  <!-- Noise texture overlay -->
+  <div class="noise-overlay"></div>
+
+  <!-- Grid lines -->
+  <div class="grid-overlay"></div>
+
+  <!-- Center content -->
+  <div class="splash-content">
+
+    <!-- Logo mark -->
+    <div class="logo-mark" [class.visible]="showLogo">
+      <div class="hexagon-ring ring-1"></div>
+      <div class="hexagon-ring ring-2"></div>
+      <div class="hexagon-ring ring-3"></div>
+      <div class="logo-icon">
+        <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M30 5L52 17.5V42.5L30 55L8 42.5V17.5L30 5Z"
+                stroke="url(#hexGrad)" stroke-width="1.5" fill="none"/>
+          <path d="M30 15L44 22.5V37.5L30 45L16 37.5V22.5L30 15Z"
+                fill="url(#hexFill)" opacity="0.3"/>
+          <!-- Trophy / reward icon -->
+          <path d="M22 20h16v8a8 8 0 01-16 0V20z"
+                fill="url(#iconGrad)" stroke="none"/>
+          <path d="M18 22h4M38 22h4" stroke="#6C63FF" stroke-width="2"
+                stroke-linecap="round"/>
+          <path d="M30 36v4M25 40h10"
+                stroke="url(#iconGrad)" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="30" cy="25" r="3" fill="#FFD700"/>
+          <defs>
+            <linearGradient id="hexGrad" x1="8" y1="5" x2="52" y2="55">
+              <stop offset="0%" stop-color="#6C63FF"/>
+              <stop offset="50%" stop-color="#FF6584"/>
+              <stop offset="100%" stop-color="#43E97B"/>
+            </linearGradient>
+            <linearGradient id="hexFill" x1="16" y1="15" x2="44" y2="45">
+              <stop offset="0%" stop-color="#6C63FF"/>
+              <stop offset="100%" stop-color="#FF6584"/>
+            </linearGradient>
+            <linearGradient id="iconGrad" x1="22" y1="20" x2="38" y2="40">
+              <stop offset="0%" stop-color="#FFD700"/>
+              <stop offset="100%" stop-color="#FF6584"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Brand name -->
+    <div class="brand-name" [class.visible]="showLogo">
+      <span class="brand-gami">Gami</span><span class="brand-fy">fy</span>
+      <div class="brand-underline"></div>
+    </div>
+
+    <!-- Tagline -->
+    <div class="tagline" [class.visible]="showTagline">
+      <span class="tagline-word" style="--i:0">Reward.</span>
+      <span class="tagline-word" style="--i:1">Engage.</span>
+      <span class="tagline-word accent" style="--i:2">Grow.</span>
+    </div>
+
+    <!-- Subtitle -->
+    <p class="subtitle" [class.visible]="showSubtitle">
+      The gamification platform that turns user actions into unforgettable experiences
+    </p>
+
+    <!-- Progress bar -->
+    <div class="progress-container" [class.visible]="showProgress">
+      <div class="progress-track">
+        <div class="progress-fill" [style.width.%]="progress">
+          <div class="progress-glow"></div>
+        </div>
+      </div>
+      <div class="progress-label">{{ progress < 100 ? 'Initializing...' : 'Ready ✦' }}</div>
+    </div>
+
+  </div>
+
+  <!-- Corner decorations -->
+  <div class="corner corner-tl"></div>
+  <div class="corner corner-tr"></div>
+  <div class="corner corner-bl"></div>
+  <div class="corner corner-br"></div>
+
+  <!-- Floating badges -->
+  <div class="floating-badge badge-1" [class.visible]="showSubtitle">
+    <span>🏆</span> +500 pts
+  </div>
+  <div class="floating-badge badge-2" [class.visible]="showSubtitle">
+    <span>🥇</span> Pioneer
+  </div>
+  <div class="floating-badge badge-3" [class.visible]="showSubtitle">
+    <span>⚡</span> Level Up!
+  </div>
+
+  <!-- Skip button -->
+  <button class="skip-btn" (click)="skipSplash()" [class.visible]="showLogo">
+    Skip <span>→</span>
+  </button>
+
+</div>

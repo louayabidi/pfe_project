@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface PointsTransactionRepository extends JpaRepository<PointsTransaction, Long> {
     List<PointsTransaction> findByUserId(String userId);
+    void deleteByAppId(Long appId);
 }

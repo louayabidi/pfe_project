@@ -1,0 +1,49 @@
+<div class="create-app-page">
+
+  <div class="page-header">
+    <button class="btn-back" routerLink="/dashboard/apps">← Retour</button>
+    <h1>Nouvelle Application</h1>
+    <p class="subtitle">Créez une app pour obtenir votre clé API</p>
+  </div>
+
+  <div class="form-card">
+    <form [formGroup]="form" (ngSubmit)="submit()">
+
+      <div class="field">
+        <label>Nom de l'application *</label>
+        <input
+          formControlName="name"
+          placeholder="ex: My Game App"
+          [class.invalid]="f['name'].invalid && f['name'].touched"/>
+        <span class="field-error"
+          *ngIf="f['name'].invalid && f['name'].touched">
+          Le nom doit faire au moins 3 caractères
+        </span>
+      </div>
+
+      <div class="field">
+        <label>Description</label>
+        <textarea
+          formControlName="description"
+          placeholder="Décrivez votre application..."
+          rows="3">
+        </textarea>
+      </div>
+
+      <div class="info-box">
+        <p>🔑 Une clé API sera générée automatiquement</p>
+        <p>🔒 Utilisez-la dans le scanner pour l'intégration</p>
+      </div>
+
+      <div class="error-banner" *ngIf="error()">
+        ⚠️ {{ error() }}
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="loading()">
+        {{ loading() ? 'Création...' : '🚀 Créer l\'application' }}
+      </button>
+
+    </form>
+  </div>
+
+</div>

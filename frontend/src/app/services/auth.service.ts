@@ -1,0 +1,65 @@
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { BehaviorSubject, Observable, tap, catchError, throwError } from 'rxjs';
+import { AuthResponse, LoginRequest, RegisterRequest } from '../core/models/auth.models';
+import { TokenService } from './token.service';
+import { environment } from '../../environments/environment';
+
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+
+  private readonly API = `${environment.apiUrl}/api/auth`;
+
+  private currentUserSubject = new BehaviorSubject<AuthResponse | null>(
+    this.tokenService.getUser()
+  );
+
+  // Public observable for components to subscribe to
+  currentUser$ = this.currentUserSubject.asObservable();
+
+  constructor(
+    private http: HttpClient,
+    private tokenService: TokenService,
+    private router: Router
+  ) {}
+
+  register(data: RegisterRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.API}/register`, data).pipe(
+      tap(res  => this.handleAuthSuccess(res)),
+      catchError(err => this.handleError(err))
+    );
+  }
+
+  login(data: LoginRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.API}/login`, data).pipe(
+      tap(res  => this.handleAuthSuccess(res)),
+      catchError(err => this.handleError(err))
+    );
+  }
+
+  logout(): void {
+    this.tokenService.clear();
+    this.currentUserSubject.next(null);
+    this.router.navigate(['/login']);
+  }
+
+  get currentUser(): AuthResponse | null {
+    return this.currentUserSubject.value;
+  }
+
+  isLoggedIn(): boolean {
+    return this.tokenService.isLoggedIn();
+  }
+
+  private handleAuthSuccess(res: AuthResponse): void {
+    this.tokenService.saveToken(res.token);
+    this.tokenService.saveUser(res);
+    this.currentUserSubject.next(res);
+  }
+
+  private handleError(err: HttpErrorResponse): Observable<never> {
+    const message = err.error?.message || err.error || 'An error occurred';
+    return throwError(() => new Error(message));
+  }
+}

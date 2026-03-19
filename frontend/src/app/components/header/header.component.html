@@ -1,0 +1,110 @@
+<header class="header" [class.scrolled]="isScrolled()">
+
+  <!-- Backdrop blur layer -->
+  <div class="header-backdrop"></div>
+
+  <div class="header-inner">
+
+    <!-- Logo -->
+    <a routerLink="/home" class="logo" (click)="closeMenu()">
+      <div class="logo-icon">
+        <svg viewBox="0 0 36 36" fill="none">
+          <path d="M18 2L32 10V26L18 34L4 26V10L18 2Z"
+                stroke="url(#lg1)" stroke-width="1.5" fill="none"/>
+          <path d="M12 14h12v5a6 6 0 01-12 0V14z" fill="url(#lg2)"/>
+          <path d="M10 15h2M24 15h2" stroke="#6C63FF" stroke-width="1.5"
+                stroke-linecap="round"/>
+          <path d="M18 23v3M15 26h6" stroke="url(#lg2)" stroke-width="1.5"
+                stroke-linecap="round"/>
+          <circle cx="18" cy="17.5" r="2" fill="#FFD700"/>
+          <defs>
+            <linearGradient id="lg1" x1="4" y1="2" x2="32" y2="34">
+              <stop offset="0%"   stop-color="#6C63FF"/>
+              <stop offset="100%" stop-color="#FF6584"/>
+            </linearGradient>
+            <linearGradient id="lg2" x1="12" y1="14" x2="24" y2="28"
+                            gradientUnits="userSpaceOnUse">
+              <stop offset="0%"   stop-color="#FFD700"/>
+              <stop offset="100%" stop-color="#FF6584"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <span class="logo-text">
+        <span class="logo-gami">Gami</span><span class="logo-fy">fy</span>
+      </span>
+    </a>
+
+    <!-- Desktop nav -->
+    <nav class="nav-desktop" role="navigation" aria-label="Main navigation">
+      <a *ngFor="let link of navLinks"
+         [routerLink]="link.path"
+         routerLinkActive="active"
+         [routerLinkActiveOptions]="{ exact: link.path === '/home' }"
+         class="nav-link">
+        {{ link.label }}
+        <span class="nav-dot"></span>
+      </a>
+    </nav>
+
+<!-- Auth buttons -->
+<div class="auth-actions">
+  <!-- Si NON connecté -->
+  <ng-container *ngIf="!authService.isLoggedIn()">
+    <a routerLink="/login" class="btn-ghost">Sign in</a>
+    <a routerLink="/register" class="btn-primary">
+      <span>Get started</span>
+      <svg viewBox="0 0 16 16" fill="none" class="btn-arrow">
+        <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor"
+              stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  </ng-container>
+
+  <!-- Si connecté -->
+  <ng-container *ngIf="authService.isLoggedIn()">
+    <a routerLink="/dashboard" class="btn-ghost">Dashboard</a>
+    <button class="btn-primary" (click)="logout()">
+      <span>Logout</span>
+    </button>
+  </ng-container>
+</div>
+
+    <!-- Mobile hamburger -->
+    <button class="hamburger" (click)="toggleMenu()"
+            [class.open]="menuOpen()"
+            aria-label="Toggle menu"
+            [attr.aria-expanded]="menuOpen()">
+      <span></span><span></span><span></span>
+    </button>
+
+  </div>
+
+  <!-- Mobile menu -->
+  <div class="mobile-menu" [class.open]="menuOpen()" role="dialog">
+    <nav>
+      <a *ngFor="let link of navLinks; let i = index"
+         [routerLink]="link.path"
+         routerLinkActive="active"
+         class="mobile-link"
+         [style.--i]="i"
+         (click)="closeMenu()">
+        {{ link.label }}
+      </a>
+    </nav>
+<div class="mobile-auth">
+  <!-- Si NON connecté -->
+  <ng-container *ngIf="!authService.isLoggedIn()">
+    <a routerLink="/login"    class="btn-ghost"  (click)="closeMenu()">Sign in</a>
+    <a routerLink="/register" class="btn-primary" (click)="closeMenu()">Get started</a>
+  </ng-container>
+
+  <!-- Si connecté -->
+  <ng-container *ngIf="authService.isLoggedIn()">
+    <a routerLink="/dashboard" class="btn-ghost"  (click)="closeMenu()">Dashboard</a>
+    <button class="btn-primary" (click)="logout()">Logout</button>
+  </ng-container>
+</div>
+  </div>
+
+</header>

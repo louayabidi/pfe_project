@@ -1,0 +1,248 @@
+<div class="page" [class.loaded]="isLoaded">
+
+  <!-- ═══════════════════════════════ CURSOR ═══════════════════════════════ -->
+  <div class="cursor" #cursor></div>
+  <div class="cursor-dot" #cursorDot></div>
+
+  <!-- ═══════════════════════════════ HERO ════════════════════════════════ -->
+  <section class="hero" #heroSection>
+    <canvas class="hero-canvas" #heroCanvas></canvas>
+
+    <!-- Ambient orbs -->
+    <div class="orb orb--violet"></div>
+    <div class="orb orb--rose"></div>
+    <div class="orb orb--cyan"></div>
+
+    <!-- Noise overlay -->
+    <div class="noise"></div>
+
+    <div class="hero-inner">
+
+      <div class="hero-eyebrow reveal" style="--d:0.1s">
+        <span class="eyebrow-pill">
+          <span class="live-dot"></span>
+          SDK v2.0 — Universal platform support
+        </span>
+      </div>
+
+      <h1 class="hero-title reveal" style="--d:0.25s">
+        <span class="line">Turn every action</span>
+        <span class="line line--accent">
+          <span class="word-mask" *ngFor="let w of titleWords; let i = index"
+                [style.--wi]="i">{{w}}</span>
+        </span>
+        <span class="line">into legend.</span>
+      </h1>
+
+      <p class="hero-sub reveal" style="--d:0.5s">
+        Gamification infrastructure that makes users <em>feel</em> something.
+        Badges, streaks, leaderboards — wired to your app in three lines.
+      </p>
+
+      <div class="hero-cta reveal" style="--d:0.65s">
+        <a routerLink="/register" class="btn-primary">
+          <span class="btn-text">Start building free</span>
+          <span class="btn-icon">
+            <svg viewBox="0 0 20 20" fill="none">
+              <path d="M4 10h12M12 6l4 4-4 4" stroke="currentColor"
+                    stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="btn-shine"></span>
+        </a>
+        <a routerLink="/docs" class="btn-ghost">
+          <span class="btn-play">
+            <svg viewBox="0 0 20 20" fill="none">
+              <path d="M7 5l8 5-8 5V5z" fill="currentColor"/>
+            </svg>
+          </span>
+          Watch demo
+        </a>
+      </div>
+
+      <!-- Code card -->
+      <div class="code-card reveal" style="--d:0.85s" #codeCard>
+        <div class="code-card__glow"></div>
+        <div class="code-card__header">
+          <span class="dot dot--red"></span>
+          <span class="dot dot--yellow"></span>
+          <span class="dot dot--green"></span>
+          <span class="code-card__lang">integration.dart</span>
+          <button class="code-card__copy" (click)="copyCode()" [class.copied]="codeCopied">
+            <span *ngIf="!codeCopied">Copy</span>
+            <span *ngIf="codeCopied">✓ Copied</span>
+          </button>
+        </div>
+        <pre class="code-card__body"><code
+><span class="t-dim">// 3 lines. Instant engagement.</span>
+<span class="t-kw">await</span> GamifySDK.<span class="t-fn">init</span>(apiKey: <span class="t-str">'gam_sk_••••••••'</span>);
+<span class="t-kw">await</span> sdk.<span class="t-fn">identify</span>(<span class="t-str">'user_7829'</span>);
+<span class="t-kw">final</span> reward = <span class="t-kw">await</span> sdk.<span class="t-fn">track</span>(<span class="t-str">'FIRST_PURCHASE'</span>);
+<span class="t-dim">// → 🏆  "High Roller" badge unlocked  +500 pts</span
+></code></pre>
+        <div class="code-card__bar">
+          <span *ngFor="let dot of [1,2,3,4,5]" class="bar-dot" [style.--n]="dot"></span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Scroll hint -->
+    <div class="scroll-hint reveal" style="--d:1.1s">
+      <span class="scroll-line"></span>
+      <span class="scroll-label">scroll</span>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ MARQUEE ══════════════════════════════ -->
+  <div class="marquee-strip">
+    <div class="marquee-track">
+      <span *ngFor="let item of marqueeItems" class="marquee-item">
+        <span class="marquee-dot">◆</span>{{item}}
+      </span>
+      <!-- duplicate for seamless loop -->
+      <span *ngFor="let item of marqueeItems" class="marquee-item" aria-hidden="true">
+        <span class="marquee-dot">◆</span>{{item}}
+      </span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ STATS ════════════════════════════════ -->
+  <section class="stats-section" #statsSection>
+    <div class="container">
+      <div class="stats-grid">
+        <div *ngFor="let s of stats; let i = index"
+             class="stat-item animate-on-scroll"
+             [style.--i]="i">
+          <div class="stat-value">
+            <span class="stat-num">{{s.value}}</span>
+            <span class="stat-sfx">{{s.suffix}}</span>
+          </div>
+          <div class="stat-lbl">{{s.label}}</div>
+          <div class="stat-bar">
+            <div class="stat-bar-fill" [style.width]="s.pct + '%'"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ FEATURES ═════════════════════════════ -->
+  <section class="features-section">
+    <div class="container">
+
+      <header class="section-header animate-on-scroll">
+        <div class="header-tag">Features</div>
+        <h2 class="section-title">The full stack of engagement</h2>
+        <p class="section-sub">
+          Every primitive you need — zero infrastructure headache.
+        </p>
+      </header>
+
+      <div class="features-bento">
+        <div *ngFor="let f of features; let i = index"
+             class="bento-card animate-on-scroll"
+             [class]="'bento-card--' + f.size"
+             [style.--i]="i"
+             [style.--clr]="f.color"
+             (mousemove)="onCardTilt($event, $any($event.currentTarget))"
+             (mouseleave)="resetTilt($any($event.currentTarget))">
+          <div class="bento-card__glow"></div>
+          <div class="bento-card__inner">
+            <div class="bento-icon">{{f.icon}}</div>
+            <div class="bento-tag">{{f.tag}}</div>
+            <h3 class="bento-title">{{f.title}}</h3>
+            <p class="bento-desc">{{f.desc}}</p>
+          </div>
+          <div class="bento-card__corner"></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ HOW IT WORKS ═════════════════════════ -->
+  <section class="steps-section">
+    <div class="container">
+
+      <header class="section-header animate-on-scroll">
+        <div class="header-tag">How it works</div>
+        <h2 class="section-title">Zero to gamified in minutes</h2>
+      </header>
+
+      <div class="steps-track">
+        <div class="steps-connector">
+          <div class="connector-line"></div>
+          <div class="connector-glow"></div>
+        </div>
+
+        <div *ngFor="let s of steps; let i = index"
+             class="step animate-on-scroll"
+             [style.--i]="i">
+          <div class="step__node">
+            <span class="step__num">{{s.step}}</span>
+          </div>
+          <div class="step__body">
+            <h3 class="step__title">{{s.title}}</h3>
+            <p class="step__desc">{{s.desc}}</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ TESTIMONIAL ══════════════════════════ -->
+  <section class="quote-section animate-on-scroll">
+    <div class="container">
+      <div class="quote-card">
+        <div class="quote-mark">"</div>
+        <blockquote class="quote-text">
+          We added Gamify on a Tuesday. By Friday our DAU was up 34%.
+          It took one engineer, half a day.
+        </blockquote>
+        <div class="quote-author">
+          <div class="author-avatar">JL</div>
+          <div>
+            <div class="author-name">Jamie Liu</div>
+            <div class="author-role">CTO @ Stackwave</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════ CTA ══════════════════════════════════ -->
+  <section class="cta-section animate-on-scroll">
+    <div class="container">
+      <div class="cta-card">
+        <div class="cta-card__grid"></div>
+        <div class="cta-card__orb"></div>
+        <div class="cta-card__content">
+          <h2 class="cta-title">
+            Your users deserve<br>
+            <span class="cta-title--glow">to feel rewarded.</span>
+          </h2>
+          <p class="cta-sub">
+            Free forever for indie projects. Scales to millions.
+          </p>
+          <div class="cta-actions">
+            <a routerLink="/register" class="btn-primary btn-primary--lg">
+              <span class="btn-text">Get started — it's free</span>
+              <span class="btn-icon">
+                <svg viewBox="0 0 20 20" fill="none">
+                  <path d="M4 10h12M12 6l4 4-4 4" stroke="currentColor"
+                        stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span class="btn-shine"></span>
+            </a>
+            <a routerLink="/contact" class="btn-ghost">Talk to us</a>
+          </div>
+          <p class="cta-note">No credit card · Cancel anytime · GDPR compliant</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>

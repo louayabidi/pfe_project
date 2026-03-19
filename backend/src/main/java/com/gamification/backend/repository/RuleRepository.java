@@ -11,4 +11,5 @@ public interface RuleRepository extends JpaRepository<Rule, Long> {
     List<Rule> findByAppId(Long appId);
     List<Rule> findByAppIdAndActiveTrue(Long appId);
     List<Rule> findByAppIdAndTriggerEventAndActiveTrue(Long appId, String triggerEvent);
+    void deleteByAppId(Long appId);
 }
