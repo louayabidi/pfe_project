@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RuleService, CreateRuleRequest } from '../../../../services/rule.service';
@@ -14,7 +14,8 @@ export class CreateRuleComponent implements OnInit {
   availableEvents = signal<string[]>([]);
   loading         = signal(false);
   error           = signal<string | null>(null);
-  appId!: number;  // public pour le template (queryParams back-btn)
+  dropdownOpen    = signal(false);
+  appId!: number;
 
   readonly pointsPresets = [10, 25, 50, 100, 250, 500];
 
@@ -59,6 +60,26 @@ export class CreateRuleComponent implements OnInit {
 
   get isPoints(): boolean {
     return this.form.get('actionType')?.value === 'POINTS';
+  }
+
+  // ── CUSTOM SELECT METHODS ──────────────────────────────────────────────
+  toggleDropdown(): void {
+    this.dropdownOpen.update(v => !v);
+  }
+
+  selectEvent(event: string): void {
+    this.form.get('triggerEvent')?.setValue(event);
+    this.form.get('triggerEvent')?.markAsTouched();
+    this.dropdownOpen.set(false);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    const isClickInsideDropdown = target.closest('.custom-select');
+    if (!isClickInsideDropdown) {
+      this.dropdownOpen.set(false);
+    }
   }
 
   submit(): void {

@@ -1,0 +1,337 @@
+<div class="events-page">
+
+  <!-- ── HEADER ── -->
+  <div class="page-header">
+    <div class="header-left">
+      <div class="title-row">
+        <div class="page-icon">⚡</div>
+        <h1 class="page-title">Événements</h1>
+      </div>
+      <p class="page-sub">
+        Historique complet des events trackés par le SDK
+        <span class="sub-badge" *ngIf="!loading() && selectedAppId()">
+          {{ totalElements() | number }} events
+        </span>
+      </p>
+    </div>
+
+    <!-- App selector dropdown — visible seulement si plusieurs apps et une app sélectionnée -->
+    <div class="app-selector-wrap" *ngIf="apps().length > 1 && selectedAppId()">
+      <label class="selector-label">Application</label>
+      <select class="app-select"
+              [value]="selectedAppId()"
+              (change)="onAppChange($event)">
+        <option *ngFor="let app of apps()" [value]="app.id">
+          {{ app.name }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <!-- ── INFO CHIPS — visible quand une app est sélectionnée ── -->
+  <div class="app-info-bar" *ngIf="selectedAppId() && !loading()">
+    <span class="info-chip">
+      <span class="chip-dot chip-dot--purple"></span>
+      {{ eventNames().length }} types d'events
+    </span>
+    <span class="info-chip">
+      <span class="chip-dot chip-dot--blue"></span>
+      {{ users().length }} utilisateurs
+    </span>
+    <span class="info-chip">
+      <span class="chip-dot chip-dot--green"></span>
+      {{ totalElements() | number }} events total
+    </span>
+  </div>
+
+  <!-- ── CHOOSE APP STATE — plusieurs apps, aucune sélectionnée ── -->
+  <div class="choose-state"
+       *ngIf="!loading() && apps().length > 1 && !selectedAppId()">
+    <span class="choose-icon">📱</span>
+    <h3 class="choose-title">Choisissez une application</h3>
+    <p class="choose-sub">
+      Sélectionnez une application pour voir ses événements
+    </p>
+    <div class="choose-apps">
+      <button
+        *ngFor="let app of apps()"
+        class="choose-app-btn"
+        (click)="selectApp(app.id)">
+        <span class="choose-app-icon">🎯</span>
+        <span class="choose-app-name">{{ app.name }}</span>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M5 3l4 4-4 4" stroke="currentColor"
+                stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── ERROR ── -->
+  <div class="error-bar" *ngIf="error()">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <circle cx="8" cy="8" r="6" stroke="#F87171" stroke-width="1.5"/>
+      <path d="M8 5v4M8 11v.5" stroke="#F87171"
+            stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    {{ error() }}
+  </div>
+
+  <!-- Le reste seulement si une app est sélectionnée -->
+  <ng-container *ngIf="selectedAppId()">
+
+    <!-- ── FILTERS ── -->
+    <form [formGroup]="filterForm" class="filters-bar">
+
+      <div class="filter-group">
+        <label class="filter-label">Utilisateur</label>
+        <select class="filter-select" formControlName="userId">
+          <option value="">Tous les utilisateurs</option>
+          <option *ngFor="let u of users()" [value]="u">{{ u }}</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Type d'event</label>
+        <select class="filter-select" formControlName="eventName">
+          <option value="">Tous les types</option>
+          <option *ngFor="let n of eventNames()" [value]="n">{{ n }}</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Date début</label>
+        <input type="date" class="filter-input" formControlName="dateFrom">
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Date fin</label>
+        <input type="date" class="filter-input" formControlName="dateTo">
+      </div>
+
+      <button type="button" class="btn-reset"
+              *ngIf="hasActiveFilters()"
+              (click)="resetFilters()">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M2 2l8 8M10 2l-8 8" stroke="currentColor"
+                stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Réinitialiser
+      </button>
+
+    </form>
+
+    <!-- ── ACTIVE FILTER CHIPS ── -->
+    <div class="active-filters" *ngIf="hasActiveFilters()">
+      <span class="filter-chip" *ngIf="filterForm.value.userId">
+        👤 {{ filterForm.value.userId }}
+      </span>
+      <span class="filter-chip" *ngIf="filterForm.value.eventName">
+        ⚡ {{ filterForm.value.eventName }}
+      </span>
+      <span class="filter-chip" *ngIf="filterForm.value.dateFrom">
+        📅 Du {{ filterForm.value.dateFrom }}
+      </span>
+      <span class="filter-chip" *ngIf="filterForm.value.dateTo">
+        📅 Au {{ filterForm.value.dateTo }}
+      </span>
+    </div>
+
+    <!-- ── LOADING ── -->
+    <div class="loading-wrap" *ngIf="loading()">
+      <div class="loading-bar"><div class="loading-fill"></div></div>
+      <span class="loading-text">Chargement des événements...</span>
+    </div>
+
+    <!-- ── EMPTY ── -->
+    <div class="empty-state"
+         *ngIf="!loading() && events().length === 0">
+      <span class="empty-icon">⚡</span>
+      <h3 class="empty-title">Aucun événement</h3>
+      <p class="empty-sub" *ngIf="!hasActiveFilters()">
+        Les events apparaîtront ici dès que le SDK trackera des actions
+      </p>
+      <p class="empty-sub" *ngIf="hasActiveFilters()">
+        Aucun événement ne correspond aux filtres sélectionnés
+      </p>
+      <button class="btn-clear" *ngIf="hasActiveFilters()"
+              (click)="resetFilters()">
+        Effacer les filtres
+      </button>
+    </div>
+
+    <!-- ── TABLE ── -->
+    <div class="table-wrap"
+         *ngIf="!loading() && events().length > 0">
+
+      <div class="table-header">
+        <span class="table-count">
+          {{ events().length }} résultat{{ events().length > 1 ? 's' : '' }}
+          sur {{ totalElements() | number }}
+        </span>
+        <span class="table-page-size">
+          Page {{ currentPage() + 1 }} / {{ totalPages() }}
+        </span>
+      </div>
+
+      <table class="events-table">
+        <thead>
+          <tr>
+            <th>Événement</th>
+            <th>Utilisateur</th>
+            <th>Date & Heure</th>
+            <th>Il y a</th>
+            <th>Statut</th>
+            <th>Données</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container
+            *ngFor="let event of events();
+                    trackBy: trackById;
+                    let i = index">
+
+            <tr class="event-row"
+                [class.expanded]="expandedId() === event.id"
+                [style.animation-delay]="(i * 30) + 'ms'">
+
+              <td>
+                <span class="event-name-badge">
+                  <span class="event-dot"></span>
+                  {{ event.eventName }}
+                </span>
+              </td>
+
+              <td>
+                <div class="user-cell">
+                  <div class="user-avatar">
+                    {{ event.userId.charAt(0).toUpperCase() }}
+                  </div>
+                  <span class="user-id" [title]="event.userId">
+                    {{ event.userId }}
+                  </span>
+                </div>
+              </td>
+
+              <td>
+                <span class="date-cell">
+                  {{ formatDate(event.createdAt) }}
+                </span>
+              </td>
+
+              <td>
+                <span class="relative-date">
+                  {{ formatRelative(event.createdAt) }}
+                </span>
+              </td>
+
+              <td>
+                <span class="status-badge"
+                      [class.processed]="event.processed">
+                  <span class="status-dot"></span>
+                  {{ event.processed ? 'Traité' : 'En attente' }}
+                </span>
+              </td>
+
+              <td>
+                <button class="expand-btn"
+                        *ngIf="event.eventData &&
+                               objectKeys(event.eventData).length > 0"
+                        (click)="toggleExpand(event.id)"
+                        [class.open]="expandedId() === event.id">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M3 5l4 4 4-4" stroke="currentColor"
+                          stroke-width="1.5" stroke-linecap="round"
+                          stroke-linejoin="round"/>
+                  </svg>
+                  {{ expandedId() === event.id ? 'Masquer' : 'Voir' }}
+                </button>
+                <span class="no-data"
+                      *ngIf="!event.eventData ||
+                             objectKeys(event.eventData).length === 0">
+                  —
+                </span>
+              </td>
+
+            </tr>
+
+            <!-- EXPANDED DATA ROW -->
+            <tr class="data-row" *ngIf="expandedId() === event.id">
+              <td colspan="6">
+                <div class="data-panel">
+                  <div class="data-panel-header">
+                    <span class="data-panel-title">
+                      Données de l'événement
+                    </span>
+                    <span class="data-panel-count">
+                      {{ objectKeys(event.eventData!).length }}
+                      propriété{{
+                        objectKeys(event.eventData!).length > 1 ? 's' : ''
+                      }}
+                    </span>
+                  </div>
+                  <div class="data-kv-grid">
+                    <div class="data-kv-pair"
+                         *ngFor="let key of objectKeys(event.eventData!)">
+                      <span class="data-key">{{ key }}</span>
+                      <span class="data-sep">:</span>
+                      <span class="data-val">
+                        {{ event.eventData![key] | json }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+
+          </ng-container>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── PAGINATION ── -->
+    <div class="pagination"
+         *ngIf="!loading() && totalPages() > 1">
+
+      <button class="page-btn nav-btn"
+              [disabled]="currentPage() === 0"
+              (click)="goToPage(0)">
+        «
+      </button>
+
+      <button class="page-btn nav-btn"
+              [disabled]="currentPage() === 0"
+              (click)="goToPage(currentPage() - 1)">
+        ‹
+      </button>
+
+      <button *ngFor="let p of pageNumbers()"
+              class="page-btn"
+              [class.active]="p === currentPage()"
+              (click)="goToPage(p)">
+        {{ p + 1 }}
+      </button>
+
+      <button class="page-btn nav-btn"
+              [disabled]="currentPage() >= totalPages() - 1"
+              (click)="goToPage(currentPage() + 1)">
+        ›
+      </button>
+
+      <button class="page-btn nav-btn"
+              [disabled]="currentPage() >= totalPages() - 1"
+              (click)="goToPage(totalPages() - 1)">
+        »
+      </button>
+
+      <span class="page-info">
+        {{ (currentPage() * pageSize) + 1 }}–{{
+          min((currentPage() + 1) * pageSize, totalElements())
+        }} sur {{ totalElements() | number }}
+      </span>
+
+    </div>
+
+  </ng-container>
+
+</div>

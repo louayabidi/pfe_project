@@ -10,7 +10,9 @@ import { OverviewComponent } from './pages/overview/overview.component';
 import { AppsComponent } from './pages/apps/apps.component';
 import { CreateAppComponent } from './pages/create-app/create-app.component';
 import { AppCardComponent } from './pages/apps/app-card/app-card.component';
-
+import { RuleCardComponent } from './pages/rules/rule-card/rule-card.component';
+import { EventsComponent } from './pages/events/events.component';
+import { DecimalPipe } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -20,9 +22,10 @@ import { AppCardComponent } from './pages/apps/app-card/app-card.component';
     OverviewComponent,
     AppsComponent,
     AppCardComponent, 
-   
+    EventsComponent,
+  
      
-    CreateAppComponent,
+    CreateAppComponent, RuleCardComponent, EventsComponent,
     
   ],
   imports: [
@@ -30,6 +33,11 @@ import { AppCardComponent } from './pages/apps/app-card/app-card.component';
     ReactiveFormsModule,
     RouterModule,
     DashboardRoutingModule
-  ]
+  ],
+
+
+  providers: [DecimalPipe]
+
+  
 })
 export class DashboardModule {}

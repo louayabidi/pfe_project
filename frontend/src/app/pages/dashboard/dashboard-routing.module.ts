@@ -6,6 +6,7 @@ import { CreateRuleComponent } from './pages/create-rule/create-rule.component';
 import { OverviewComponent } from './pages/overview/overview.component';
 import { AppsComponent } from './pages/apps/apps.component';
 import { CreateAppComponent } from './pages/create-app/create-app.component';
+import { EventsComponent } from './pages/events/events.component';
 
 const routes: Routes = [
   {
@@ -18,6 +19,7 @@ const routes: Routes = [
       { path: 'rules',       component: RulesComponent },
       { path: 'rules/new',   component: CreateRuleComponent },
       { path: 'overview',    component: OverviewComponent },
+      {path : 'events',       component: EventsComponent },
     ]
   }
 ];

@@ -1,30 +1,257 @@
 <div class="dashboard-layout">
-  <aside class="sidebar">
-    <div class="sidebar-logo">🎮 Dashboard</div>
+
+  <!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+  <aside class="sidebar" [class.collapsed]="collapsed">
+
+    <!-- Logo -->
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M2 17l10 5 10-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 12l10 5 10-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span class="brand-name">Gamify</span>
+      </div>
+      <button class="collapse-btn" (click)="toggleCollapse()" [attr.aria-label]="collapsed ? 'Expand sidebar' : 'Collapse sidebar'">
+        <svg viewBox="0 0 24 24" fill="none" [class.rotated]="collapsed">
+          <path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- App selector -->
+    <div class="app-selector">
+      <div class="app-selector__inner">
+        <div class="app-dot"></div>
+        <span class="app-name">My App</span>
+        <svg class="app-chevron" viewBox="0 0 16 16" fill="none">
+          <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Nav -->
     <nav class="sidebar-nav">
 
-      <a routerLink="/dashboard/apps"
-         routerLinkActive="active"
-         class="nav-item">
-        📱 Applications
-      </a>
+      <!-- Group: Main -->
+      <div class="nav-group">
+        <span class="nav-group-label">Main</span>
 
-      <a routerLink="/dashboard/rules"
-         routerLinkActive="active"
-         class="nav-item">
-        📋 Règles
-      </a>
+        <a routerLink="/home"
+           routerLinkActive="active"
+           class="nav-item"
+           [routerLinkActiveOptions]="{ exact: true }"
+           [attr.data-tooltip]="collapsed ? 'Home' : null">
+          <span class="nav-icon">
+            <!-- Home -->
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M3 12L12 3l9 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M9 21V12h6v9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M3 12v9h18V12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="nav-label">Home</span>
+          <span class="nav-active-bar"></span>
+        </a>
 
-      <a routerLink="/dashboard/overview"
-         routerLinkActive="active"
-         class="nav-item">
-        📊 Overview
-      </a>
+        <a routerLink="/dashboard/overview"
+           routerLinkActive="active"
+           class="nav-item"
+           [attr.data-tooltip]="collapsed ? 'Overview' : null">
+          <span class="nav-icon">
+            <!-- Grid / Overview -->
+            <svg viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+              <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+              <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+              <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+          </span>
+          <span class="nav-label">Overview</span>
+          <span class="nav-active-bar"></span>
+        </a>
+
+      </div>
+
+      <!-- Group: Engage -->
+      <div class="nav-group">
+        <span class="nav-group-label">Engage</span>
+
+        <a routerLink="/dashboard/apps"
+           routerLinkActive="active"
+           class="nav-item"
+           [attr.data-tooltip]="collapsed ? 'Applications' : null">
+          <span class="nav-icon">
+            <!-- Layers / Apps -->
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+              <path d="M2 12l10 5 10-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 17l10 5 10-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="nav-label">Applications</span>
+          <span class="nav-badge">3</span>
+          <span class="nav-active-bar"></span>
+        </a>
+
+        <a routerLink="/dashboard/rules"
+           routerLinkActive="active"
+           class="nav-item"
+           [attr.data-tooltip]="collapsed ? 'Rules' : null">
+          <span class="nav-icon">
+            <!-- Zap / Rules -->
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M13 2L4.09 12.64A1 1 0 005 14h6l-1 8 8.91-10.64A1 1 0 0018 10h-6l1-8z"
+                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="nav-label">Règles</span>
+          <span class="nav-active-bar"></span>
+        </a>
+
+        <a routerLink="/dashboard/badges"
+           routerLinkActive="active"
+           class="nav-item"
+           [attr.data-tooltip]="collapsed ? 'Badges' : null">
+          <span class="nav-icon">
+            <!-- Award / Badges -->
+            <svg viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="8" r="5" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M7.21 13.89L5 22l7-3 7 3-2.21-8.11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="nav-label">Badges</span>
+          <span class="nav-active-bar"></span>
+        </a>
+
+        <a routerLink="/dashboard/leaderboard"
+           routerLinkActive="active"
+           class="nav-item"
+           [attr.data-tooltip]="collapsed ? 'Leaderboard' : null">
+          <span class="nav-icon">
+            <!-- Bar chart -->
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M18 20V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M12 20V4"  stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M6 20v-6"  stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="nav-label">Leaderboard</span>
+          <span class="nav-active-bar"></span>
+        </a>
+
+      </div>
+
+      <!-- Group: Insights -->
+      <div class="nav-group">
+        <span class="nav-group-label">Insights</span>
+
+        <a routerLink="/dashboard/analytics"
+           routerLinkActive="active"
+           class="nav-item"
+           [attr.data-tooltip]="collapsed ? 'Analytics' : null">
+          <span class="nav-icon">
+            <!-- Trend up -->
+            <svg viewBox="0 0 24 24" fill="none">
+              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <polyline points="16 7 22 7 22 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="nav-label">Analytics</span>
+          <span class="nav-live-dot" title="Live"></span>
+          <span class="nav-active-bar"></span>
+        </a>
+
+        <a routerLink="/dashboard/events"
+           routerLinkActive="active"
+           class="nav-item"
+           [attr.data-tooltip]="collapsed ? 'Events' : null">
+          <span class="nav-icon">
+            <!-- Activity -->
+            <svg viewBox="0 0 24 24" fill="none">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="nav-label">Events</span>
+          <span class="nav-active-bar"></span>
+        </a>
+
+      </div>
+
+      <!-- Group: Config -->
+      <div class="nav-group">
+        <span class="nav-group-label">Config</span>
+
+        <a routerLink="/dashboard/settings"
+           routerLinkActive="active"
+           class="nav-item"
+           [attr.data-tooltip]="collapsed ? 'Settings' : null">
+          <span class="nav-icon">
+            <!-- Settings -->
+            <svg viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"
+                    stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+          </span>
+          <span class="nav-label">Settings</span>
+          <span class="nav-active-bar"></span>
+        </a>
+
+        <a routerLink="/dashboard/docs"
+           routerLinkActive="active"
+           class="nav-item"
+           [attr.data-tooltip]="collapsed ? 'Docs' : null">
+          <span class="nav-icon">
+            <!-- Book -->
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M4 19.5A2.5 2.5 0 016.5 17H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="nav-label">Docs</span>
+          <span class="nav-active-bar"></span>
+        </a>
+
+      </div>
 
     </nav>
+
+    <!-- SDK Status -->
+    <div class="sdk-status" [attr.data-tooltip]="collapsed ? 'SDK Connected' : null">
+      <span class="sdk-dot sdk-dot--ok"></span>
+      <span class="sdk-text">
+        <span class="sdk-label">SDK Status</span>
+        <span class="sdk-value">Connected</span>
+      </span>
+    </div>
+
+    <!-- User -->
+    <div class="sidebar-user">
+      <div class="user-avatar">
+        <span>JL</span>
+      </div>
+      <div class="user-info">
+        <span class="user-name">Jamie Liu</span>
+        <span class="user-role">Admin</span>
+      </div>
+      <button class="user-menu-btn" aria-label="User menu">
+        <svg viewBox="0 0 16 16" fill="none">
+          <circle cx="8" cy="3"  r="1.2" fill="currentColor"/>
+          <circle cx="8" cy="8"  r="1.2" fill="currentColor"/>
+          <circle cx="8" cy="13" r="1.2" fill="currentColor"/>
+        </svg>
+      </button>
+    </div>
+
   </aside>
 
+  <!-- ═══════════════════ MAIN ═══════════════════ -->
   <main class="dashboard-main">
     <router-outlet></router-outlet>
   </main>
+
 </div>

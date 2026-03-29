@@ -12,6 +12,7 @@ export class RulesComponent implements OnInit {
   loading      = signal(true);
   confirmingId = signal<number | null>(null);
   appId!: number;
+trackById(_: number, rule: Rule): number { return rule.id; }
 
   // Computed : nb de règles actives
   activeCount = computed(() => this.rules().filter(r => r.active).length);

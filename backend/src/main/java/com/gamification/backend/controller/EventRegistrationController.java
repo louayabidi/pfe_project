@@ -1,10 +1,14 @@
 package com.gamification.backend.controller;
 
+import com.gamification.backend.dto.event.EventFilterRequest;
+import com.gamification.backend.dto.event.IncomingEventDTO;
 import com.gamification.backend.dto.event.RegisterEventsRequest;
 import com.gamification.backend.service.AppService;
 import com.gamification.backend.service.EventService;
 import com.gamification.backend.service.JwtService;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;           
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -46,4 +50,40 @@ private String extractEmail(String token) {
     }
     throw new RuntimeException("Token invalide");
 }
+
+
+@GetMapping("/incoming")
+public ResponseEntity<Page<IncomingEventDTO>> getIncomingEvents(
+        @RequestHeader("Authorization") String token,
+        @RequestParam Long appId,
+        @ModelAttribute EventFilterRequest filter) {
+
+    String email = extractEmail(token);
+    appService.verifyOwnership(email, appId);
+    filter.setPage(Math.max(0, filter.getPage()));
+    filter.setSize(Math.min(100, Math.max(1, filter.getSize())));
+
+    return ResponseEntity.ok(eventService.getIncomingEvents(appId, filter));
+}
+
+@GetMapping("/incoming/users")
+public ResponseEntity<List<String>> getDistinctUsers(
+        @RequestHeader("Authorization") String token,
+        @RequestParam Long appId) {
+
+    String email = extractEmail(token);
+    appService.verifyOwnership(email, appId);
+    return ResponseEntity.ok(eventService.getDistinctUsers(appId));
+}
+
+@GetMapping("/incoming/event-names")
+public ResponseEntity<List<String>> getDistinctEventNames(
+        @RequestHeader("Authorization") String token,
+        @RequestParam Long appId) {
+
+    String email = extractEmail(token);
+    appService.verifyOwnership(email, appId);
+    return ResponseEntity.ok(eventService.getDistinctEventNames(appId));
+}
+
 }

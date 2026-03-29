@@ -146,7 +146,7 @@ public void deleteApp(Long appId) {
     pointsTransactionRepository.deleteByAppId(appId);
     pointsRepository.deleteByAppId(appId);
     incomingEventRepository.deleteByAppId(appId);
-    registeredEventRepository.deleteByAppId(appId); // ← ajouté
+    registeredEventRepository.deleteByAppId(appId); 
     ruleRepository.deleteByAppId(appId);
     appRepository.delete(app);
     

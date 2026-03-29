@@ -1,4 +1,4 @@
-<ng-container *ngIf="showShell; else noShell">
+<ng-container *ngIf="showShell && !isDashboard; else noShell">
   <div class="app-container">
     <app-header></app-header>
     <main>

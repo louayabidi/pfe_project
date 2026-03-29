@@ -1,57 +1,559 @@
+// ─────────────────────────────────────────────────────────────────────────────
+//  GAMIFY — Dashboard Shell & Sidebar
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── Tokens (match home page palette) ─────────────────────────────────────────
+$bg:        #06050f;
+$bg2:       #0d0b1a;
+$bg3:       #131120;
+$surface:   rgba(255, 255, 255, 0.04);
+$border:    rgba(255, 255, 255, 0.06);
+$border2:   rgba(255, 255, 255, 0.1);
+$violet:    #7B5CFA;
+$violet-dim: rgba(123, 92, 250, 0.12);
+$rose:      #F5476A;
+$green:     #34E89E;
+$muted:     rgba(255, 255, 255, 0.38);
+$text:      rgba(255, 255, 255, 0.82);
+
+// Sidebar dimensions
+$sidebar-w:          240px;
+$sidebar-w-collapsed: 64px;
+$transition:         0.28s cubic-bezier(0.4, 0, 0.2, 1);
+
+$ff-display: 'Bricolage Grotesque', sans-serif;
+$ff-body:    'DM Sans', sans-serif;
+$ff-mono:    'DM Mono', monospace;
+
+// ── Layout ────────────────────────────────────────────────────────────────────
 .dashboard-layout {
   display: flex;
   min-height: 100vh;
+  background: $bg;
 }
 
+// ═══════════════════════════════════════════════════════════════════════════════
+//  SIDEBAR
+// ═══════════════════════════════════════════════════════════════════════════════
 .sidebar {
-  width: 240px;
-  background: #1a1a2e;
-  padding: 24px 16px;
+  width: $sidebar-w;
+  min-height: 100vh;
+  background: $bg2;
+  border-right: 1px solid $border;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  border-right: 1px solid #2d2d4a;
+  padding: 0;
+  position: sticky;
+  top: 0;
+  overflow: hidden;
+  transition: width $transition;
+  flex-shrink: 0;
+  z-index: 100;
+
+  // Subtle inner glow on left edge
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 1px; height: 100%;
+    background: linear-gradient(180deg,
+      transparent 0%,
+      rgba($violet, 0.3) 30%,
+      rgba($violet, 0.15) 70%,
+      transparent 100%
+    );
+    pointer-events: none;
+  }
+
+  &.collapsed {
+    width: $sidebar-w-collapsed;
+
+    .brand-name,
+    .nav-label,
+    .nav-badge,
+    .nav-live-dot,
+    .nav-group-label,
+    .app-name,
+    .app-chevron,
+    .sdk-text,
+    .user-info,
+    .user-menu-btn { opacity: 0; pointer-events: none; }
+
+    .app-selector__inner { padding: 0 12px; justify-content: center; }
+    .app-dot             { margin: 0; }
+    .collapse-btn svg    { transform: rotate(180deg); }
+    .sdk-status          { padding: 12px; justify-content: center; }
+    .sdk-dot             { margin: 0; }
+    .sidebar-user        { padding: 12px; gap: 0; justify-content: center; }
+    .user-avatar         { margin: 0; }
+
+    // Show tooltips when collapsed
+    .nav-item,
+    .sdk-status { position: relative; }
+  }
 }
 
-.sidebar-logo {
-  font-size: 18px;
-  font-weight: 700;
-  color: #a855f7;
-  padding: 0 12px 24px;
-  border-bottom: 1px solid #2d2d4a;
-  margin-bottom: 8px;
-}
-
-.sidebar-nav {
+// ── Header ────────────────────────────────────────────────────────────────────
+.sidebar-header {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 16px 16px;
+  border-bottom: 1px solid $border;
+  flex-shrink: 0;
 }
 
-.nav-item {
-  padding: 10px 12px;
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.brand-icon {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, $violet, darken($violet, 15%));
   border-radius: 8px;
-  color: #9ca3af;
-  text-decoration: none;
-  font-size: 14px;
-  transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 16px rgba($violet, 0.35);
+
+  svg {
+    width: 16px; height: 16px;
+    color: #fff;
+  }
+}
+
+.brand-name {
+  font-family: $ff-display;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.4px;
+  white-space: nowrap;
+  transition: opacity $transition;
+}
+
+.collapse-btn {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent;
+  border: 1px solid $border;
+  border-radius: 6px;
+  color: $muted;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+
+  svg {
+    width: 14px; height: 14px;
+    transition: transform $transition;
+  }
 
   &:hover {
-    background: #252540;
-    color: #e0e0e0;
+    background: $surface;
+    color: $text;
+    border-color: $border2;
+  }
+}
+
+// ── App selector ──────────────────────────────────────────────────────────────
+.app-selector {
+  padding: 12px;
+  border-bottom: 1px solid $border;
+  flex-shrink: 0;
+}
+
+.app-selector__inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  overflow: hidden;
+
+  &:hover {
+    border-color: rgba($violet, 0.3);
+    background: rgba($violet, 0.06);
+  }
+}
+
+.app-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: $green;
+  box-shadow: 0 0 6px rgba($green, 0.6);
+  flex-shrink: 0;
+  animation: dotPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes dotPulse {
+  0%, 100% { box-shadow: 0 0 4px rgba($green, 0.5); }
+  50%       { box-shadow: 0 0 10px rgba($green, 0.8); }
+}
+
+.app-name {
+  font-family: $ff-body;
+  font-size: 12px;
+  font-weight: 500;
+  color: $text;
+  flex: 1;
+  white-space: nowrap;
+  transition: opacity $transition;
+}
+
+.app-chevron {
+  width: 14px; height: 14px;
+  color: $muted;
+  flex-shrink: 0;
+  transition: opacity $transition;
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+.sidebar-nav {
+  flex: 1;
+  padding: 8px;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  // Thin custom scrollbar
+  &::-webkit-scrollbar       { width: 3px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: $border; border-radius: 2px; }
+}
+
+// Group
+.nav-group {
+  margin-bottom: 4px;
+
+  &:not(:first-child) { margin-top: 8px; }
+}
+
+.nav-group-label {
+  display: block;
+  padding: 6px 8px 4px;
+  font-family: $ff-mono;
+  font-size: 0.62rem;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.2);
+  white-space: nowrap;
+  transition: opacity $transition;
+}
+
+// Nav item
+.nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 8px;
+  border-radius: 8px;
+  color: $muted;
+  text-decoration: none;
+  font-family: $ff-body;
+  font-size: 13px;
+  font-weight: 400;
+  white-space: nowrap;
+  transition: background 0.18s ease, color 0.18s ease;
+  cursor: pointer;
+  overflow: hidden; // clip active bar
+
+  // Tooltip when collapsed
+  &[data-tooltip] {
+    &::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      left: calc(100% + 12px);
+      top: 50%;
+      transform: translateY(-50%);
+      background: $bg3;
+      border: 1px solid $border2;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-family: $ff-body;
+      font-size: 12px;
+      color: $text;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      z-index: 200;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+
+    &:hover::after { opacity: 1; }
+  }
+
+  &:hover {
+    background: $surface;
+    color: $text;
   }
 
   &.active {
-    background: #2d1f4a;
-    color: #a855f7;
-    font-weight: 600;
+    background: $violet-dim;
+    color: #fff;
+    font-weight: 500;
+
+    .nav-icon svg { color: $violet; }
+
+    // Glowing left bar
+    .nav-active-bar {
+      opacity: 1;
+      transform: scaleY(1);
+    }
   }
 }
 
+// Icon
+.nav-icon {
+  width: 18px; height: 18px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+
+  svg {
+    width: 16px; height: 16px;
+    color: currentColor;
+    transition: color 0.18s;
+  }
+}
+
+// Label
+.nav-label {
+  flex: 1;
+  transition: opacity $transition;
+}
+
+// Active left bar
+.nav-active-bar {
+  position: absolute;
+  left: 0; top: 6px; bottom: 6px;
+  width: 2.5px;
+  background: linear-gradient(180deg, $violet, rgba($violet, 0.4));
+  border-radius: 0 2px 2px 0;
+  opacity: 0;
+  transform: scaleY(0);
+  transform-origin: center;
+  transition: opacity 0.2s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 0 8px rgba($violet, 0.6);
+}
+
+// Badge (notification count)
+.nav-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px; height: 18px;
+  padding: 0 5px;
+  background: rgba($violet, 0.2);
+  border: 1px solid rgba($violet, 0.3);
+  border-radius: 20px;
+  font-family: $ff-mono;
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: rgba($violet, 0.9);
+  transition: opacity $transition;
+}
+
+// Live indicator dot
+.nav-live-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: $green;
+  box-shadow: 0 0 6px rgba($green, 0.7);
+  animation: dotPulse 2s ease-in-out infinite;
+  transition: opacity $transition;
+}
+
+// ── SDK Status ────────────────────────────────────────────────────────────────
+.sdk-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  margin: 0 8px 8px;
+  background: rgba($green, 0.04);
+  border: 1px solid rgba($green, 0.12);
+  border-radius: 10px;
+  cursor: default;
+  transition: padding $transition;
+  flex-shrink: 0;
+  overflow: hidden;
+
+  // Tooltip when collapsed
+  &[data-tooltip] {
+    position: relative;
+    &::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      left: calc(100% + 12px);
+      top: 50%;
+      transform: translateY(-50%);
+      background: $bg3;
+      border: 1px solid $border2;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-family: $ff-body;
+      font-size: 12px;
+      color: $text;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s;
+      z-index: 200;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+    &:hover::after { opacity: 1; }
+  }
+}
+
+.sdk-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: margin $transition;
+
+  &--ok  { background: $green;  box-shadow: 0 0 8px rgba($green,  0.6); animation: dotPulse 2.5s infinite; }
+  &--err { background: $rose;   box-shadow: 0 0 8px rgba($rose,   0.6); }
+}
+
+.sdk-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow: hidden;
+  transition: opacity $transition;
+}
+
+.sdk-label {
+  font-family: $ff-mono;
+  font-size: 0.62rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  white-space: nowrap;
+}
+
+.sdk-value {
+  font-family: $ff-body;
+  font-size: 11px;
+  font-weight: 500;
+  color: $green;
+  white-space: nowrap;
+}
+
+// ── User ──────────────────────────────────────────────────────────────────────
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-top: 1px solid $border;
+  flex-shrink: 0;
+  overflow: hidden;
+  transition: padding $transition, gap $transition;
+
+  &:hover .user-avatar {
+    box-shadow: 0 0 0 2px rgba($violet, 0.5);
+  }
+}
+
+.user-avatar {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, $violet, $rose);
+  display: flex; align-items: center; justify-content: center;
+  font-family: $ff-mono;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #fff;
+  flex-shrink: 0;
+  transition: box-shadow 0.25s;
+}
+
+.user-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow: hidden;
+  transition: opacity $transition;
+}
+
+.user-name {
+  font-family: $ff-body;
+  font-size: 12px;
+  font-weight: 600;
+  color: $text;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-role {
+  font-family: $ff-mono;
+  font-size: 0.62rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.22);
+  white-space: nowrap;
+}
+
+.user-menu-btn {
+  width: 24px; height: 24px;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent;
+  border: none;
+  color: $muted;
+  cursor: pointer;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: color 0.2s, background 0.2s;
+  transition-property: opacity, color, background;
+
+  svg { width: 14px; height: 14px; }
+
+  &:hover { color: $text; background: $surface; }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  MAIN CONTENT
+// ═══════════════════════════════════════════════════════════════════════════════
 .dashboard-main {
   flex: 1;
-  padding: 32px;
-  background: #0f0f1a;
-  color: #e0e0e0;
+  min-width: 0; // prevent flex overflow
+  background: $bg;
+  color: $text;
   overflow-y: auto;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  RESPONSIVE — mobile overlay sidebar
+// ═══════════════════════════════════════════════════════════════════════════════
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    z-index: 200;
+    transform: translateX(0);
+    width: $sidebar-w-collapsed;
+  }
+
+  .dashboard-main {
+    margin-left: $sidebar-w-collapsed;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  REDUCED MOTION
+// ═══════════════════════════════════════════════════════════════════════════════
+@media (prefers-reduced-motion: reduce) {
+  .sidebar, .nav-item, .nav-active-bar,
+  .collapse-btn svg, .app-dot, .nav-live-dot,
+  .sdk-dot, .brand-name, .nav-label,
+  .user-info { transition: none !important; animation: none !important; }
 }

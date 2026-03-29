@@ -8,7 +8,8 @@ import { filter } from 'rxjs/operators';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  showShell = false;
+  showShell   = false;
+  isDashboard = false;
 
   constructor(private router: Router) {}
 
@@ -16,8 +17,9 @@ export class AppComponent implements OnInit {
     this.router.events.pipe(
       filter(e => e instanceof NavigationEnd)
     ).subscribe((e: any) => {
-      // Hide header/footer on splash screen only
-      this.showShell = !e.urlAfterRedirects.includes('/splash');
+      const url    = e.urlAfterRedirects;
+      this.showShell   = !url.includes('/splash');
+      this.isDashboard =  url.includes('/dashboard');
     });
   }
 }
