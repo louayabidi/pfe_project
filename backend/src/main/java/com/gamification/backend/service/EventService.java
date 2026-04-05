@@ -8,12 +8,13 @@ import com.gamification.backend.model.IncomingEvent;
 import com.gamification.backend.model.RegisteredEvent;
 import com.gamification.backend.repository.AppRepository;
 import com.gamification.backend.repository.IncomingEventRepository;
+import com.gamification.backend.repository.IncomingEventSpecification;
 import com.gamification.backend.repository.RegisteredEventRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;           // ✅ correct
-import org.springframework.data.domain.PageRequest;    // ✅ correct
-import org.springframework.data.domain.Pageable;       // ✅ correct
+import org.springframework.data.domain.Page;           
+import org.springframework.data.domain.PageRequest;    
+import org.springframework.data.domain.Pageable;       
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,20 +31,23 @@ public class EventService {
     private final RegisteredEventRepository registeredEventRepository;
     private final AppRepository appRepository;
 
-    @Transactional
-    public void saveEvent(App app, TrackEventRequest request) {
-        IncomingEvent event = IncomingEvent.builder()
-                .app(app)
-                .userId(request.getUserId())
-                .eventName(request.getEventName())
-                .eventData(request.getData())
-                .processed(false)
-                .build();
+   @Transactional
+public void saveEvent(App app, TrackEventRequest request) {
+    String status = request.resolveStatus(); // ✅ lit depuis data
 
-        incomingEventRepository.save(event);
-        log.info("Événement sauvegardé: {} pour l'utilisateur {}",
-                request.getEventName(), request.getUserId());
-    }
+    IncomingEvent event = IncomingEvent.builder()
+            .app(app)
+            .userId(request.getUserId())
+            .eventName(request.getEventName())
+            .eventData(request.getData())
+            .processed(false)
+            .build();
+
+    incomingEventRepository.save(event);
+
+    log.info("Event sauvegardé: {} | user={} | status={}",
+            request.getEventName(), request.getUserId(), status);
+}
 
     @Transactional
     public void registerEvents(String apiKey, List<String> eventNames) {
@@ -78,31 +82,23 @@ public Page<IncomingEventDTO> getIncomingEvents(Long appId, EventFilterRequest f
     LocalDateTime to = filter.getDateTo() != null
             ? filter.getDateTo().atTime(23, 59, 59) : null;
 
-    Pageable pageable = PageRequest.of(filter.getPage(), filter.getSize());
+    Pageable pageable = PageRequest.of(
+            Math.max(0, filter.getPage()),
+            Math.min(100, Math.max(1, filter.getSize()))
+    );
 
-    boolean hasUserId    = filter.getUserId() != null
-                           && !filter.getUserId().isBlank();
-    boolean hasEventName = filter.getEventName() != null
-                           && !filter.getEventName().isBlank();
-    boolean hasFrom      = from != null;
-    boolean hasTo        = to   != null;
-
-    // Si aucun filtre → requête simple sans paramètres null
-
-    if (!hasUserId && !hasEventName && !hasFrom && !hasTo) {
-        return incomingEventRepository
-            .findByAppIdOrderByCreatedAtDesc(appId, pageable)
+    return incomingEventRepository
+            .findAll(
+                IncomingEventSpecification.build(
+                    appId,
+                    filter.getUserId(),
+                    filter.getEventName(),
+                    from,
+                    to
+                ),
+                pageable
+            )
             .map(this::toDTO);
-    }
-
-    return incomingEventRepository.findWithFilters(
-            appId,
-            hasUserId    ? filter.getUserId()    : null,
-            hasEventName ? filter.getEventName() : null,
-            hasFrom      ? from                  : null,
-            hasTo        ? to                    : null,
-            pageable
-    ).map(this::toDTO);
 }
 
     public List<String> getDistinctUsers(Long appId) {

@@ -7,19 +7,83 @@ import { OverviewComponent } from './pages/overview/overview.component';
 import { AppsComponent } from './pages/apps/apps.component';
 import { CreateAppComponent } from './pages/create-app/create-app.component';
 import { EventsComponent } from './pages/events/events.component';
+import { BadgesComponent } from './pages/badges/badges/badges.component';
+import { CreateBadgeComponent } from './pages/badges/create-badge/create-badge.component';
 
 const routes: Routes = [
   {
     path: '',
     component: DashboardShellComponent,
     children: [
-      { path: '',            redirectTo: 'apps', pathMatch: 'full' },
-      { path: 'apps',        component: AppsComponent },
-      { path: 'apps/new',    component: CreateAppComponent },
-      { path: 'rules',       component: RulesComponent },
-      { path: 'rules/new',   component: CreateRuleComponent },
-      { path: 'overview',    component: OverviewComponent },
-      {path : 'events',       component: EventsComponent },
+      // Default route
+      {
+        path: '',
+        redirectTo: 'apps',
+        pathMatch: 'full'
+      },
+
+      // ── APPS ──────────────────────────────────────────────────────
+      {
+        path: 'apps',
+        component: AppsComponent,
+        data: { title: 'Mes Applications' }
+      },
+      {
+        path: 'apps/new',
+        component: CreateAppComponent,
+        data: { title: 'Nouvelle Application' }
+      },
+
+      // ── RULES ─────────────────────────────────────────────────────
+      // URL: /dashboard/rules?appId=123
+      {
+        path: 'rules',
+        component: RulesComponent,
+        data: { title: 'Règles de Gamification' }
+      },
+      // URL: /dashboard/rules/new?appId=123
+      {
+        path: 'rules/new',
+        component: CreateRuleComponent,
+        data: { title: 'Nouvelle Règle' }
+      },
+
+      // ── BADGES ────────────────────────────────────────────────────
+      // URL: /dashboard/badges?appId=123
+      {
+        path: 'badges',
+        component: BadgesComponent,
+        data: { title: 'Badges' }
+      },
+      // URL: /dashboard/badges/new?appId=123
+      {
+        path: 'badges/new',
+        component: CreateBadgeComponent,
+        data: { title: 'Nouveau Badge' }
+      },
+
+      // ── EVENTS ────────────────────────────────────────────────────
+      // URL: /dashboard/events?appId=123
+      {
+        path: 'events',
+        component: EventsComponent,
+        data: { title: 'Événements' }
+      },
+
+      // ── ANALYTICS ─────────────────────────────────────────────────
+      {
+        path: 'analytics',
+        loadChildren: () =>
+          import('./pages/analytics/analytics.module')
+            .then(m => m.AnalyticsModule)
+      },
+
+      // ── OVERVIEW ──────────────────────────────────────────────────
+      {
+        path: 'overview',
+        component: OverviewComponent,
+        data: { title: 'Vue d\'ensemble' }
+      }
     ]
   }
 ];

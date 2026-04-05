@@ -1,0 +1,24 @@
+<div class="distribution-wrapper">
+  <ng-container *ngIf="items.length > 0; else empty">
+    <div class="items-list">
+      <div
+        class="item"
+        *ngFor="let item of items; let idx = index"
+        [style.animation-delay]="(idx * 50) + 'ms'">
+        <div class="badge-info">
+          <span class="badge-icon">🎖️</span>
+          <div class="badge-details">
+            <span class="badge-name">{{ item.label }}</span>
+            <span class="badge-count">{{ item.value }} awarded</span>
+          </div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="getPercentage(item.value)"></div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+  <ng-template #empty>
+    <div class="empty-state">No badges awarded</div>
+  </ng-template>
+</div>

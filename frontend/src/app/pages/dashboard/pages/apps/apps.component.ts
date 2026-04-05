@@ -1,12 +1,13 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit, signal } from "@angular/core";
 import { Router } from "@angular/router";
 import { AppModel, AppModelService } from "src/app/services/app.service";
+import { AppStateService } from "src/app/services/app-state.service";
 
 @Component({
   selector: 'app-apps',
   templateUrl: './apps.component.html',
   styleUrls: ['./apps.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush 
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppsComponent implements OnInit {
   apps       = signal<AppModel[]>([]);
@@ -17,8 +18,9 @@ export class AppsComponent implements OnInit {
 
   constructor(
     private appService: AppModelService,
-    private router: Router,
-    private cdr: ChangeDetectorRef
+    private appState: AppStateService,  // ✅ ajouté
+    private router: Router
+    // ✅ ChangeDetectorRef supprimé — inutile avec OnPush + signals
   ) {}
 
   ngOnInit(): void { this.loadApps(); }
@@ -29,6 +31,7 @@ export class AppsComponent implements OnInit {
     this.appService.getMyApps().subscribe({
       next: (apps) => {
         this.apps.set(apps);
+        this.appState.initialize().subscribe(); // ✅ sync avec AppStateService
         this.loading.set(false);
       },
       error: () => {
@@ -44,12 +47,19 @@ export class AppsComponent implements OnInit {
     setTimeout(() => this.copiedKey.set(null), 2000);
   }
 
+  // ✅ Sélectionner l'app et naviguer vers ses events
+  selectApp(app: AppModel): void {
+    this.appState.selectApp(app.id);
+    this.router.navigate(['/dashboard/events'], { queryParams: { appId: app.id } });
+  }
+
   deleteApp(app: AppModel): void {
     if (!confirm(`Supprimer "${app.name}" ?`)) return;
     this.deletingId.set(app.id);
     this.appService.deleteApp(app.id).subscribe({
-      next:  () => {
+      next: () => {
         this.apps.update(l => l.filter(a => a.id !== app.id));
+        this.appState.reloadApps().subscribe(); // ✅ sync état global après suppression
         this.deletingId.set(null);
       },
       error: () => {
@@ -60,7 +70,18 @@ export class AppsComponent implements OnInit {
   }
 
   goToRules(appId: number): void {
+    this.appState.selectApp(appId);             // ✅ sélectionner avant de naviguer
     this.router.navigate(['/dashboard/rules'], { queryParams: { appId } });
+  }
+
+  goToBadges(appId: number): void {
+    this.appState.selectApp(appId);
+    this.router.navigate(['/dashboard/badges'], { queryParams: { appId } });
+  }
+
+  goToEvents(appId: number): void {
+    this.appState.selectApp(appId);
+    this.router.navigate(['/dashboard/events'], { queryParams: { appId } });
   }
 
   newApp(): void { this.router.navigate(['/dashboard/apps/new']); }

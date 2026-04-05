@@ -1,0 +1,23 @@
+<div class="retention-wrapper">
+  <ng-container *ngIf="matrix.length > 0; else empty">
+    <div class="retention-table">
+      <div class="table-header">
+        <span class="header-cell">Cohort</span>
+        <span class="header-cell" *ngFor="let week of weekRange">W{{ week }}</span>
+      </div>
+      <div class="table-row" *ngFor="let row of matrix">
+        <span class="cohort-cell">{{ row.cohort }}</span>
+        <div
+          class="rate-cell"
+          *ngFor="let rate of row.rates"
+          [style.background-color]="getRateColor(rate)"
+          [title]="rate.toFixed(1) + '%'">
+          {{ rate > 0 ? (rate | number: '1.0-0') : '-' }}
+        </div>
+      </div>
+    </div>
+  </ng-container>
+  <ng-template #empty>
+    <div class="empty-state">No retention data available</div>
+  </ng-template>
+</div>

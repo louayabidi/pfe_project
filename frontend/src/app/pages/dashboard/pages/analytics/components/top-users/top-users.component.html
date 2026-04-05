@@ -1,0 +1,20 @@
+<div class="list-wrapper">
+  <ng-container *ngIf="items.length > 0; else empty">
+    <div class="items-list">
+      <div
+        class="item"
+        *ngFor="let item of items; let idx = index"
+        [style.animation-delay]="(idx * 50) + 'ms'">
+        <div class="avatar">{{ getInitials(item.label) }}</div>
+        <div class="info">
+          <span class="label">{{ item.label }}</span>
+          <span class="count">{{ item.value }} events</span>
+        </div>
+        <span class="badge">{{ idx + 1 }}</span>
+      </div>
+    </div>
+  </ng-container>
+  <ng-template #empty>
+    <div class="empty-state">No users recorded</div>
+  </ng-template>
+</div>

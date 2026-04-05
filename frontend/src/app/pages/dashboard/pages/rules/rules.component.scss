@@ -584,3 +584,186 @@
   .header-right { width: 100%; justify-content: space-between; }
   .rules-grid { grid-template-columns: 1fr; }
 }
+
+
+// ── HEADER LAYOUT UPDATE ────────────────────────────────────────────────
+.header-body {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+ 
+.header-selectors {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+ 
+// ── APP SELECTOR HEADER ADJUSTMENTS ─────────────────────────────────────
+app-selector {
+  .app-selector-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 200px;
+  }
+ 
+  .selector-label {
+    white-space: nowrap;
+  }
+}
+ 
+// ── RESPONSIVE ADJUSTMENTS ─────────────────────────────────────────────
+@media (max-width: 1024px) {
+  .header-body {
+    flex-direction: column;
+    align-items: stretch;
+  }
+ 
+  .header-selectors {
+    width: 100%;
+    justify-content: space-between;
+  }
+ 
+  app-selector {
+    flex: 1;
+    min-width: 0;
+ 
+    .app-selector-wrapper {
+      width: 100%;
+    }
+  }
+}
+ 
+@media (max-width: 640px) {
+  .header-body {
+    gap: 12px;
+  }
+ 
+  .header-selectors {
+    flex-direction: column;
+    width: 100%;
+  }
+ 
+  app-selector {
+    width: 100%;
+  }
+ 
+  .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+}
+ 
+// ── ERROR & INFO MESSAGES ───────────────────────────────────────────────
+.app-init-error {
+  padding: 16px;
+  margin: 20px;
+  background: rgba(255, 77, 109, 0.1);
+  border: 1px solid rgba(255, 77, 109, 0.3);
+  border-radius: var(--radius-sm);
+  color: var(--danger);
+  font-size: 14px;
+  text-align: center;
+}
+ 
+// ── ANIMATION FOR APP SELECTION ─────────────────────────────────────────
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+ 
+.content,
+.rules-grid,
+.badges-grid {
+  animation: fadeIn 0.3s ease-out;
+}
+ 
+// ── CHOOSE STATE STYLES ─────────────────────────────────────────────────
+.choose-state {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+ 
+.choose-content {
+  text-align: center;
+  max-width: 600px;
+}
+ 
+.choose-icon {
+  font-size: 64px;
+  display: block;
+  margin-bottom: 24px;
+}
+ 
+.choose-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-1);
+  margin: 0 0 12px;
+}
+ 
+.choose-sub {
+  font-size: 15px;
+  color: var(--text-2);
+  margin: 0 0 32px;
+  line-height: 1.6;
+}
+ 
+.choose-apps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+ 
+.choose-app-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-1);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--t);
+  text-align: left;
+ 
+  &:hover {
+    background: var(--surface-3);
+    border-color: var(--border-active);
+    transform: translateX(4px);
+ 
+    svg {
+      color: var(--accent);
+      transform: translateX(2px);
+    }
+  }
+}
+ 
+.choose-app-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+ 
+.choose-app-name {
+  flex: 1;
+}
+ 

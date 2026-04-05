@@ -18,51 +18,53 @@ import java.util.Map;
 @RequestMapping("/api/rules")
 @RequiredArgsConstructor
 public class RuleController {
-    
+
     private final RuleService ruleService;
     private final AppService appService;
     private final JwtService jwtService;
-    
-    private Long getAppIdFromToken(String token) {
+
+    private String extractEmail(String token) {
         if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7);
-            String email = jwtService.extractEmail(token);
-            return appService.getCurrentAppId(email);
+            return jwtService.extractEmail(token.substring(7));
         }
         throw new RuntimeException("Token invalide");
     }
-    
+
     @PostMapping
     public ResponseEntity<RuleResponse> createRule(
             @RequestHeader("Authorization") String token,
+            @RequestParam Long appId,                          // ✅ explicit appId
             @Valid @RequestBody CreateRuleRequest request) {
-        Long appId = getAppIdFromToken(token);
+        appService.verifyOwnership(extractEmail(token), appId);
         return new ResponseEntity<>(ruleService.createRule(appId, request), HttpStatus.CREATED);
     }
-    
+
     @GetMapping
     public ResponseEntity<List<RuleResponse>> getRules(
-            @RequestHeader("Authorization") String token) {
-        Long appId = getAppIdFromToken(token);
+            @RequestHeader("Authorization") String token,
+            @RequestParam Long appId) {                        // ✅ explicit appId
+        appService.verifyOwnership(extractEmail(token), appId);
         return ResponseEntity.ok(ruleService.getRulesByAppId(appId));
     }
-    
+
     @PatchMapping("/{ruleId}/toggle")
     public ResponseEntity<RuleResponse> toggleRule(
             @RequestHeader("Authorization") String token,
+            @RequestParam Long appId,
             @PathVariable Long ruleId,
             @RequestBody Map<String, Boolean> payload) {
+        appService.verifyOwnership(extractEmail(token), appId);
         Boolean active = payload.get("active");
-        if (active == null) {
-            return ResponseEntity.badRequest().build();
-        }
+        if (active == null) return ResponseEntity.badRequest().build();
         return ResponseEntity.ok(ruleService.toggleRule(ruleId, active));
     }
-    
+
     @DeleteMapping("/{ruleId}")
     public ResponseEntity<Void> deleteRule(
             @RequestHeader("Authorization") String token,
+            @RequestParam Long appId,
             @PathVariable Long ruleId) {
+        appService.verifyOwnership(extractEmail(token), appId);
         ruleService.deleteRule(ruleId);
         return ResponseEntity.noContent().build();
     }

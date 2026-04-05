@@ -1,16 +1,14 @@
 import {
-  Component, OnInit, OnDestroy, signal,
-  computed, ChangeDetectionStrategy
+  Component, OnInit, OnDestroy, signal, computed,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  Subject, debounceTime, distinctUntilChanged,
-  takeUntil, catchError, of
-} from 'rxjs';
-import { EventService } from '../../../../services/event.service';
-import { AppModelService, AppModel } from '../../../../services/app.service';
-import { IncomingEvent, EventFilters, EventPage } from '../../../../core/models/event.model';
+import { Subject, debounceTime, distinctUntilChanged, takeUntil, catchError, of } from 'rxjs';
+import { EventService } from 'src/app/services/event.service';
+import { AppStateService } from 'src/app/services/app-state.service';
+import { IncomingEvent, EventFilters, EventPage } from 'src/app/core/models/event.model';
+import { toObservable } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-events',
@@ -19,29 +17,26 @@ import { IncomingEvent, EventFilters, EventPage } from '../../../../core/models/
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EventsComponent implements OnInit, OnDestroy {
-
-  appId!: number;
-  apps          = signal<AppModel[]>([]);
-  selectedAppId = signal<number | null>(null);
-  events        = signal<IncomingEvent[]>([]);
-  loading       = signal(true);
-  error         = signal<string | null>(null);
+  // ── SIGNALS ──────────────────────────────────────────────────────
+  events = signal<IncomingEvent[]>([]);
+  loading = signal(true);
+  error = signal<string | null>(null);
   totalElements = signal(0);
-  totalPages    = signal(0);
-  currentPage   = signal(0);
-  users         = signal<string[]>([]);
-  eventNames    = signal<string[]>([]);
-  expandedId    = signal<number | null>(null);
+  totalPages = signal(0);
+  currentPage = signal(0);
+  users = signal<string[]>([]);
+  eventNames = signal<string[]>([]);
+  expandedId = signal<number | null>(null);
 
+  // ── FORM & CONFIG ────────────────────────────────────────────────
   filterForm!: FormGroup;
-  readonly pageSize   = 20;
+  readonly pageSize = 20;
   readonly objectKeys = Object.keys;
-  readonly min        = Math.min;
+  readonly min = Math.min;
 
-  private readonly destroy$ = new Subject<void>();
-
-  readonly pageNumbers = computed(() => {
-    const total   = this.totalPages();
+  // ── COMPUTED ─────────────────────────────────────────────────────
+  pageNumbers = computed(() => {
+    const total = this.totalPages();
     const current = this.currentPage();
     if (total <= 7) return Array.from({ length: total }, (_, i) => i);
     const pages: number[] = [];
@@ -50,122 +45,113 @@ export class EventsComponent implements OnInit, OnDestroy {
     return pages;
   });
 
+  // ── APP STATE ────────────────────────────────────────────────────
+  readonly selectedAppId = this.appState.currentAppId;
+  readonly apps = this.appState.apps;
+
+  // ── toObservable as field initializer (injection context ✓) ──────
+  private readonly appId$ = toObservable(this.appState.currentAppId);
+
+  // ── PRIVATE ──────────────────────────────────────────────────────
+  private readonly destroy$ = new Subject<void>();
+
   constructor(
-    private readonly route:        ActivatedRoute,
-    private readonly router:       Router,
-    private readonly eventService: EventService,
-    private readonly appService:   AppModelService,
-    private readonly fb:           FormBuilder
+    private eventService: EventService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private fb: FormBuilder,
+    readonly appState: AppStateService
   ) {}
 
   ngOnInit(): void {
-    this.filterForm = this.fb.group({
-      userId:    [''],
-      eventName: [''],
-      dateFrom:  [''],
-      dateTo:    ['']
-    });
+    this.initializeFilterForm();
 
-    this.appService.getMyApps().pipe(
-      takeUntil(this.destroy$),
-      catchError(() => of([]))
-    ).subscribe(apps => {
-      this.apps.set(apps);
+    // Initialize from URL if needed
+    this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => {
+        const urlAppId = params['appId'] ? Number(params['appId']) : null;
+        if (urlAppId && !this.appState.currentAppId()) {
+          this.appState.selectApp(urlAppId);
+        }
+      });
 
-      if (apps.length === 0) {
-        this.loading.set(false);
-        this.error.set('Aucune application trouvée. Créez une application d\'abord.');
-        return;
-      }
+    // ✅ Use pre-built observable instead of calling toObservable() here
+    this.appId$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((appId: number | null) => {
+        if (appId) {
+          this.loadMetadata(appId);
+          this.loadEvents();
+        }
+      });
 
-      this.route.queryParams
-        .pipe(takeUntil(this.destroy$))
-        .subscribe(params => {
-          const paramAppId = Number(params['appId']);
-
-          if (paramAppId && apps.some(a => a.id === paramAppId)) {
-            // appId valide dans l'URL → charger directement
-            this.appId = paramAppId;
-            this.selectedAppId.set(paramAppId);
-            this.loadMeta();
-            this.loadEvents();
-
-          } else if (apps.length === 1) {
-            // Une seule app → charger directement sans demander
-            this.appId = apps[0].id;
-            this.selectedAppId.set(apps[0].id);
-            this.router.navigate([], {
-              relativeTo: this.route,
-              queryParams: { appId: this.appId },
-              replaceUrl: true
-            });
-            this.loadMeta();
-            this.loadEvents();
-
-          } else {
-            // Plusieurs apps → afficher le sélecteur
-            this.loading.set(false);
-            this.selectedAppId.set(null);
-          }
-        });
-    });
-
-    // Debounced filter changes
-    this.filterForm.valueChanges.pipe(
-      debounceTime(400),
-      distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
-      takeUntil(this.destroy$)
-    ).subscribe(() => {
-      if (!this.selectedAppId()) return;
-      this.currentPage.set(0);
-      this.loadEvents();
-    });
+    // React to filter changes with debounce
+    this.filterForm.valueChanges
+      .pipe(
+        debounceTime(400),
+        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(() => {
+        if (!this.appState.currentAppId()) return;
+        this.currentPage.set(0);
+        this.loadEvents();
+      });
   }
 
   selectApp(appId: number): void {
-    this.appId = appId;
-    this.selectedAppId.set(appId);
-    this.currentPage.set(0);
-    this.filterForm.reset({ userId: '', eventName: '', dateFrom: '', dateTo: '' });
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { appId },
-      replaceUrl: true
-    });
-    this.loadMeta();
-    this.loadEvents();
+    this.appState.selectApp(appId);
   }
 
   onAppChange(event: Event): void {
-    const appId = Number((event.target as HTMLSelectElement).value);
-    this.selectApp(appId);
+    const id = Number((event.target as HTMLSelectElement).value);
+    if (id) this.appState.selectApp(id);
   }
 
-  private loadMeta(): void {
-    this.eventService.getDistinctUsers(this.appId)
-      .pipe(takeUntil(this.destroy$), catchError(() => of([])))
-      .subscribe(u => this.users.set(u));
+  private initializeFilterForm(): void {
+    this.filterForm = this.fb.group({
+      userId: [''],
+      eventName: [''],
+      dateFrom: [''],
+      dateTo: ['']
+    });
+  }
 
-    this.eventService.getDistinctEventNames(this.appId)
-      .pipe(takeUntil(this.destroy$), catchError(() => of([])))
-      .subscribe(n => this.eventNames.set(n));
+  private loadMetadata(appId: number): void {
+    this.eventService.getDistinctUsers(appId)
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError(() => of([]))
+      )
+      .subscribe(users => this.users.set(users));
+
+    this.eventService.getDistinctEventNames(appId)
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError(() => of([]))
+      )
+      .subscribe(names => this.eventNames.set(names));
   }
 
   loadEvents(): void {
+    const appId = this.appState.currentAppId();
+    if (!appId) return;
+
     this.loading.set(true);
     this.error.set(null);
 
     const f = this.filterForm.value;
     const filters: EventFilters = {
-      userId:    f.userId    || undefined,
+      userId: f.userId || undefined,
       eventName: f.eventName || undefined,
-      dateFrom:  f.dateFrom  || undefined,
-      dateTo:    f.dateTo    || undefined,
-      page:      this.currentPage(),
-      size:      this.pageSize
+      dateFrom: f.dateFrom || undefined,
+      dateTo: f.dateTo || undefined,
+      page: this.currentPage(),
+      size: this.pageSize
     };
 
-    this.eventService.getIncomingEvents(this.appId, filters)
+    this.eventService.getIncomingEvents(appId, filters)
       .pipe(
         takeUntil(this.destroy$),
         catchError(err => {
@@ -204,26 +190,35 @@ export class EventsComponent implements OnInit, OnDestroy {
     return !!(v.userId || v.eventName || v.dateFrom || v.dateTo);
   }
 
-  trackById(_: number, e: IncomingEvent): number { return e.id; }
+  trackById(_: number, e: IncomingEvent): number {
+    return e.id;
+  }
 
   formatDate(d: string): string {
     if (!d) return '—';
     return new Date(d).toLocaleString('fr-FR', {
-      day: '2-digit', month: 'short', year: 'numeric',
-      hour: '2-digit', minute: '2-digit'
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
   }
 
   formatRelative(d: string): string {
     if (!d) return '—';
-    const diff  = Date.now() - new Date(d).getTime();
-    const mins  = Math.floor(diff / 60000);
+    const diff = Date.now() - new Date(d).getTime();
+    const mins = Math.floor(diff / 60000);
     const hours = Math.floor(diff / 3600000);
-    const days  = Math.floor(diff / 86400000);
-    if (mins  < 1)  return 'À l\'instant';
-    if (mins  < 60) return `Il y a ${mins}min`;
+    const days = Math.floor(diff / 86400000);
+    if (mins < 1) return 'À l\'instant';
+    if (mins < 60) return `Il y a ${mins}min`;
     if (hours < 24) return `Il y a ${hours}h`;
     return `Il y a ${days}j`;
+  }
+
+  get appId(): number | null {
+    return this.appState.currentAppId();
   }
 
   ngOnDestroy(): void {

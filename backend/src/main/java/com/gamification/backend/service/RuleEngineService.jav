@@ -24,28 +24,40 @@ public class RuleEngineService {
     private final PointsRepository pointsRepository;
     private final PointsRepository.PointsTransactionRepository transactionRepository;
     
-    @Transactional
-    public List<RewardResponse> evaluateEvent(IncomingEvent event) {
-        List<RewardResponse> rewards = new ArrayList<>();
-        
-        // Récupérer toutes les règles actives pour cette application et cet événement
-        List<Rule> rules = ruleRepository.findByAppIdAndTriggerEventAndActiveTrue(
-                event.getApp().getId(), 
-                event.getEventName()
-        );
-        
-        log.info("Évaluation de {} règles pour l'événement {}", rules.size(), event.getEventName());
-        
-        for (Rule rule : rules) {
-            if (evaluateConditions(rule, event)) {
-                List<RewardResponse> ruleRewards = executeActions(rule, event);
-                rewards.addAll(ruleRewards);
-                log.info("Règle {} exécutée, {} récompenses générées", rule.getName(), ruleRewards.size());
-            }
-        }
-        
-        return rewards;
+   @Transactional
+public List<RewardResponse> evaluateEvent(IncomingEvent event) {
+    List<RewardResponse> rewards = new ArrayList<>();
+
+    // ✅ NOUVEAU — ignorer les events non réussis
+    String status = extractStatus(event);
+    if (!"SUCCESS".equalsIgnoreCase(status)) {
+        log.info("⚠️  Event '{}' ignoré (status={})", event.getEventName(), status);
+        return rewards; // liste vide → pas de récompense
     }
+
+    List<Rule> rules = ruleRepository.findByAppIdAndTriggerEventAndActiveTrue(
+            event.getApp().getId(),
+            event.getEventName()
+    );
+
+    log.info("Évaluation de {} règles pour l'événement {}", rules.size(), event.getEventName());
+
+    for (Rule rule : rules) {
+        if (evaluateConditions(rule, event)) {
+            List<RewardResponse> ruleRewards = executeActions(rule, event);
+            rewards.addAll(ruleRewards);
+        }
+    }
+
+    return rewards;
+}
+
+// — lire le status depuis eventData
+private String extractStatus(IncomingEvent event) {
+    if (event.getEventData() == null) return "UNKNOWN";
+    Object status = event.getEventData().get("status");
+    return status != null ? status.toString() : "UNKNOWN";
+}
     
     private boolean evaluateConditions(Rule rule, IncomingEvent event) {
         if (rule.getConditions() == null || rule.getConditions().isEmpty()) {

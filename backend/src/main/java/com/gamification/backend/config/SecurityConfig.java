@@ -30,6 +30,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             .requestMatchers("/api/auth/**").permitAll()
             .requestMatchers("/api/events/register").permitAll()
             .requestMatchers("/api/events/track").permitAll() 
+            .requestMatchers("/api/users/*/points").permitAll()
+            .requestMatchers("/api/events/incoming/**").authenticated()
             .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
             .anyRequest().authenticated()
         )

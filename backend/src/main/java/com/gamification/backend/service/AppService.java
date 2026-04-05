@@ -198,6 +198,7 @@ public Long getCurrentAppId(String email) {
             .orElseThrow(() -> new RuntimeException("Aucune application trouvée"));
 }
 
+@Transactional(readOnly = true)
 public void verifyOwnership(String email, Long appId) {
     AppOwner owner = ownerRepository.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
@@ -206,7 +207,7 @@ public void verifyOwnership(String email, Long appId) {
             .orElseThrow(() -> new RuntimeException("Application non trouvée"));
 
     if (!app.getOwner().getId().equals(owner.getId())) {
-        throw new RuntimeException("Accès refusé : cette app ne vous appartient pas");
+        throw new RuntimeException("Accès refusé");
     }
 }
 

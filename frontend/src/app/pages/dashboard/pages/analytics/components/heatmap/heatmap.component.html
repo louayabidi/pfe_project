@@ -1,0 +1,32 @@
+<div class="heatmap-wrapper">
+  <ng-container *ngIf="heatmapData.length > 0; else empty">
+    <div class="heatmap-grid">
+      <div
+        class="heatmap-cell"
+        *ngFor="let point of heatmapData"
+        [style.background-color]="getColor(point.count)"
+        [title]="'Day ' + point.dayOfWeek + ', Hour ' + point.hour + ': ' + point.count + ' events'">
+      </div>
+    </div>
+    <div class="heatmap-legend">
+      <span class="legend-item">
+        <span class="legend-color" style="background: #f3f4f6;"></span>
+        Low
+      </span>
+      <span class="legend-item">
+        <span class="legend-color" style="background: #a78bfa;"></span>
+        Medium
+      </span>
+      <span class="legend-item">
+        <span class="legend-color" style="background: #6c63ff;"></span>
+        High
+      </span>
+    </div>
+    <div class="heatmap-info">
+      <p>🕐 Hours: 0-23 | 📅 Days: 0 (Mon) - 6 (Sun)</p>
+    </div>
+  </ng-container>
+  <ng-template #empty>
+    <div class="empty-state">No heatmap data available</div>
+  </ng-template>
+</div>

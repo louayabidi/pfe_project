@@ -1,0 +1,32 @@
+<div class="chart-wrapper">
+  <ng-container *ngIf="series.length > 0; else empty">
+    <div class="line-chart">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#10b981" stop-opacity="1" />
+            <stop offset="100%" stop-color="#10b981" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+        <polyline
+          [attr.points]="getPoints()"
+          fill="none"
+          stroke="#10b981"
+          stroke-width="0.5"
+          vector-effect="non-scaling-stroke"
+        />
+        <polyline
+          [attr.points]="getPoints()"
+          fill="url(#gradient)"
+          opacity="0.1"
+        />
+      </svg>
+    </div>
+    <div class="chart-labels">
+      <span class="label" *ngFor="let point of series">{{ point.date | slice: 5 }}</span>
+    </div>
+  </ng-container>
+  <ng-template #empty>
+    <div class="empty-state">No data available</div>
+  </ng-template>
+</div>

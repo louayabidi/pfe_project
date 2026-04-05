@@ -1,0 +1,156 @@
+<div class="create-badge-page">
+
+  <!-- ── AMBIENT ────────────────────────────────────────────────────── -->
+  <div class="ambient-grid" aria-hidden="true">
+    <div class="grid-line" *ngFor="let n of [1,2,3,4,5]"></div>
+  </div>
+
+  <!-- ── HEADER ─────────────────────────────────────────────────────── -->
+  <header class="page-header">
+    <button class="back-btn"
+            [routerLink]="['/dashboard/badges']"
+            [queryParams]="{ appId: appId }">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M9 12L5 7l4-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Retour aux badges
+    </button>
+
+    <div class="header-body">
+      <div class="header-left">
+        <div class="breadcrumb">
+          <span class="mono accent">APP #{{ appId }}</span>
+          <svg width="10" height="10" viewBox="0 0 10 10"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+          <span class="mono">Badges</span>
+          <svg width="10" height="10" viewBox="0 0 10 10"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+          <span class="mono accent">Nouveau</span>
+        </div>
+        <h1 class="page-title">
+          <span class="title-mark">🏅</span>
+          Créer un badge
+        </h1>
+        <p class="page-subtitle">Récompensez les utilisateurs avec des badges</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── FORM ───────────────────────────────────────────────────────── -->
+  <form [formGroup]="form" (ngSubmit)="submit()" class="badge-form" novalidate>
+
+    <!-- ── SECTION : IDENTITÉ ────────────────────────────────────────── -->
+    <div class="form-block">
+      <div class="block-label">
+        <span class="block-num">01</span>
+        <span>Identité</span>
+      </div>
+
+      <div class="field-row">
+        <!-- Nom -->
+        <div class="field field-grow">
+          <label>Nom du badge <span class="req">*</span></label>
+          <div class="input-wrap">
+            <svg class="iico" width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 4h10M2 7h7M2 10h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <input formControlName="name" placeholder="ex : Champion"/>
+          </div>
+          <span class="verr" *ngIf="form.get('name')?.invalid && form.get('name')?.touched">
+            Champ requis (min. 2 caractères)
+          </span>
+        </div>
+
+        <!-- Description -->
+        <div class="field field-grow">
+          <label>Description <span class="opt">optionnel</span></label>
+          <div class="input-wrap">
+            <svg class="iico" width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <rect x="2" y="2" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.3"/>
+              <path d="M5 5h4M5 7.5h2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+            <input formControlName="description" placeholder="Description du badge..."/>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION : APPARENCE ───────────────────────────────────────── -->
+    <div class="form-block">
+      <div class="block-label">
+        <span class="block-num">02</span>
+        <span>Apparence</span>
+      </div>
+
+      <div class="field">
+        <label>URL de l'image <span class="opt">optionnel</span></label>
+        <div class="input-wrap">
+          <svg class="iico" width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <rect x="2" y="2" width="10" height="10" rx="1" stroke="currentColor" stroke-width="1.3"/>
+            <circle cx="5" cy="5" r="0.8" fill="currentColor"/>
+            <path d="M2 11l3-3 2 2 5-5" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <input formControlName="imageUrl" placeholder="https://..."/>
+        </div>
+        <span class="hint">Lien vers une image PNG ou JPG</span>
+      </div>
+    </div>
+
+    <!-- ── SECTION : PARAMÈTRES ──────────────────────────────────────── -->
+    <div class="form-block">
+      <div class="block-label">
+        <span class="block-num">03</span>
+        <span>Paramètres</span>
+      </div>
+
+      <div class="field-row">
+        <!-- Récompenses max par utilisateur -->
+        <div class="field">
+          <label>Récompenses max par utilisateur <span class="opt">optionnel</span></label>
+          <div class="input-wrap">
+            <svg class="iico" width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <input type="number" formControlName="maxAwardsPerUser" placeholder="ex : 1" min="1"/>
+          </div>
+          <span class="hint">Laissez vide pour illimité</span>
+        </div>
+
+        <!-- Caché -->
+        <div class="field checkbox-field">
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="hidden"/>
+            <span>Masquer ce badge</span>
+          </label>
+          <span class="hint">Les utilisateurs ne le verront pas</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── FOOTER ───────────────────────────────────────────────────── -->
+    <div class="form-footer">
+      <div class="error-banner" *ngIf="error()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.3"/>
+          <path d="M7 4.5v3M7 9v1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+        {{ error() }}
+      </div>
+
+      <div class="footer-btns">
+        <button type="button" class="btn-ghost"
+                [routerLink]="['/dashboard/badges']"
+                [queryParams]="{ appId: appId }">
+          Annuler
+        </button>
+        <button type="submit" class="btn-submit" [disabled]="loading()">
+          <span class="spinner" *ngIf="loading()"></span>
+          <svg *ngIf="!loading()" width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7l4 4 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          {{ loading() ? 'Création...' : 'Créer le badge' }}
+        </button>
+      </div>
+    </div>
+
+  </form>
+
+</div>

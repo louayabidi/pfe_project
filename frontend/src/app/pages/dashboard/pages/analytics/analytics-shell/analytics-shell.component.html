@@ -1,0 +1,91 @@
+<div class="analytics-page">
+
+  <!-- Header -->
+  <div class="analytics-header">
+    <div class="header-content">
+      <h1 class="page-title">📊 Analytics</h1>
+      <p class="page-subtitle">{{ currentAppName }}</p>
+    </div>
+
+    <div class="day-selector">
+      <button
+        *ngFor="let d of dayOptions"
+        class="day-btn"
+        [class.active]="days === d"
+        (click)="changeDays(d)"
+        [attr.aria-label]="'Show last ' + d + ' days'">
+        {{ d === 365 ? '1Y' : d + 'D' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="analytics-loading" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading analytics...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="analytics-error" *ngIf="error && !loading">
+    <svg class="error-icon" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+      <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Main Content -->
+  <div class="analytics-content" *ngIf="data && !loading">
+
+    <section class="kpi-section">
+      <app-kpi-cards [data]="data!" />
+    </section>
+
+    <section class="charts-section">
+      <div class="chart-row">
+        <div class="chart-container chart-wide">
+          <h3 class="chart-title">📈 Events Over Time</h3>
+          <app-events-chart [series]="data!.eventsByDay" />
+        </div>
+        <div class="chart-container chart-narrow">
+          <h3 class="chart-title">👥 New Users</h3>
+          <app-users-chart [series]="data!.newUsersByDay" />
+        </div>
+      </div>
+    </section>
+
+    <section class="charts-section">
+      <div class="chart-row">
+        <div class="chart-container chart-half">
+          <h3 class="chart-title">⭐ Top Events</h3>
+          <app-top-events [items]="data!.topEvents" />
+        </div>
+        <div class="chart-container chart-half">
+          <h3 class="chart-title">🏆 Top Users</h3>
+          <app-top-users [items]="data!.topUsers" />
+        </div>
+      </div>
+    </section>
+
+    <section class="charts-section">
+      <div class="chart-container chart-full">
+        <h3 class="chart-title">🔥 Activity Heatmap (Hour × Day)</h3>
+        <app-heatmap [points]="data!.heatmap" />
+      </div>
+    </section>
+
+    <section class="charts-section">
+      <div class="chart-row">
+        <div class="chart-container chart-wide">
+          <h3 class="chart-title">📉 User Retention</h3>
+          <app-retention [matrix]="data!.retentionMatrix" />
+        </div>
+        <div class="chart-container chart-narrow">
+          <h3 class="chart-title">🎖️ Badges</h3>
+          <app-badge-distribution [items]="data!.badgeDistribution" />
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
