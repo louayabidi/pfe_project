@@ -46,6 +46,22 @@ export class AnalyticsShellComponent implements OnInit, OnDestroy {
   get days(): number                   { return this._days(); }
   get currentAppName(): string         { return this.appState.currentApp()?.name || 'No app selected'; }
 
+
+
+get insight(): string | null {
+  const series = this.data?.eventsByDay;
+  if (!series?.length) return null;
+
+  const peak = series.reduce((a, b) => a.value > b.value ? a : b);
+  const avg = Math.round(series.reduce((s, p) => s + p.value, 0) / series.length);
+
+  if (peak.value > avg * 2) {
+    return `<strong>Activity spike on ${peak.date}</strong> — ${peak.value} events recorded,
+      ${Math.round(peak.value / avg)}× the daily average. Check if a campaign or feature release drove this.`;
+  }
+  return null;
+}
+
   private readonly destroy$ = new Subject<void>();
   private readonly appId$ = toObservable(this.appState.currentAppId);
 
@@ -80,12 +96,16 @@ export class AnalyticsShellComponent implements OnInit, OnDestroy {
           );
         })
       )
-      .subscribe(data => {
-        if (data) {
-          this._data.set(data);
-          this._loading.set(false);
-        }
-      });
+     .subscribe(data => {
+  if (data) {
+    this._data.set({
+      ...data,
+      eventsByDay: [...(data.eventsByDay ?? [])],   
+      newUsersByDay: [...(data.newUsersByDay ?? [])],
+    });
+    this._loading.set(false);
+  }
+});
   }
 
   changeDays(d: number): void {

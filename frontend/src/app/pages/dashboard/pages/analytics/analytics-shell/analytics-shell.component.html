@@ -41,6 +41,13 @@
       <app-kpi-cards [data]="data!" />
     </section>
 
+    <section class="insight-section" *ngIf="insight">
+  <div class="insight-bar">
+    <span class="insight-icon">▲</span>
+    <span [innerHTML]="insight"></span>
+  </div>
+</section>
+
     <section class="charts-section">
       <div class="chart-row">
         <div class="chart-container chart-wide">

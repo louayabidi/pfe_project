@@ -1,12 +1,3 @@
-/**
- * ============================================================================
- * EVENT SERVICE (UPDATED)
- * ============================================================================
- * Service for managing events with app-scoped operations.
- * All operations now explicitly use appId parameter.
- * 
- * Location: src/app/services/event.service.ts
- */
 import { IncomingEvent, EventFilters, EventPage } from '../core/models/event.model';
 
 import { Injectable } from '@angular/core';

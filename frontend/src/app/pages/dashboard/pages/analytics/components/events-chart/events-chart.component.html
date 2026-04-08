@@ -1,7 +1,7 @@
 <div class="chart-wrapper">
-  <ng-container *ngIf="series.length > 0; else empty">
+  <ng-container *ngIf="displaySeries.length > 0; else empty">
     <div class="chart-bars">
-      <div class="bar-item" *ngFor="let point of series">
+      <div class="bar-item" *ngFor="let point of displaySeries">
         <div class="bar" [style.height.%]="(point.value / maxValue) * 100"></div>
         <span class="bar-label">{{ point.date | slice: 5 }}</span>
       </div>

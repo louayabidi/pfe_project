@@ -57,14 +57,13 @@ export class AnalyticsService {
    * @param appId Application ID
    * @param days Number of days to analyze (1-365, default 30)
    */
-  getOverview(appId: number, days: number = 30): Observable<AnalyticsOverview> {
-    const params = new HttpParams()
-      .set('appId', appId.toString())
-      .set('days', days.toString());
+getOverview(appId: number, days: number = 30): Observable<AnalyticsOverview> {
+  const params = new HttpParams()
+    .set('days', days.toString()); // remove appId from params
 
-    return this.http.get<AnalyticsOverview>(
-      `${this.baseUrl}/overview`,
-      { params }
-    );
-  }
+  return this.http.get<AnalyticsOverview>(
+    `${this.baseUrl}/overview/${appId}`, // ← appId goes in the path
+    { params }
+  );
+}
 }

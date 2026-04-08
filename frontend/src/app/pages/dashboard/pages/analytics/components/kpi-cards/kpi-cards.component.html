@@ -1,9 +1,12 @@
 <div class="kpi-grid">
   <div class="kpi-card" *ngFor="let card of cards">
-    <span class="kpi-icon">{{ card.icon }}</span>
+    <div class="kpi-icon">{{ card.icon }}</div>
     <div class="kpi-body">
-      <span class="kpi-value">{{ card.value | number }}</span>
-      <span class="kpi-label">{{ card.label }}</span>
+      <div class="kpi-value">{{ card.value | number }}</div>
+      <div class="kpi-label">{{ card.label }}</div>
+      <div class="trend" [class]="card.trendClass" *ngIf="card.trendLabel !== '—'">
+        {{ card.trendLabel }}
+      </div>
     </div>
   </div>
 </div>
