@@ -2,6 +2,7 @@ package com.gamification.backend.dto.rule;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.util.List;
@@ -15,8 +16,8 @@ public class CreateRuleRequest {
     
     private String description;
     
-    @NotBlank(message = "L'événement déclencheur est obligatoire")
-    private String triggerEvent;
+  @NotBlank(message = "L'événement déclencheur est obligatoire")
+private String triggerEvent;
     
     private List<ConditionDto> conditions;
     

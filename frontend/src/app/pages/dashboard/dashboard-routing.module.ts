@@ -9,6 +9,9 @@ import { CreateAppComponent } from './pages/create-app/create-app.component';
 import { EventsComponent } from './pages/events/events.component';
 import { BadgesComponent } from './pages/badges/badges/badges.component';
 import { CreateBadgeComponent } from './pages/badges/create-badge/create-badge.component';
+import { AdvancedRulesComponent } from './pages/rules/advanced-rules/advanced-rules.component';
+import { CreateAdvancedRuleComponent } from './pages/rules/create-advanced-rule/create-advanced-rule.component';
+import { UserProfileComponent } from './pages/user/user-profile/user-profile.component';
 
 const routes: Routes = [
   {
@@ -21,6 +24,17 @@ const routes: Routes = [
         redirectTo: 'apps',
         pathMatch: 'full'
       },
+
+
+
+
+      //user_profile
+
+      {
+  path: 'profile',
+  component: UserProfileComponent,
+  data: { title: 'Mon Profil' }
+},
 
       // ── APPS ──────────────────────────────────────────────────────
       {
@@ -47,6 +61,17 @@ const routes: Routes = [
         component: CreateRuleComponent,
         data: { title: 'Nouvelle Règle' }
       },
+
+      {
+  path: 'rules/advanced',
+  component: AdvancedRulesComponent,
+  data: { title: 'Règles Avancées' }
+},
+{
+  path: 'rules/advanced/new',
+  component: CreateAdvancedRuleComponent,
+  data: { title: 'Nouvelle Règle Avancée' }
+},
 
       // ── BADGES ────────────────────────────────────────────────────
       // URL: /dashboard/badges?appId=123

@@ -13,7 +13,8 @@ public class RuleResponse {
     private Long id;
     private String name;
     private String description;
-    private String triggerEvent;
+    private String triggerEvent; 
+   private List<String> triggerEvents;
     private List<Map<String, Object>> conditions;
     private List<Map<String, Object>> actions;
     private Integer priority;

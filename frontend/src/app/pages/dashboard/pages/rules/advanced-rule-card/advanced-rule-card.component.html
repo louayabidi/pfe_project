@@ -1,0 +1,73 @@
+<p>advanced-rule-card works!</p>
+<div class="adv-card" [class.inactive]="!rule.active">
+
+  <div class="card-topbar">
+    <div class="rule-id">
+      <span class="id-prefix">ADV</span>
+      <span class="id-num">{{ rule.id.toString().padStart(4,'0') }}</span>
+    </div>
+    <div class="meta-chips">
+      <span class="chip chip-priority" *ngIf="rule.priority && rule.priority > 0">
+        P{{ rule.priority }}
+      </span>
+      <span class="chip chip-cooldown" *ngIf="rule.cooldownMinutes">
+        ⏱ {{ rule.cooldownMinutes }}m
+      </span>
+      <span class="chip chip-max" *ngIf="rule.maxAwardsPerUser">
+        ×{{ rule.maxAwardsPerUser }}
+      </span>
+    </div>
+    <div class="toggle-wrap">
+      <span class="toggle-label">{{ rule.active ? 'ON' : 'OFF' }}</span>
+      <button class="toggle-btn" [class.on]="rule.active" (click)="toggled.emit(rule)">
+        <span class="toggle-thumb"></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <h3 class="rule-name">{{ rule.name }}</h3>
+    <p class="rule-desc" *ngIf="rule.description">{{ rule.description }}</p>
+
+   <div class="event-row">
+  <span class="event-chip" *ngFor="let ev of rule.triggerEvents">
+    <svg width="10" height="10" viewBox="0 0 10 10">
+      <polygon points="5,1 9,9 1,9" fill="currentColor"/>
+    </svg>
+    {{ ev }}
+  </span>
+  <span class="logic-chip">{{ rule.conditionLogic }}</span>
+  <span class="cond-count" *ngIf="rule.conditions?.length">
+    {{ rule.conditions.length }} cond.
+  </span>
+</div>
+
+    <div class="actions-row">
+      <div class="action-pill" *ngFor="let action of rule.actions">
+        <span class="action-icon">{{ getActionIcon(action.type) }}</span>
+        <span class="action-val">{{ action.value }}</span>
+        <span class="action-type">{{ action.type }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-footer">
+    <span class="trigger-stat">
+      <svg width="10" height="10" viewBox="0 0 10 10">
+        <polygon points="5,1 9,9 1,9" fill="currentColor"/>
+      </svg>
+      {{ rule.triggerCount ?? 0 }} déclenchement(s)
+    </span>
+    <span class="created-at">{{ formatDate(rule.createdAt) }}</span>
+    <button class="del-btn" [class.confirming]="confirmingId === rule.id"
+            (click)="deleted.emit(rule.id)">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+        <path d="M2 4h9M5 4V2.5h3V4M4 4l.5 7h4l.5-7"
+              stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      <span class="confirm-text">Confirmer ?</span>
+    </button>
+  </div>
+
+  <div class="card-glow" *ngIf="rule.active"></div>
+</div>

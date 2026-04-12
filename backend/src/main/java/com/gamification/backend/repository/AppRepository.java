@@ -12,6 +12,7 @@ import java.util.Optional;
 public interface AppRepository extends JpaRepository<App, Long> {
     
     List<App> findByOwnerId(Long ownerId);
+    long countByOwnerId(Long ownerId);
     
     Optional<App> findByApiKey(String apiKey);
     

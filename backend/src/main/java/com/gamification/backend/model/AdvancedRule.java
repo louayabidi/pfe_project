@@ -14,13 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Advanced Rule Model supporting:
- * - Complex condition evaluation (AND/OR logic)
- * - Time-based conditions
- * - Counter-based conditions
- * - Multiple actions per rule
- */
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -40,8 +34,10 @@ public class AdvancedRule {
     @Column(length = 500)
     private String description;
 
-    @Column(name = "trigger_event", nullable = false)
-    private String triggerEvent;
+ @ElementCollection(fetch = FetchType.EAGER)
+@CollectionTable(name = "rule_trigger_events", joinColumns = @JoinColumn(name = "rule_id"))
+@Column(name = "event_name")
+private List<String> triggerEvents;
 
     // ── CONDITION LOGIC ──────────────────────────────────────────────────
     /**

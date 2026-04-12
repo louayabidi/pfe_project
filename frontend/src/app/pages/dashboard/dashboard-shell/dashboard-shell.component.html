@@ -57,6 +57,24 @@
           <span class="nav-active-bar"></span>
         </a>
 
+
+
+
+          <a routerLink="/dashboard/profile"
+           routerLinkActive="active"
+           class="nav-item"
+           [attr.data-tooltip]="collapsed() ? 'Profile' : null">
+          <span class="nav-icon">
+            <!-- Zap / Rules -->
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M13 2L4.09 12.64A1 1 0 005 14h6l-1 8 8.91-10.64A1 1 0 0018 10h-6l1-8z"
+                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="nav-label">Profile</span>
+          <span class="nav-active-bar"></span>
+        </a>
+
         <a routerLink="/dashboard/overview"
            routerLinkActive="active"
            class="nav-item"

@@ -206,6 +206,9 @@ public void verifyOwnership(String email, Long appId) {
     App app = appRepository.findById(appId)
             .orElseThrow(() -> new RuntimeException("Application non trouvée"));
 
+log.info("[verifyOwnership] token email='{}' | app owner email='{}'", 
+             email, app.getOwner().getEmail());
+
     if (!app.getOwner().getId().equals(owner.getId())) {
         throw new RuntimeException("Accès refusé");
     }

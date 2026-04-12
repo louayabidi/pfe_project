@@ -1,0 +1,155 @@
+<div class="create-adv-page">
+  <div class="ambient-grid" aria-hidden="true">
+    <div class="grid-line" *ngFor="let n of [1,2,3,4,5]"></div>
+  </div>
+
+  <header class="page-header">
+    <button class="back-btn" [routerLink]="['/dashboard/rules']" [queryParams]="{appId: appId, tab:'advanced'}">
+      <svg width="14" height="14" viewBox="0 0 14 14"><path d="M9 12L5 7l4-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      Retour aux règles
+    </button>
+    <h1 class="page-title"><span class="title-mark">🧠</span> Nouvelle règle avancée</h1>
+    <p class="page-subtitle">Conditions multiples · Cooldown · Multiplicateurs</p>
+  </header>
+
+  <!-- Templates -->
+  <div class="templates-row">
+    <span class="templates-label">Templates :</span>
+    <button class="tpl-btn" *ngFor="let t of templates" (click)="applyTemplate(t)" type="button">
+      {{ t.icon }} {{ t.label }}
+    </button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="rule-form" novalidate>
+
+    <!-- 01 Identity -->
+    <div class="form-block">
+      <div class="block-label"><span class="block-num">01</span><span>Identité</span></div>
+      <div class="field-row">
+        <div class="field field-grow">
+          <label>Nom <span class="req">*</span></label>
+          <input class="inp" formControlName="name" placeholder="ex: Combo login + achat"/>
+          <span class="verr" *ngIf="form.get('name')?.invalid && form.get('name')?.touched">Requis (min. 2 car.)</span>
+        </div>
+        <div class="field field-grow">
+          <label>Description <span class="opt">optionnel</span></label>
+          <input class="inp" formControlName="description" placeholder="Description..."/>
+        </div>
+      </div>
+      <div class="field-row three-cols">
+        <div class="field">
+          <label>Priorité</label>
+          <input class="inp" type="number" formControlName="priority" min="0" max="100"/>
+        </div>
+        <div class="field">
+          <label>Cooldown (minutes)</label>
+          <input class="inp" type="number" formControlName="cooldownMinutes" placeholder="ex: 60"/>
+        </div>
+        <div class="field">
+          <label>Max awards / user</label>
+          <input class="inp" type="number" formControlName="maxAwardsPerUser" placeholder="illimité"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- 02 Trigger Events (multi-select) -->
+    <div class="form-block">
+      <div class="block-label"><span class="block-num">02</span><span>Événements déclencheurs</span></div>
+
+      <!-- Selected event tags -->
+      <div class="trigger-tags">
+        <span class="trigger-tag" *ngFor="let ev of triggerEvents.controls; let i=index">
+          <span class="tag-name">{{ ev.value }}</span>
+          <button type="button" class="tag-remove" (click)="removeTriggerEvent(i)">✕</button>
+        </span>
+        <span class="no-events-hint" *ngIf="triggerEvents.length === 0">
+          Aucun événement sélectionné
+        </span>
+      </div>
+
+      <!-- Dropdown to add events -->
+      <div class="custom-select-wrapper">
+        <div class="custom-select">
+          <button type="button" class="select-trigger" (click)="toggleDropdown()" [class.open]="dropdownOpen()">
+            <span class="trigger-text">+ Ajouter un événement</span>
+            <svg class="select-arrow" width="12" height="12" viewBox="0 0 12 12">
+              <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <div class="select-menu" *ngIf="dropdownOpen()">
+            <div
+              class="select-option"
+              *ngFor="let ev of availableEvents()"
+              [class.selected]="triggerEvents.value.includes(ev)"
+              (click)="addTriggerEvent(ev)">
+              <span>{{ ev }}</span>
+              <span class="option-check" *ngIf="triggerEvents.value.includes(ev)">✓</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <span class="verr" *ngIf="triggerEvents.length === 0 && form.touched">
+        Au moins un événement déclencheur est requis
+      </span>
+    </div>
+
+    <!-- 03 Conditions -->
+    <div class="form-block">
+      <div class="block-label">
+        <span class="block-num">03</span><span>Conditions</span>
+        <div class="logic-toggle">
+          <button type="button" [class.active]="form.get('conditionLogic')?.value==='AND'" (click)="form.get('conditionLogic')?.setValue('AND')">AND</button>
+          <button type="button" [class.active]="form.get('conditionLogic')?.value==='OR'"  (click)="form.get('conditionLogic')?.setValue('OR')">OR</button>
+        </div>
+      </div>
+
+      <div class="condition-list" formArrayName="conditions">
+        <div class="condition-row" *ngFor="let cond of conditions.controls; let i=index" [formGroupName]="i">
+          <select class="inp-sm" formControlName="type">
+            <option *ngFor="let ct of conditionTypes" [value]="ct">{{ ct }}</option>
+          </select>
+          <input class="inp-sm" formControlName="field" placeholder="champ" *ngIf="!isTimePeriod(i)"/>
+          <select class="inp-sm" formControlName="operator" *ngIf="!isTimePeriod(i)">
+            <option *ngFor="let op of operators" [value]="op">{{ op }}</option>
+          </select>
+          <select class="inp-sm" formControlName="value" *ngIf="isTimePeriod(i)">
+            <option *ngFor="let pv of periodValues" [value]="pv">{{ pv }}</option>
+          </select>
+          <input class="inp-sm" formControlName="value" placeholder="valeur" *ngIf="!isTimePeriod(i)"/>
+          <button type="button" class="remove-btn" (click)="removeCondition(i)">✕</button>
+        </div>
+      </div>
+      <button type="button" class="add-btn" (click)="addCondition()">+ Ajouter une condition</button>
+    </div>
+
+    <!-- 04 Actions -->
+    <div class="form-block">
+      <div class="block-label"><span class="block-num">04</span><span>Actions</span></div>
+
+      <div class="action-list" formArrayName="actions">
+        <div class="action-row" *ngFor="let act of actions.controls; let i=index" [formGroupName]="i">
+          <select class="inp-sm" formControlName="type">
+            <option *ngFor="let at of actionTypes" [value]="at">{{ at }}</option>
+          </select>
+          <input class="inp-sm" formControlName="value" placeholder="valeur (pts / badgeId / multiplicateur)"/>
+          <input class="inp-sm" formControlName="description" placeholder="message (optionnel)"/>
+          <button type="button" class="remove-btn" (click)="removeAction(i)" [disabled]="actions.length===1">✕</button>
+        </div>
+      </div>
+      <button type="button" class="add-btn" (click)="addAction()">+ Ajouter une action</button>
+    </div>
+
+    <!-- Footer -->
+    <div class="form-footer">
+      <div class="error-banner" *ngIf="error()">{{ error() }}</div>
+      <div class="footer-btns">
+        <button type="button" class="btn-ghost" [routerLink]="['/dashboard/rules']" [queryParams]="{appId:appId,tab:'advanced'}">Annuler</button>
+        <button type="submit" class="btn-submit" [disabled]="loading()">
+          <span class="spinner" *ngIf="loading()"></span>
+          {{ loading() ? 'Création...' : 'Créer la règle avancée' }}
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

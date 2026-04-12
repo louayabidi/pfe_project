@@ -1,16 +1,3 @@
-<!-- 
-  ============================================================================
-  RULES COMPONENT TEMPLATE (UPDATED)
-  ============================================================================
-  Location: src/app/pages/dashboard/pages/rules/rules.component.html
-  
-  Features:
-  - App chooser when multiple apps
-  - App selector in header
-  - Stats display
-  - Loading, error, and empty states
-  - Rule cards with actions
--->
 
 <div class="rules-page">
 
@@ -68,6 +55,11 @@
           </svg>
           Nouvelle règle
         </button>
+
+
+        <button class="btn-secondary" [routerLink]="['/dashboard/rules/advanced']" [queryParams]="{appId: appId}">
+  🧠 Règles avancées
+</button>
       </div>
     </header>
 

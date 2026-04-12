@@ -1,0 +1,254 @@
+<div class="profile-page">
+
+  <!-- Ambient background grid -->
+  <div class="ambient-grid" aria-hidden="true">
+    <div class="grid-line" *ngFor="let n of [1,2,3,4,5]"></div>
+  </div>
+
+  <!-- ══════════════════ PAGE HEADER ══════════════════ -->
+  <header class="page-header">
+    <h1 class="page-title">
+      <span class="title-mark">👤</span>
+      Mon Profil
+    </h1>
+    <p class="page-subtitle">Gérez vos informations personnelles, sécurité et préférences</p>
+  </header>
+
+  <!-- ══════════════════ LOADING STATE ══════════════════ -->
+  <div class="loading-state" *ngIf="loading()">
+    <div class="spinner-lg"></div>
+    <span>Chargement de votre profil...</span>
+  </div>
+
+  <!-- ══════════════════ CONTENT ══════════════════ -->
+  <div class="profile-content" *ngIf="!loading() && profile()">
+
+    <!-- ── SECTION 1: Identity Card ─────────────────────────── -->
+    <div class="profile-card identity-card">
+      <div class="card-glow"></div>
+
+      <div class="identity-top">
+        <div class="avatar">
+          <span class="avatar-initials">{{ getInitials() }}</span>
+          <div class="avatar-ring"></div>
+        </div>
+
+        <div class="identity-info">
+          <h2 class="identity-name">{{ profile()!.fullName || 'Utilisateur' }}</h2>
+          <p class="identity-email">{{ profile()!.email }}</p>
+          <span class="verified-badge" *ngIf="profile()!.isVerified">
+            ✓ Compte vérifié
+          </span>
+        </div>
+
+        <button 
+          class="edit-btn" 
+          (click)="toggleEdit()" 
+          type="button"
+          [attr.aria-label]="editMode() ? 'Annuler la modification' : 'Modifier le profil'">
+          {{ editMode() ? '✕ Annuler' : '✏️ Modifier' }}
+        </button>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="stats-row">
+        <div class="stat-item">
+          <span class="stat-value">{{ profile()!.totalApps || 0 }}</span>
+          <span class="stat-label">Applications</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">{{ profile()!.totalRules || 0 }}</span>
+          <span class="stat-label">Règles simples</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">{{ profile()!.totalAdvancedRules || 0 }}</span>
+          <span class="stat-label">Règles avancées</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">{{ formatDate(profile()!.createdAt) }}</span>
+          <span class="stat-label">Membre depuis</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 2: Edit Profile Form ─────────────────────────── -->
+    <div class="profile-card edit-card" *ngIf="editMode()">
+      <div class="block-label">
+        <span class="block-num">01</span>
+        <span>Informations personnelles</span>
+      </div>
+
+      <div class="success-banner" *ngIf="success()">{{ success() }}</div>
+      <div class="error-banner" *ngIf="error()">{{ error() }}</div>
+
+      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate>
+        
+        <!-- Full Name & Company -->
+        <div class="field-row">
+          <div class="field field-grow">
+            <label>
+              Nom complet <span class="req">*</span>
+            </label>
+            <input 
+              class="inp" 
+              formControlName="fullName" 
+              placeholder="Jean Dupont"
+              type="text"
+              autocomplete="name"/>
+            <span 
+              class="verr" 
+              *ngIf="profileForm.get('fullName')?.invalid && profileForm.get('fullName')?.touched">
+              Requis (minimum 2 caractères)
+            </span>
+          </div>
+
+          <div class="field field-grow">
+            <label>
+              Entreprise <span class="opt">optionnel</span>
+            </label>
+            <input 
+              class="inp" 
+              formControlName="companyName" 
+              placeholder="Acme Corp"
+              type="text"
+              autocomplete="organization"/>
+          </div>
+        </div>
+
+        <!-- Email (Read-only) -->
+        <div class="field readonly-field">
+          <label>
+            Email <span class="opt">non modifiable</span>
+          </label>
+          <input 
+            class="inp inp-readonly" 
+            [value]="profile()!.email" 
+            readonly
+            type="email"
+            aria-label="Email (non modifiable)"/>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn-ghost" (click)="toggleEdit()">
+            Annuler
+          </button>
+          <button type="submit" class="btn-submit" [disabled]="saving()">
+            <span class="spinner" *ngIf="saving()"></span>
+            {{ saving() ? 'Sauvegarde...' : '💾 Sauvegarder' }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- ── SECTION 3: Password Change ─────────────────────────── -->
+    <div class="profile-card password-card">
+      <div class="block-label">
+        <span class="block-num">02</span>
+        <span>Sécurité - Changer le mot de passe</span>
+      </div>
+
+      <div class="success-banner" *ngIf="pwdSuccess()">{{ pwdSuccess() }}</div>
+      <div class="error-banner" *ngIf="pwdError()">{{ pwdError() }}</div>
+
+      <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" novalidate>
+        
+        <!-- Current Password -->
+        <div class="field">
+          <label>
+            Mot de passe actuel <span class="req">*</span>
+          </label>
+          <input 
+            class="inp" 
+            type="password" 
+            formControlName="currentPassword"
+            placeholder="••••••••" 
+            autocomplete="current-password"/>
+          <span 
+            class="verr" 
+            *ngIf="passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched">
+            Requis
+          </span>
+        </div>
+
+        <!-- New Password & Confirm -->
+        <div class="field-row">
+          <div class="field field-grow">
+            <label>
+              Nouveau mot de passe <span class="req">*</span>
+            </label>
+            <input 
+              class="inp" 
+              type="password" 
+              formControlName="newPassword"
+              placeholder="••••••••" 
+              autocomplete="new-password"/>
+            <span 
+              class="verr" 
+              *ngIf="passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched">
+              Minimum 6 caractères
+            </span>
+          </div>
+
+          <div class="field field-grow">
+            <label>
+              Confirmer <span class="req">*</span>
+            </label>
+            <input 
+              class="inp" 
+              type="password" 
+              formControlName="confirmPassword"
+              placeholder="••••••••" 
+              autocomplete="new-password"/>
+            <span 
+              class="verr" 
+              *ngIf="passwordForm.get('confirmPassword')?.invalid && passwordForm.get('confirmPassword')?.touched">
+              Requis
+            </span>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button type="submit" class="btn-submit" [disabled]="changingPwd()">
+            <span class="spinner" *ngIf="changingPwd()"></span>
+            {{ changingPwd() ? 'Changement...' : '🔒 Changer le mot de passe' }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- ── SECTION 4: Account Information ─────────────────────────── -->
+    <div class="profile-card meta-card">
+      <div class="block-label">
+        <span class="block-num">03</span>
+        <span>Informations du compte</span>
+      </div>
+
+      <div class="meta-grid">
+        <div class="meta-item">
+          <span class="meta-key">Identifiant unique</span>
+          <span class="meta-val">#{{ profile()!.id }}</span>
+        </div>
+
+        <div class="meta-item">
+          <span class="meta-key">Compte créé le</span>
+          <span class="meta-val">{{ formatDate(profile()!.createdAt) }}</span>
+        </div>
+
+        <div class="meta-item">
+          <span class="meta-key">Dernière connexion</span>
+          <span class="meta-val">{{ formatDate(profile()!.lastLogin) }}</span>
+        </div>
+
+        <div class="meta-item">
+          <span class="meta-key">Statut de vérification</span>
+          <span class="meta-val verified" *ngIf="profile()!.isVerified">Vérifié</span>
+          <span class="meta-val unverified" *ngIf="!profile()!.isVerified">Non vérifié</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>

@@ -33,6 +33,10 @@ import { CreateBadgeComponent } from './pages/badges/create-badge/create-badge.c
 // Services
 import { AppStateService } from 'src/app/services/app-state.service';
 import { DecimalPipe } from '@angular/common';
+import { AdvancedRuleCardComponent } from './pages/rules/advanced-rule-card/advanced-rule-card.component';
+import { AdvancedRulesComponent } from './pages/rules/advanced-rules/advanced-rules.component';
+import { CreateAdvancedRuleComponent } from './pages/rules/create-advanced-rule/create-advanced-rule.component';
+import { UserProfileComponent } from './pages/user/user-profile/user-profile.component';
 
 @NgModule({
   declarations: [
@@ -48,7 +52,11 @@ import { DecimalPipe } from '@angular/common';
     EventsComponent,
     BadgesComponent,
     CreateAppComponent,
-    CreateBadgeComponent
+    CreateBadgeComponent,
+    AdvancedRuleCardComponent,
+    AdvancedRulesComponent,       
+    CreateAdvancedRuleComponent, 
+    UserProfileComponent,
   ],
   imports: [
     CommonModule,
