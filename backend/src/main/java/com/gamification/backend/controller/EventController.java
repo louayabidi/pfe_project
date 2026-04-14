@@ -26,7 +26,7 @@ public class EventController {
     private final AppRepository appRepository;
     private final EventService eventService;
     private final RuleEngineService ruleEngineService;
-    private final AdvancedRuleEvaluationService advancedRuleEvaluationService; // ← ADD
+    private final AdvancedRuleEvaluationService advancedRuleEvaluationService; 
 
     @PostMapping("/track")
     public ResponseEntity<List<RewardResponse>> trackEvent(

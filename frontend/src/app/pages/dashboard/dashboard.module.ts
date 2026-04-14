@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { DashboardRoutingModule } from './dashboard-routing.module';
-
+import { MatIconModule } from '@angular/material/icon';
 // Shell & Components
 import { DashboardShellComponent } from './dashboard-shell/dashboard-shell.component';
 import { AppSelectorComponent } from './components/app-selector/app-selector.component';
@@ -37,6 +37,7 @@ import { AdvancedRuleCardComponent } from './pages/rules/advanced-rule-card/adva
 import { AdvancedRulesComponent } from './pages/rules/advanced-rules/advanced-rules.component';
 import { CreateAdvancedRuleComponent } from './pages/rules/create-advanced-rule/create-advanced-rule.component';
 import { UserProfileComponent } from './pages/user/user-profile/user-profile.component';
+import { WidgetStudioComponent } from './pages/widget/widget-studio/widget-studio.component';
 
 @NgModule({
   declarations: [
@@ -56,14 +57,16 @@ import { UserProfileComponent } from './pages/user/user-profile/user-profile.com
     AdvancedRuleCardComponent,
     AdvancedRulesComponent,       
     CreateAdvancedRuleComponent, 
-    UserProfileComponent,
+    UserProfileComponent, 
+    WidgetStudioComponent,
   ],
   imports: [
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
     RouterModule,
-    DashboardRoutingModule
+    DashboardRoutingModule,
+    MatIconModule,
   ],
   providers: [
     DecimalPipe

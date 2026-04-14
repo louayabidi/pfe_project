@@ -1,5 +1,5 @@
 import { BadgeService } from './../../../../../services/badge.service';
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import {  Component, OnInit, OnDestroy, signal, inject, Injector } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AppStateService } from 'src/app/services/app-state.service';
@@ -14,9 +14,9 @@ import { toObservable } from '@angular/core/rxjs-interop';
 export class CreateBadgeComponent implements OnInit, OnDestroy {
   form!: FormGroup;
   loading = signal(false);
-  error   = signal<string | null>(null);
-
+  error = signal<string | null>(null);
   private readonly destroy$ = new Subject<void>();
+  private injector = inject(Injector);
 
   constructor(
     private fb: FormBuilder,
@@ -24,11 +24,21 @@ export class CreateBadgeComponent implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     readonly appState: AppStateService
-  ) {}
+  ) {
+    this.setupAppIdObservable();
+  }
+
+  private setupAppIdObservable(): void {
+    toObservable(this.appState.currentAppId, { injector: this.injector })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((appId: number | null) => {
+        if (!appId) this.error.set('Aucune application sélectionnée');
+        else        this.error.set(null);
+      });
+  }
 
   ngOnInit(): void {
     this.buildForm();
-
     this.route.queryParams
       .pipe(takeUntil(this.destroy$))
       .subscribe(params => {
@@ -36,13 +46,6 @@ export class CreateBadgeComponent implements OnInit, OnDestroy {
         if (urlAppId && !this.appState.currentAppId()) {
           this.appState.selectApp(urlAppId);
         }
-      });
-
-    toObservable(this.appState.currentAppId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((appId: number | null) => {
-        if (!appId) this.error.set('Aucune application sélectionnée');
-        else        this.error.set(null);
       });
   }
 
@@ -71,7 +74,6 @@ export class CreateBadgeComponent implements OnInit, OnDestroy {
     this.loading.set(true);
     this.error.set(null);
 
-    // ✅ appId en premier argument, payload en second
     this.badgeService.createBadge(appId, this.form.value).subscribe({
       next: () => {
         this.router.navigate(['/dashboard/badges'], {

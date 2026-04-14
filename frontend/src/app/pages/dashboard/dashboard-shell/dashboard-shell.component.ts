@@ -22,6 +22,11 @@ export class DashboardShellComponent implements OnInit, OnDestroy {
   collapsed = signal(false);
   appInitError = signal<string | null>(null);
 
+get currentApp() {
+    return this.appState.currentApp(); 
+  }
+
+
   // ── PRIVATE ──────────────────────────────────────────────────────
   private readonly destroy$ = new Subject<void>();
 

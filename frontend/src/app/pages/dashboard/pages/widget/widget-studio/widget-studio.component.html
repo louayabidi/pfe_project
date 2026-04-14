@@ -1,0 +1,186 @@
+<div class="widget-studio">
+  <div class="studio-header">
+    <h1>
+      <mat-icon>palette</mat-icon>
+      Widget Studio
+    </h1>
+    <p>Configure your gamification widget visually</p>
+  </div>
+
+  <div class="studio-layout">
+    <!-- Left Panel - Controls -->
+    <div class="controls-panel">
+      <div class="control-group">
+        <label>Widget Name</label>
+        <input 
+          type="text" 
+          [formControl]="$any(configForm.controls['name'])"
+          placeholder="My Awesome Widget"
+          class="form-control"
+        />
+      </div>
+
+      <div class="control-group">
+        <label>Display Mode</label>
+        <div class="button-group">
+          <button 
+            *ngFor="let mode of displayModes"
+            [class.active]="configForm.value.displayMode === mode"
+            (click)="configForm.patchValue({ displayMode: mode })"
+          >
+            {{ mode | titlecase }}
+          </button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>Show Content</label>
+        <div class="button-group">
+          <button 
+            *ngFor="let content of contentModes"
+            [class.active]="configForm.value.contentMode === content"
+            (click)="configForm.patchValue({ contentMode: content })"
+          >
+            {{ content | titlecase }}
+          </button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>Background Color</label>
+        <div class="color-preview">
+          <input 
+            type="color" 
+            [value]="configForm.value.backgroundColor"
+           (change)="onColorChange($any($event.target).value, 'backgroundColor')"
+
+          />
+          <span class="color-value">{{ configForm.value.backgroundColor }}</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>Text Color</label>
+        <div class="color-preview">
+          <input 
+            type="color" 
+            [value]="configForm.value.textColor"
+            (change)="onColorChange($any($event.target).value, 'textColor')"
+
+          />
+          <span class="color-value">{{ configForm.value.textColor }}</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>Accent Color</label>
+        <div class="color-preview">
+          <input 
+            type="color" 
+            [value]="configForm.value.accentColor"
+           (change)="onColorChange($any($event.target).value, 'accentColor')"
+
+          />
+          <span class="color-value">{{ configForm.value.accentColor }}</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>
+          <input type="checkbox" [formControl]="$any(configForm.controls['showLifetime'])" />
+          Show Lifetime Points
+        </label>
+      </div>
+
+      <div class="control-group">
+        <label>
+          <input type="checkbox" [formControl]="$any(configForm.controls['showLevel'])" />
+          Show Level Badge
+        </label>
+      </div>
+
+      <div class="control-group">
+        <label>Border Radius: {{ configForm.value.borderRadius }}px</label>
+        <input 
+          type="range"
+          min="0"
+          max="30"
+          [formControl]="$any(configForm.controls['borderRadius'])"
+        />
+      </div>
+
+      <div class="control-group">
+        <label>Language</label>
+        <select [formControl]="$any(configForm.controls['language'])">
+          <option *ngFor="let lang of languages" [value]="lang">
+            {{ lang.toUpperCase() }}
+          </option>
+        </select>
+      </div>
+
+      <button 
+        class="save-button"
+        (click)="saveConfig()"
+        [disabled]="saving"
+      >
+        <mat-icon>save</mat-icon>
+        {{ saving ? 'Saving...' : 'Save Configuration' }}
+      </button>
+    </div>
+
+    <!-- Right Panel - Preview & Code -->
+    <div class="preview-panel">
+      <div class="device-switcher">
+        <button 
+          [class.active]="previewMode === 'mobile'"
+          (click)="previewMode = 'mobile'"
+        >
+          📱 Mobile
+        </button>
+        <button 
+          [class.active]="previewMode === 'web'"
+          (click)="previewMode = 'web'"
+        >
+          💻 Web
+        </button>
+      </div>
+
+      <div class="preview-container" [class.mobile]="previewMode === 'mobile'">
+        <div class="widget-preview">
+          <div 
+            class="preview-widget"
+            [style.backgroundColor]="configForm.value.backgroundColor"
+            [style.borderRadius.px]="configForm.value.borderRadius"
+            [style.color]="configForm.value.textColor"
+          >
+            <div class="preview-points">
+              <span class="star">⭐</span>
+              <span class="points-value">
+                1,234 {{ configForm.value.label }}
+              </span>
+            </div>
+            <div *ngIf="configForm.value.showLevel" 
+                 class="level-badge" 
+                 [style.backgroundColor]="configForm.value.accentColor">
+              Bronze
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-panel">
+        <label>📋 Copy this one line into your Flutter app:</label>
+        <div class="code-block">
+          <code>{{ generatedCode }}</code>
+          <button (click)="copyToClipboard()" class="copy-button">
+            <mat-icon>content_copy</mat-icon>
+            Copy
+          </button>
+        </div>
+        <p class="code-hint">
+          That's it! The widget will automatically load your configuration from our servers.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

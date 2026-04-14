@@ -1,6 +1,7 @@
 package com.gamification.backend.controller;
 
 import com.gamification.backend.dto.points_transaction.PointsResponse;
+import com.gamification.backend.dto.user.UserProfileResponse;
 import com.gamification.backend.repository.AppRepository;
 import com.gamification.backend.service.PointsService;
 import lombok.RequiredArgsConstructor;
@@ -28,4 +29,18 @@ public class PointsController {
 
         return ResponseEntity.ok(pointsService.getUserPoints(userId, appId));
     }
+
+
+
+    @GetMapping("/{userId}")
+public ResponseEntity<UserProfileResponse> getUserProfile(
+        @PathVariable String userId,
+        @RequestHeader("X-API-Key") String apiKey) {
+
+    Long appId = appRepository.findByApiKey(apiKey)
+            .orElseThrow(() -> new RuntimeException("Clé API invalide"))
+            .getId();
+
+    return ResponseEntity.ok(pointsService.getUserProfile(userId, appId));
+}
 }

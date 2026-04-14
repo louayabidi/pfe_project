@@ -21,8 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtFilter jwtFilter;  // Injection du filtre
-
+    private final JwtFilter jwtFilter;  
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
@@ -33,7 +32,11 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             .requestMatchers("/api/events/register").permitAll()
             .requestMatchers("/api/events/track").permitAll() 
             .requestMatchers("/api/users/*/points").permitAll()
-            .requestMatchers("/api/events/incoming/**").authenticated()
+            .requestMatchers("/api/users/**").permitAll()
+           .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/widgets/config/**").permitAll()
+            .requestMatchers("/api/widgets/config/**").authenticated()  // POST, PUT, DELETE require auth
+            .requestMatchers("/api/widgets/public/**").permitAll()          
+              .requestMatchers("/api/events/incoming/**").authenticated()
             .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
             .anyRequest().authenticated()
         )

@@ -4,10 +4,12 @@ import com.gamification.backend.dto.event.TrackEventRequest;
 import com.gamification.backend.model.AdvancedRule;
 import com.gamification.backend.model.AdvancedRule.AdvancedAction;
 import com.gamification.backend.model.AdvancedRule.AdvancedCondition;
+import com.gamification.backend.model.App;
 import com.gamification.backend.model.PointsBalance;
 import com.gamification.backend.model.RuleTriggerHistory;
 import com.gamification.backend.model.UserBadge;
 import com.gamification.backend.repository.AdvancedRuleRepository;
+import com.gamification.backend.repository.AppRepository;
 import com.gamification.backend.repository.IncomingEventRepository;
 import com.gamification.backend.repository.PointsRepository;
 import com.gamification.backend.repository.RuleTriggerHistoryRepository;
@@ -34,6 +36,7 @@ public class AdvancedRuleEvaluationService {
     private final BadgeService                 badgeService;
     private final UserBadgeRepository userBadgeRepository;
     private final IncomingEventRepository incomingEventRepository;
+    private final AppRepository appRepository;
 
     // ── API publique ──────────────────────────────────────────────────────────
 
@@ -194,19 +197,34 @@ private double toDouble(Object o) {
         };
     }
 
-    private Map<String, Object> executePoints(AdvancedAction a, String userId, Long appId) {
-        int pts = Integer.parseInt(a.getValue().toString());
-        PointsBalance bal = pointsRepository.findByUserIdAndAppId(userId, appId)
-                .orElseGet(() -> PointsBalance.builder().userId(userId).balance(0).lifetimeEarned(0).build());
-        bal.setBalance(bal.getBalance() + pts);
-        bal.setLifetimeEarned(bal.getLifetimeEarned() + pts);
-        pointsRepository.save(bal);
-        log.info("[AdvRule] +{} points → user='{}' nouveau solde={}", pts, userId, bal.getBalance());
-        Map<String, Object> r = new LinkedHashMap<>();
-        r.put("type", "POINTS"); r.put("value", pts); r.put("newBalance", bal.getBalance());
-        r.put("description", a.getDescription() != null ? a.getDescription() : "+"+pts+" points");
-        return r;
-    }
+   private Map<String, Object> executePoints(AdvancedAction a, String userId, Long appId) {
+    int pts = Integer.parseInt(a.getValue().toString());
+    
+    // Fetch the App entity
+    App app = appRepository.findById(appId)
+            .orElseThrow(() -> new RuntimeException("App not found with id: " + appId));
+    
+    PointsBalance bal = pointsRepository.findByUserIdAndAppId(userId, appId)
+            .orElseGet(() -> PointsBalance.builder()
+                    .userId(userId)
+                    .app(app)  // Now 'app' is defined
+                    .balance(0)
+                    .lifetimeEarned(0)
+                    .build());
+    
+    bal.setBalance(bal.getBalance() + pts);
+    bal.setLifetimeEarned(bal.getLifetimeEarned() + pts);
+    pointsRepository.save(bal);
+    
+    log.info("[AdvRule] +{} points → user='{}' nouveau solde={}", pts, userId, bal.getBalance());
+    
+    Map<String, Object> r = new LinkedHashMap<>();
+    r.put("type", "POINTS");
+    r.put("value", pts);
+    r.put("newBalance", bal.getBalance());
+    r.put("description", a.getDescription() != null ? a.getDescription() : "+"+pts+" points");
+    return r;
+}
 
 private Map<String, Object> executeBadge(AdvancedAction a, String userId) {
     Long badgeId = Long.parseLong(a.getValue().toString());
@@ -230,7 +248,7 @@ boolean already = userBadgeRepository.existsByUserIdAndBadgeId(userId, badgeId);
 
     private Map<String, Object> executeMultiplier(AdvancedAction a) {
         double mult = Double.parseDouble(a.getValue().toString());
-        // TODO: persister multiplicateur en attente pour cet utilisateur
+       
         Map<String, Object> r = new LinkedHashMap<>();
         r.put("type", "MULTIPLIER"); r.put("value", mult);
         r.put("description", String.format("Points x%.1f", mult));

@@ -68,12 +68,12 @@ public class ProfileService {
 
         AppOwner owner = findOwner(email);
 
-        if (!passwordEncoder.matches(req.getCurrentPassword(), owner.getPasswordHash())) {
+        if (!passwordEncoder.matches(req.getCurrentPassword(), owner.getPassword())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                 "Mot de passe actuel incorrect");
         }
 
-        owner.setPasswordHash(passwordEncoder.encode(req.getNewPassword()));
+       owner.setPassword(passwordEncoder.encode(req.getNewPassword()));
         ownerRepository.save(owner);
         log.info("[Profile] Mot de passe changé pour '{}'", email);
     }

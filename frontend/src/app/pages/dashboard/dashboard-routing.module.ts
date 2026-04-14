@@ -12,6 +12,7 @@ import { CreateBadgeComponent } from './pages/badges/create-badge/create-badge.c
 import { AdvancedRulesComponent } from './pages/rules/advanced-rules/advanced-rules.component';
 import { CreateAdvancedRuleComponent } from './pages/rules/create-advanced-rule/create-advanced-rule.component';
 import { UserProfileComponent } from './pages/user/user-profile/user-profile.component';
+import { WidgetStudioComponent } from './pages/widget/widget-studio/widget-studio.component';
 
 const routes: Routes = [
   {
@@ -27,6 +28,13 @@ const routes: Routes = [
 
 
 
+
+      // Widget Studio
+      {
+        path: 'widget-studio',
+        component: WidgetStudioComponent,
+        data: { title: 'Widget Studio' }
+      },
 
       //user_profile
 

@@ -14,14 +14,16 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "points_balance")
+@Table(name = "points_balance", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"user_id", "app_id"})
+})
 public class PointsBalance {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(name = "user_id", nullable = false, unique = true)
+    @Column(name = "user_id", nullable = false)
     private String userId;
     
     @ManyToOne(fetch = FetchType.LAZY)

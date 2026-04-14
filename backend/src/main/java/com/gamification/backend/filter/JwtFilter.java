@@ -22,19 +22,33 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
 
+    // List of public endpoints that don't require authentication
+    private static final List<String> PUBLIC_PATHS = List.of(
+        "/api/auth/",
+        "/api/events/register",
+        "/api/events/track",
+        "/api/users/",
+        "/api/widgets/config/"
+    );
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        // Skip JWT filter for public endpoints
+        return PUBLIC_PATHS.stream().anyMatch(path::startsWith);
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        // ── LOGS TEMPORAIRES ──────────────────────────
         System.out.println("=== JWT Filter ===");
         System.out.println("URL    : " + request.getRequestURI());
         System.out.println("Method : " + request.getMethod());
 
         String authHeader = request.getHeader("Authorization");
         System.out.println("Header : " + authHeader);
-        // ─────────────────────────────────────────────
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             System.out.println("❌ Pas de token Bearer");
@@ -53,9 +67,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 new UsernamePasswordAuthenticationToken(email, null, List.of());
             SecurityContextHolder.getContext().setAuthentication(auth);
             System.out.println("✅ Authentifié !");
-                System.out.println("Auth dans context : " + SecurityContextHolder.getContext().getAuthentication()); // ← ajoute ça
-
-            
+            System.out.println("Auth dans context : " + SecurityContextHolder.getContext().getAuthentication());
         } else {
             System.out.println("❌ Token invalide");
         }

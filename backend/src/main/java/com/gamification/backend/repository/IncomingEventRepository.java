@@ -1,8 +1,7 @@
 package com.gamification.backend.repository;
 
 import com.gamification.backend.model.IncomingEvent;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -29,4 +28,12 @@ public interface IncomingEventRepository
     @Modifying
     @Query("DELETE FROM IncomingEvent e WHERE e.app.id = :appId")
     void deleteByAppId(@Param("appId") Long appId);
+
+
+    @Query("SELECT COUNT(e) FROM IncomingEvent e WHERE e.app.id = :appId AND e.userId = :userId AND e.eventName = :eventName")
+long countByAppIdAndUserIdAndEventName(
+    @Param("appId") Long appId,
+    @Param("userId") String userId,
+    @Param("eventName") String eventName
+);
 }

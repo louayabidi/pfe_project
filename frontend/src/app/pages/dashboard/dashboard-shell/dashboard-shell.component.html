@@ -58,7 +58,16 @@
         </a>
 
 
-
+<a 
+  [routerLink]="['/dashboard/widget-studio']"
+  [queryParams]="currentApp ? { appId: currentApp.id } : {}"
+  routerLinkActive="active"
+  class="nav-item"
+  [attr.data-tooltip]="collapsed() ? 'Widget Studio' : null">
+  <span class="nav-icon"><mat-icon>palette</mat-icon></span>
+  <span class="nav-label">Widget Studio</span>
+  <span class="nav-active-bar"></span>
+</a>
 
           <a routerLink="/dashboard/profile"
            routerLinkActive="active"

@@ -745,7 +745,6 @@
   }
 }
 
-
 // ── DROPDOWN OPTIONS ───────────────────────────────────────────────────────
 .select-option {
   padding: 12px 13px;
@@ -802,6 +801,218 @@
 }
 
 .select-menu::-webkit-scrollbar-thumb {
+  background: var(--border-active);
+  border-radius: 4px;
+
+  &:hover {
+    background: rgba(100, 200, 255, 0.3);
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// ── BADGE SELECT DROPDOWN ───────────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
+
+.badge-select {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-2);
+    letter-spacing: 0.02em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .req { color: var(--accent); }
+}
+
+.badge-select-wrapper {
+  position: relative;
+
+  .native-select {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+  }
+}
+
+// ── BADGE TRIGGER BUTTON ───────────────────────────────────────────────────
+.badge-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border-active);
+  border-radius: var(--radius-sm);
+  padding: 10px 13px;
+  font-size: 13px;
+  font-family: var(--sans);
+  color: var(--text-1);
+  cursor: pointer;
+  transition: all var(--t);
+  text-align: left;
+
+  .trigger-badge {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    overflow: hidden;
+
+    .badge-thumbnail {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      flex-shrink: 0;
+      overflow: hidden;
+      background: var(--surface-3);
+      border: 1px solid var(--border);
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .no-selection {
+      color: var(--text-3);
+    }
+  }
+
+  .select-arrow {
+    color: var(--text-3);
+    transition: transform var(--t);
+    flex-shrink: 0;
+  }
+
+  &:hover {
+    border-color: rgba(100,200,255,0.3);
+    background: var(--surface-3);
+  }
+
+  &.open {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,212,255,0.1);
+
+    .select-arrow {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+// ── BADGE DROPDOWN MENU ────────────────────────────────────────────────────
+.badge-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: #0e1318;
+  border: 1px solid rgba(100, 200, 255, 0.18);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.95);
+  z-index: 1000;
+  animation: dropdown-open 0.15s ease;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+// ── BADGE OPTIONS ──────────────────────────────────────────────────────────
+.badge-option {
+  padding: 12px 13px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #e8f4ff;
+  background: #0e1318;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(100, 200, 255, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  position: relative;
+  z-index: 10;
+  line-height: 1.5;
+  letter-spacing: 0.3px;
+  transition: all 0.15s ease;
+
+  .badge-option-thumb {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    overflow: hidden;
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .badge-option-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: #141b22;
+    color: #00d4ff;
+    font-weight: 600;
+    padding-left: 15px;
+  }
+
+  &.selected {
+    background: rgba(0, 212, 255, 0.12);
+    color: #00d4ff;
+    font-weight: 700;
+    border-left: 3px solid #00d4ff;
+    padding-left: 10px;
+
+    &:hover {
+      background: rgba(0, 212, 255, 0.18);
+      padding-left: 15px;
+    }
+  }
+}
+
+// ── BADGE SCROLLBAR ────────────────────────────────────────────────────────
+.badge-menu::-webkit-scrollbar {
+  width: 8px;
+}
+
+.badge-menu::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+
+.badge-menu::-webkit-scrollbar-thumb {
   background: var(--border-active);
   border-radius: 4px;
 
