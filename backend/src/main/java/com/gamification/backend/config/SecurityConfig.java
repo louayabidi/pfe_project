@@ -4,6 +4,7 @@ import com.gamification.backend.filter.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -28,18 +29,17 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/api/auth/**").permitAll()
-            .requestMatchers("/api/events/register").permitAll()
-            .requestMatchers("/api/events/track").permitAll() 
-            .requestMatchers("/api/users/*/points").permitAll()
-            .requestMatchers("/api/users/**").permitAll()
-           .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/widgets/config/**").permitAll()
-            .requestMatchers("/api/widgets/config/**").authenticated()  // POST, PUT, DELETE require auth
-            .requestMatchers("/api/widgets/public/**").permitAll()          
-              .requestMatchers("/api/events/incoming/**").authenticated()
-            .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-            .anyRequest().authenticated()
-        )
+    .requestMatchers("/api/auth/**").permitAll()
+    .requestMatchers("/api/events/register").permitAll()
+    .requestMatchers("/api/events/track").permitAll()
+    .requestMatchers("/api/users/*/points").permitAll()
+    .requestMatchers("/api/users/**").permitAll()
+    .requestMatchers("/api/widgets/config/**").authenticated()  // ALL methods require auth
+    .requestMatchers("/api/widgets/public/**").permitAll()      // Flutter SDK — public
+    .requestMatchers("/api/events/incoming/**").authenticated()
+    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+    .anyRequest().authenticated()
+)
         .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
