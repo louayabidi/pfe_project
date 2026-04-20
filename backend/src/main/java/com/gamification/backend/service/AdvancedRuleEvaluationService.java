@@ -1,5 +1,6 @@
 package com.gamification.backend.service;
 
+import com.gamification.backend.dto.badge.BadgeResponse;
 import com.gamification.backend.dto.event.TrackEventRequest;
 import com.gamification.backend.model.AdvancedRule;
 import com.gamification.backend.model.AdvancedRule.AdvancedAction;
@@ -228,10 +229,16 @@ private double toDouble(Object o) {
 
 private Map<String, Object> executeBadge(AdvancedAction a, String userId) {
     Long badgeId = Long.parseLong(a.getValue().toString());
-    try { badgeService.getBadge(badgeId); }
-    catch (RuntimeException e) { log.warn("Badge #{} introuvable", badgeId); return null; }
+    
+    BadgeResponse badge;
+    try { 
+        badge = badgeService.getBadge(badgeId); 
+    } catch (RuntimeException e) { 
+        log.warn("Badge #{} introuvable", badgeId); 
+        return null; 
+    }
 
-boolean already = userBadgeRepository.existsByUserIdAndBadgeId(userId, badgeId);
+    boolean already = userBadgeRepository.existsByUserIdAndBadgeId(userId, badgeId);
     if (already) {
         log.info("[AdvRule] Badge #{} déjà attribué à '{}'", badgeId, userId);
         return null;
@@ -241,8 +248,15 @@ boolean already = userBadgeRepository.existsByUserIdAndBadgeId(userId, badgeId);
 
     Map<String, Object> r = new LinkedHashMap<>();
     r.put("type", "BADGE");
-    r.put("value", badgeId);
-    r.put("description", a.getDescription() != null ? a.getDescription() : "Badge #" + badgeId + " débloqué");
+    // ✅ Send the full badge object, not just the ID
+    Map<String, Object> badgeData = new LinkedHashMap<>();
+    badgeData.put("id", badge.getId());
+    badgeData.put("name", badge.getName());
+    badgeData.put("description", badge.getDescription());
+    badgeData.put("imageUrl", badge.getImageUrl() != null ? badge.getImageUrl() : "");
+    r.put("value", badgeData);
+    r.put("description", a.getDescription() != null ? a.getDescription() 
+        : "Badge \"" + badge.getName() + "\" débloqué");
     return r;
 }
 

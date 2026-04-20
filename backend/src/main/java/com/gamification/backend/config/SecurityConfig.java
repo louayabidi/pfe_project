@@ -38,6 +38,7 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     .requestMatchers("/api/widgets/public/**").permitAll()      // Flutter SDK — public
     .requestMatchers("/api/events/incoming/**").authenticated()
     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+    
     .anyRequest().authenticated()
 )
         .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
