@@ -1,4 +1,3 @@
-
 package com.gamification.backend.service;
 
 import com.gamification.backend.dto.widget.WidgetConfigRequest;
@@ -18,83 +17,92 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class WidgetConfigService {
-    
+
     private final WidgetConfigRepository widgetConfigRepository;
-    private final AppRepository appRepository;
-    private final SecureRandom secureRandom = new SecureRandom();
-    
+    private final AppRepository          appRepository;
+    private final SecureRandom           secureRandom = new SecureRandom();
+
+    // ── CREATE OR UPDATE ─────────────────────────────────────────────────────
+
     @Transactional
-    public WidgetConfigResponse createOrUpdateConfig(Long appId, WidgetConfigRequest request) {
+    public WidgetConfigResponse createOrUpdateConfig(Long appId, WidgetConfigRequest req) {
         App app = appRepository.findById(appId)
                 .orElseThrow(() -> new RuntimeException("App not found"));
-        
-        WidgetConfig config = widgetConfigRepository.findByAppIdAndName(appId, request.getName())
+
+        // Reuse existing config for this app+name, or create a new one
+        WidgetConfig config = widgetConfigRepository
+                .findByAppIdAndName(appId, req.getName())
                 .orElse(WidgetConfig.builder()
                         .app(app)
                         .publishableKey(generatePublishableKey())
                         .build());
-        
-        // Update fields
-        config.setName(request.getName());
-        config.setDisplayMode(request.getDisplayMode());
-        config.setContentMode(request.getContentMode());
-        config.setBackgroundColor(request.getBackgroundColor());
-        config.setTextColor(request.getTextColor());
-        config.setAccentColor(request.getAccentColor());
-        config.setLabel(request.getLabel());
-        config.setShowLifetime(request.getShowLifetime());
-        config.setShowLevel(request.getShowLevel());
-        config.setAnimate(request.getAnimate());
-        config.setBorderRadius(request.getBorderRadius());
-        config.setFontFamily(request.getFontFamily());
-        config.setDarkMode(request.getDarkMode());
-        config.setLanguage(request.getLanguage());
-        
-        WidgetConfig saved = widgetConfigRepository.save(config);
-        return toResponse(saved);
+
+        // ── Scalar fields ──────────────────────────────────────────────────
+        config.setName(req.getName());
+        config.setDisplayMode(req.getDisplayMode());
+        config.setContentMode(req.getContentMode());
+        config.setBackgroundColor(req.getBackgroundColor());
+        config.setTextColor(req.getTextColor());
+        config.setAccentColor(req.getAccentColor());
+        config.setLabel(req.getLabel());
+        config.setShowLifetime(req.getShowLifetime());
+        config.setShowLevel(req.getShowLevel());
+        config.setAnimate(req.getAnimate());
+        config.setBorderRadius(req.getBorderRadius());
+        config.setFontFamily(req.getFontFamily());
+        config.setDarkMode(req.getDarkMode());
+        config.setLanguage(req.getLanguage());
+
+        // ── Canvas layout (from Widget Studio drag-and-drop) ───────────────
+        if (req.getLayoutJson() != null) {
+            config.setLayoutJson(req.getLayoutJson());
+        }
+
+        return toResponse(widgetConfigRepository.save(config));
     }
-    
+
+    // ── READ ─────────────────────────────────────────────────────────────────
+
     public WidgetConfigResponse getConfig(String publishableKey) {
         WidgetConfig config = widgetConfigRepository.findByPublishableKey(publishableKey)
                 .orElseThrow(() -> new RuntimeException("Widget config not found"));
         return toResponse(config);
     }
-    
+
     public List<WidgetConfigResponse> getAppConfigs(Long appId) {
         return widgetConfigRepository.findByAppId(appId).stream()
                 .map(this::toResponse)
                 .toList();
     }
-    
-    private WidgetConfigResponse toResponse(WidgetConfig config) {
-        String generatedCode = String.format(
-            "GamifWidget(apiKey: '%s')",
-            config.getPublishableKey()
-        );
-        
+
+    // ── PRIVATE ──────────────────────────────────────────────────────────────
+
+    private WidgetConfigResponse toResponse(WidgetConfig c) {
         return WidgetConfigResponse.builder()
-                .id(config.getId())
-                .publishableKey(config.getPublishableKey())
-                .name(config.getName())
-                .displayMode(config.getDisplayMode())
-                .contentMode(config.getContentMode())
-                .backgroundColor(config.getBackgroundColor())
-                .textColor(config.getTextColor())
-                .accentColor(config.getAccentColor())
-                .label(config.getLabel())
-                .showLifetime(config.getShowLifetime())
-                .showLevel(config.getShowLevel())
-                .animate(config.getAnimate())
-                .borderRadius(config.getBorderRadius())
-                .fontFamily(config.getFontFamily())
-                .darkMode(config.getDarkMode())
-                .language(config.getLanguage())
-                .generatedCode(generatedCode)
-                .createdAt(config.getCreatedAt())
-                .updatedAt(config.getUpdatedAt())
+                .id(c.getId())
+                .publishableKey(c.getPublishableKey())
+                .name(c.getName())
+                .displayMode(c.getDisplayMode())
+                .contentMode(c.getContentMode())
+                .backgroundColor(c.getBackgroundColor())
+                .textColor(c.getTextColor())
+                .accentColor(c.getAccentColor())
+                .label(c.getLabel())
+                .showLifetime(c.getShowLifetime())
+                .showLevel(c.getShowLevel())
+                .animate(c.getAnimate())
+                .borderRadius(c.getBorderRadius())
+                .fontFamily(c.getFontFamily())
+                .darkMode(c.getDarkMode())
+                .language(c.getLanguage())
+                .layoutJson(c.getLayoutJson())          // ← send canvas to SDK
+                .generatedCode(String.format(
+                        "GamifWidget(apiKey: '%s')", c.getPublishableKey()))
+                .createdAt(c.getCreatedAt())
+                .updatedAt(c.getUpdatedAt())
                 .build();
     }
-    
+
     private String generatePublishableKey() {
         byte[] bytes = new byte[32];
         secureRandom.nextBytes(bytes);

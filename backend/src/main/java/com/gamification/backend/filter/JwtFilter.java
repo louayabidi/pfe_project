@@ -28,7 +28,8 @@ public class JwtFilter extends OncePerRequestFilter {
        // "/api/events/register",
         "/api/events/track",
         
-        "/api/users/"
+        "/api/users/",
+        "/api/widgets/public/" 
        
     );
 

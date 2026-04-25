@@ -22,48 +22,52 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtFilter jwtFilter;  
-@Bean
-public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http
-        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-        .csrf(csrf -> csrf.disable())
-        .authorizeHttpRequests(auth -> auth
-    .requestMatchers("/api/auth/**").permitAll()
-    .requestMatchers("/api/events/register").permitAll()
-    .requestMatchers("/api/events/track").permitAll()
-    .requestMatchers("/api/users/*/points").permitAll()
-    .requestMatchers("/api/users/**").permitAll()
-    .requestMatchers("/api/widgets/config/**").authenticated()  // ALL methods require auth
-    .requestMatchers("/api/widgets/public/**").permitAll()      // Flutter SDK — public
-    .requestMatchers("/api/events/incoming/**").authenticated()
-    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-    .anyRequest().authenticated()
-)
-        .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+    private final JwtFilter jwtFilter;
 
-    return http.build();
-}
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                // PUBLIC endpoints FIRST (most specific) — evaluated before general rules
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/events/register").permitAll()
+                .requestMatchers("/api/events/track").permitAll()
+                .requestMatchers("/api/users/*/points").permitAll()
+                .requestMatchers("/api/users/**").permitAll()
+                .requestMatchers("/api/widgets/public/**").permitAll()  //  Flutter SDK
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers("/api/ai/**").authenticated()
+       
+                .requestMatchers("/api/widgets/config/**").authenticated()  // Dashboard only
+                .requestMatchers("/api/events/incoming/**").authenticated()
+                
+                // ✅ Default: require authentication
+                .anyRequest().authenticated()
+            )
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
-@Bean
-public CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration config = new CorsConfiguration();
-    
-    // ✅ Remplacer setAllowedOrigins par setAllowedOriginPatterns
-    config.setAllowedOriginPatterns(List.of("http://localhost:*"));
-    
-    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-    config.setAllowedHeaders(List.of("*"));
-    config.setAllowCredentials(true);
+        return http.build();
+    }
 
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", config);
-    return source;
-}
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        
+        // ✅ Allow localhost on any port (for development)
+        config.setAllowedOriginPatterns(List.of("http://localhost:*"));
+        
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
 
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
 
-
- @Bean
+    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(10);
     }

@@ -43,13 +43,33 @@ export interface AnalyticsOverview {
   heatmap: HeatmapPoint[];
 }
 
+// ── Leaderboard Interfaces ──────────────────────────────────────────────────
+
+export interface LeaderboardEntry {
+  rank: number;
+  userId: string;
+  lifetimePoints: number;
+  totalEvents: number;
+  activeDaysCount: number;
+  rulesTriggered: number;
+  lastEventAt: string;
+}
+
+export interface LeaderboardPage {
+  entries: LeaderboardEntry[];
+  totalCount: number;
+  page: number;
+  size: number;
+  totalPages: number;
+}
+
 // ── Service ─────────────────────────────────────────────────────────────────
 
 @Injectable({ providedIn: 'root' })
 export class AnalyticsService {
   
   private readonly baseUrl = `${environment.apiUrl}/api/analytics`;
-
+  
   constructor(private http: HttpClient) {}
 
   /**
@@ -57,13 +77,27 @@ export class AnalyticsService {
    * @param appId Application ID
    * @param days Number of days to analyze (1-365, default 30)
    */
-getOverview(appId: number, days: number = 30): Observable<AnalyticsOverview> {
-  const params = new HttpParams()
-    .set('days', days.toString()); // remove appId from params
+  getOverview(appId: number, days: number = 30): Observable<AnalyticsOverview> {
+    const params = new HttpParams()
+      .set('days', days.toString());
+    
+    return this.http.get<AnalyticsOverview>(
+      `${this.baseUrl}/overview/${appId}`,
+      { params }
+    );
+  }
 
-  return this.http.get<AnalyticsOverview>(
-    `${this.baseUrl}/overview/${appId}`, // ← appId goes in the path
-    { params }
-  );
+  /**
+   * Get leaderboard for an app
+   * @param appId Application ID
+   * @param page Page number (0-indexed)
+   * @param size Page size (default 20)
+   */
+getLeaderboard(appId: number, page = 0, size = 20, sortBy = 'points'): Observable<LeaderboardPage> {
+  const params = new HttpParams()
+    .set('page', page.toString())
+    .set('size', size.toString())
+    .set('sortBy', sortBy);
+  return this.http.get<LeaderboardPage>(`${this.baseUrl}/leaderboard/${appId}`, { params });
 }
 }

@@ -1,6 +1,7 @@
 package com.gamification.backend.controller;
 
 import com.gamification.backend.dto.analytics.AnalyticsOverviewDTO;
+import com.gamification.backend.dto.leaderboard.LeaderboardPageDTO;
 import com.gamification.backend.service.AnalyticsService;
 
 import lombok.RequiredArgsConstructor;
@@ -41,4 +42,13 @@ public ResponseEntity<AnalyticsOverviewDTO> getOverview(
     return ResponseEntity.ok(result);
 }
   
+
+@GetMapping("/leaderboard/{appId}")
+public ResponseEntity<LeaderboardPageDTO> getLeaderboard(
+        @PathVariable Long appId,
+        @RequestParam(defaultValue = "0")      int page,
+        @RequestParam(defaultValue = "20")     int size,
+        @RequestParam(defaultValue = "points") String sortBy) {
+    return ResponseEntity.ok(analyticsService.getLeaderboard(appId, page, size, sortBy));
+}
 }

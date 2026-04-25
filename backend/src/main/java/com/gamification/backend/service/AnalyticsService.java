@@ -1,6 +1,8 @@
 package com.gamification.backend.service;
 
 import com.gamification.backend.dto.analytics.*;
+import com.gamification.backend.dto.leaderboard.LeaderboardEntryDTO;
+import com.gamification.backend.dto.leaderboard.LeaderboardPageDTO;
 import com.gamification.backend.repository.AnalyticsRepository;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -139,4 +142,47 @@ public class AnalyticsService {
 
         return result;
     }
+
+
+
+
+
+public LeaderboardPageDTO getLeaderboard(Long appId, int page, int size, String sortBy) {
+    page = Math.max(0, page);
+    size = Math.min(100, Math.max(1, size));
+    int offset = page * size;
+
+    List<Object[]> rows = switch (sortBy) {
+        case "events" -> analyticsRepo.findLeaderboardByEvents(appId, size, offset);
+        case "days"   -> analyticsRepo.findLeaderboardByDays(appId, size, offset);
+        case "rules"  -> analyticsRepo.findLeaderboardByRules(appId, size, offset);
+        default       -> analyticsRepo.findLeaderboardByPoints(appId, size, offset);
+    };
+
+    long totalCount = analyticsRepo.countLeaderboardUsers(appId);
+    long totalPages = (totalCount + size - 1) / size;
+
+    List<LeaderboardEntryDTO> entries = rows.stream()
+        .map(row -> LeaderboardEntryDTO.builder()
+            .rank(((Number) row[6]).longValue())
+            .userId((String) row[0])
+            .lifetimePoints(((Number) row[1]).longValue())
+            .totalEvents(((Number) row[2]).longValue())
+            .activeDaysCount(((Number) row[3]).longValue())
+            .rulesTriggered(((Number) row[4]).longValue())
+            .lastEventAt(row[5] != null
+                ? ((java.sql.Timestamp) row[5]).toLocalDateTime()
+                : null)
+            .build())
+        .collect(Collectors.toList());
+
+    return LeaderboardPageDTO.builder()
+        .entries(entries)
+        .totalCount(totalCount)
+        .page(page)
+        .size(size)
+        .totalPages(totalPages)
+        .build();
+}
+
 }

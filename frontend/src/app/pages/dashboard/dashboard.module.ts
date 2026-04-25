@@ -29,7 +29,7 @@ import { RuleCardComponent } from './pages/rules/rule-card/rule-card.component';
 import { EventsComponent } from './pages/events/events.component';
 import { BadgesComponent } from './pages/badges/badges/badges.component';
 import { CreateBadgeComponent } from './pages/badges/create-badge/create-badge.component';
-
+import { DragDropModule } from '@angular/cdk/drag-drop';
 // Services
 import { AppStateService } from 'src/app/services/app-state.service';
 import { DecimalPipe } from '@angular/common';
@@ -38,6 +38,11 @@ import { AdvancedRulesComponent } from './pages/rules/advanced-rules/advanced-ru
 import { CreateAdvancedRuleComponent } from './pages/rules/create-advanced-rule/create-advanced-rule.component';
 import { UserProfileComponent } from './pages/user/user-profile/user-profile.component';
 import { WidgetStudioComponent } from './pages/widget/widget-studio/widget-studio.component';
+import { HttpClientModule } from '@angular/common/http';
+import { MinPipe } from 'src/app/shared/pipes/min.pipe';
+import { ReversePipe } from 'src/app/shared/pipes/reverse.pipe';
+import { LeaderboardComponent } from './pages/leaderboard/leaderboard.component';
+import { AiEngineComponent } from './pages/ai-engine/ai-engine.component';
 
 @NgModule({
   declarations: [
@@ -59,6 +64,11 @@ import { WidgetStudioComponent } from './pages/widget/widget-studio/widget-studi
     CreateAdvancedRuleComponent, 
     UserProfileComponent, 
     WidgetStudioComponent,
+    MinPipe,
+    ReversePipe,
+    LeaderboardComponent,
+    AiEngineComponent
+
   ],
   imports: [
     CommonModule,
@@ -67,6 +77,7 @@ import { WidgetStudioComponent } from './pages/widget/widget-studio/widget-studi
     RouterModule,
     DashboardRoutingModule,
     MatIconModule,
+    HttpClientModule,
   ],
   providers: [
     DecimalPipe

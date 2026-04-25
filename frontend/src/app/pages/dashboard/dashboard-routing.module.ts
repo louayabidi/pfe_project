@@ -13,6 +13,8 @@ import { AdvancedRulesComponent } from './pages/rules/advanced-rules/advanced-ru
 import { CreateAdvancedRuleComponent } from './pages/rules/create-advanced-rule/create-advanced-rule.component';
 import { UserProfileComponent } from './pages/user/user-profile/user-profile.component';
 import { WidgetStudioComponent } from './pages/widget/widget-studio/widget-studio.component';
+import { LeaderboardComponent } from './pages/leaderboard/leaderboard.component';
+import { AiEngineComponent } from './pages/ai-engine/ai-engine.component';
 
 const routes: Routes = [
   {
@@ -28,6 +30,18 @@ const routes: Routes = [
 
 
 
+      {
+  path: 'leaderboard',
+  component: LeaderboardComponent,
+  data: { title: 'Leaderboard' }
+},
+
+
+{
+  path: 'ai-engine',
+  component: AiEngineComponent,
+  data: { title: 'AI Engine' }
+},
 
       // Widget Studio
       {

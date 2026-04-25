@@ -1,61 +1,84 @@
+// frontend/src/app/services/widget-config.service.ts
+// Replace your existing file with this — only change is layoutJson? added to the interface.
+
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from 'src/environments/environment';
+import { environment } from '../../environments/environment';
 
-export interface WidgetConfigRequest {
-  name: string;
-  displayMode: string;
-  contentMode: string;
-  backgroundColor: string;
-  textColor: string;
-  accentColor: string;
-  label: string;
-  showLifetime: boolean;
-  showLevel: boolean;
-  animate: boolean;
-  borderRadius: number;
-  language: string;
-}
-
+// ── Response interface (mirrors WidgetConfigResponse.java) ───────────────────
 export interface WidgetConfigResponse {
-  id: number;
-  publishableKey: string;
-  name: string;
-  displayMode: string;
-  contentMode: string;
+  id             : number;
+  publishableKey : string;
+  name           : string;
+  displayMode    : string;
+  contentMode    : string;
   backgroundColor: string;
-  textColor: string;
-  accentColor: string;
-  label: string;
-  showLifetime: boolean;
-  showLevel: boolean;
-  animate: boolean;
-  borderRadius: number;
-  generatedCode: string;
-  createdAt: string;
-  updatedAt: string;
-  language: string;
+  textColor      : string;
+  accentColor    : string;
+  label          : string;
+  showLifetime   : boolean;
+  showLevel      : boolean;
+  animate        : boolean;
+  borderRadius   : number;
+  fontFamily    ?: string;
+  darkMode      ?: boolean;
+  language      ?: string;
+  generatedCode  : string;
+  layoutJson    ?: string;   // ← full canvas snapshot from Widget Studio
+  createdAt     ?: string;
+  updatedAt     ?: string;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+// ── Request interface (mirrors WidgetConfigRequest.java) ─────────────────────
+export interface WidgetConfigRequest {
+  name           : string;
+  displayMode    : string;
+  contentMode    : string;
+  backgroundColor: string;
+  textColor      : string;
+  accentColor    : string;
+  label          : string;
+  showLifetime   : boolean;
+  showLevel      : boolean;
+  animate        : boolean;
+  borderRadius   : number;
+  fontFamily    ?: string;
+  darkMode      ?: boolean;
+  language      ?: string;
+  layoutJson    ?: string;   // ← serialised canvas elements + frame
+}
+
+// ── Service ──────────────────────────────────────────────────────────────────
+@Injectable({ providedIn: 'root' })
 export class WidgetConfigService {
-  private apiUrl = `${environment.apiUrl}/api/widgets`;
+
+  private readonly base = `${environment.apiUrl}/api/widgets`;
 
   constructor(private http: HttpClient) {}
 
-  saveConfig(appId: number, config: WidgetConfigRequest): Observable<WidgetConfigResponse> {
-    return this.http.post<WidgetConfigResponse>(`${this.apiUrl}/config/${appId}`, config);
+  /** Load all widget configs for an app (dashboard use). */
+  getAppConfigs(appId: number): Observable<WidgetConfigResponse[]> {
+    return this.http.get<WidgetConfigResponse[]>(
+      `${this.base}/config/${appId}`
+    );
   }
 
-  getConfig(publishableKey: string): Observable<WidgetConfigResponse> {
-    return this.http.get<WidgetConfigResponse>(`${this.apiUrl}/config/${publishableKey}`);
+  /** Save (create or update) a widget config. */
+  saveConfig(
+    appId  : number,
+    payload: WidgetConfigRequest
+  ): Observable<WidgetConfigResponse> {
+    return this.http.post<WidgetConfigResponse>(
+      `${this.base}/config/${appId}`,
+      payload
+    );
   }
 
-getAppConfigs(appId: number): Observable<WidgetConfigResponse[]> {
-  return this.http.get<WidgetConfigResponse[]>(`${this.apiUrl}/config/${appId}`); 
-
-}
+  /** Public endpoint — used by the Flutter SDK (no auth). */
+  getPublicConfig(publishableKey: string): Observable<WidgetConfigResponse> {
+    return this.http.get<WidgetConfigResponse>(
+      `${this.base}/public/${publishableKey}`
+    );
+  }
 }

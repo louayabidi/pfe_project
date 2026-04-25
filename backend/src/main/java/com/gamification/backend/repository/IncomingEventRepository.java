@@ -36,4 +36,23 @@ long countByAppIdAndUserIdAndEventName(
     @Param("userId") String userId,
     @Param("eventName") String eventName
 );
+
+
+
+// Used by outcome tracker to check if user came back after an AI action
+@Query("""
+    SELECT COUNT(e) > 0 FROM IncomingEvent e
+    WHERE e.app.id = :appId
+      AND e.userId = :userId
+      AND e.createdAt > :after
+    """)
+boolean existsByAppIdAndUserIdAfter(
+    @Param("appId")  Long appId,
+    @Param("userId") String userId,
+    @Param("after")  java.time.LocalDateTime after
+);
+
+
+
 }
+

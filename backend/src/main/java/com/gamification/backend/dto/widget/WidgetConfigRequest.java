@@ -1,12 +1,12 @@
 package com.gamification.backend.dto.widget;
 
 import lombok.Data;
-
+ 
 @Data
 public class WidgetConfigRequest {
     private String name;
-    private String displayMode;     // pill, card, full
-    private String contentMode;     // points, badges, both
+    private String displayMode;
+    private String contentMode;
     private String backgroundColor;
     private String textColor;
     private String accentColor;
@@ -18,4 +18,10 @@ public class WidgetConfigRequest {
     private String fontFamily;
     private Boolean darkMode;
     private String language;
+ 
+    /**
+     * Full Widget-Studio canvas as JSON string.
+     * Sent by the Angular dashboard on every save.
+     */
+    private String layoutJson;
 }

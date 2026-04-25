@@ -163,4 +163,149 @@ public interface AnalyticsRepository extends JpaRepository<IncomingEvent, Long> 
         WHERE b.app_id = :appId
         """, nativeQuery = true)
     long countTotalBadgesAwarded(@Param("appId") Long appId);
+
+
+
+
+
+
+
+//leaderboard
+// ── Leaderboard — 4 separate queries (PostgreSQL doesn't allow CASE in OVER ORDER BY) ──
+
+@Query(value = """
+    SELECT pb.user_id, pb.lifetime_earned,
+           COUNT(DISTINCT ie.id), COUNT(DISTINCT DATE(ie.created_at)),
+           COUNT(DISTINCT rth.rule_id), MAX(ie.created_at),
+           ROW_NUMBER() OVER (ORDER BY pb.lifetime_earned DESC) AS rank
+    FROM points_balance pb
+    LEFT JOIN incoming_events ie  ON pb.user_id = ie.user_id  AND pb.app_id = ie.app_id
+    LEFT JOIN rule_trigger_history rth ON pb.user_id = rth.user_id AND pb.app_id = rth.app_id
+    WHERE pb.app_id = :appId
+    GROUP BY pb.user_id, pb.lifetime_earned
+    ORDER BY pb.lifetime_earned DESC
+    LIMIT :limit OFFSET :offset
+    """, nativeQuery = true)
+List<Object[]> findLeaderboardByPoints(
+    @Param("appId") Long appId,
+    @Param("limit") int limit,
+    @Param("offset") int offset
+);
+
+@Query(value = """
+    SELECT pb.user_id, pb.lifetime_earned,
+           COUNT(DISTINCT ie.id)               AS total_events,
+           COUNT(DISTINCT DATE(ie.created_at)) AS active_days,
+           COUNT(DISTINCT rth.rule_id)         AS rules_triggered,
+           MAX(ie.created_at)                  AS last_event_at,
+           ROW_NUMBER() OVER (ORDER BY COUNT(DISTINCT ie.id) DESC) AS rank
+    FROM points_balance pb
+    LEFT JOIN incoming_events ie  ON pb.user_id = ie.user_id  AND pb.app_id = ie.app_id
+    LEFT JOIN rule_trigger_history rth ON pb.user_id = rth.user_id AND pb.app_id = rth.app_id
+    WHERE pb.app_id = :appId
+    GROUP BY pb.user_id, pb.lifetime_earned
+    ORDER BY total_events DESC
+    LIMIT :limit OFFSET :offset
+    """, nativeQuery = true)
+List<Object[]> findLeaderboardByEvents(
+    @Param("appId") Long appId,
+    @Param("limit") int limit,
+    @Param("offset") int offset
+);
+
+@Query(value = """
+    SELECT pb.user_id, pb.lifetime_earned,
+           COUNT(DISTINCT ie.id)               AS total_events,
+           COUNT(DISTINCT DATE(ie.created_at)) AS active_days,
+           COUNT(DISTINCT rth.rule_id)         AS rules_triggered,
+           MAX(ie.created_at)                  AS last_event_at,
+           ROW_NUMBER() OVER (ORDER BY COUNT(DISTINCT DATE(ie.created_at)) DESC) AS rank
+    FROM points_balance pb
+    LEFT JOIN incoming_events ie  ON pb.user_id = ie.user_id  AND pb.app_id = ie.app_id
+    LEFT JOIN rule_trigger_history rth ON pb.user_id = rth.user_id AND pb.app_id = rth.app_id
+    WHERE pb.app_id = :appId
+    GROUP BY pb.user_id, pb.lifetime_earned
+    ORDER BY active_days DESC
+    LIMIT :limit OFFSET :offset
+    """, nativeQuery = true)
+List<Object[]> findLeaderboardByDays(
+    @Param("appId") Long appId,
+    @Param("limit") int limit,
+    @Param("offset") int offset
+);
+
+@Query(value = """
+    SELECT pb.user_id, pb.lifetime_earned,
+           COUNT(DISTINCT ie.id)               AS total_events,
+           COUNT(DISTINCT DATE(ie.created_at)) AS active_days,
+           COUNT(DISTINCT rth.rule_id)         AS rules_triggered,
+           MAX(ie.created_at)                  AS last_event_at,
+           ROW_NUMBER() OVER (ORDER BY COUNT(DISTINCT rth.rule_id) DESC) AS rank
+    FROM points_balance pb
+    LEFT JOIN incoming_events ie  ON pb.user_id = ie.user_id  AND pb.app_id = ie.app_id
+    LEFT JOIN rule_trigger_history rth ON pb.user_id = rth.user_id AND pb.app_id = rth.app_id
+    WHERE pb.app_id = :appId
+    GROUP BY pb.user_id, pb.lifetime_earned
+    ORDER BY rules_triggered DESC
+    LIMIT :limit OFFSET :offset
+    """, nativeQuery = true)
+List<Object[]> findLeaderboardByRules(
+    @Param("appId") Long appId,
+    @Param("limit") int limit,
+    @Param("offset") int offset
+);
+
+@Query(value = """
+    SELECT COUNT(DISTINCT pb.user_id)
+    FROM points_balance pb
+    WHERE pb.app_id = :appId
+    """, nativeQuery = true)
+long countLeaderboardUsers(@Param("appId") Long appId);
+
+
+
+
+
+
+// ── AI Engine: User Segmentation ─────────────────────────────────────────
+
+@Query(value = """
+    WITH user_stats AS (
+        SELECT
+            pb.user_id,
+            pb.app_id,
+            pb.lifetime_earned,
+            COUNT(DISTINCT ie.id)               AS total_events,
+            COUNT(DISTINCT DATE(ie.created_at)) AS active_days,
+            MAX(ie.created_at)                  AS last_seen,
+            EXTRACT(EPOCH FROM (NOW() - MAX(ie.created_at))) / 86400 AS days_silent
+        FROM points_balance pb
+        LEFT JOIN incoming_events ie
+               ON pb.user_id = ie.user_id AND pb.app_id = ie.app_id
+        WHERE pb.app_id = :appId
+        GROUP BY pb.user_id, pb.app_id, pb.lifetime_earned
+    )
+    SELECT
+        user_id,
+        app_id,
+        lifetime_earned,
+        total_events,
+        active_days,
+        last_seen,
+        days_silent,
+        CASE
+            WHEN total_events = 0                      THEN 'LURKER'
+            WHEN days_silent  > 28                     THEN 'CHURNED'
+            WHEN days_silent  > 14                     THEN 'AT_RISK'
+            WHEN active_days >= 7 AND total_events >= 20 THEN 'POWER_USER'
+            WHEN active_days >= 3                      THEN 'MAINTAINER'
+            ELSE 'EXPERIMENTER'
+        END AS segment
+    FROM user_stats
+    """, nativeQuery = true)
+List<Object[]> findUserSegments(@Param("appId") Long appId);
+
+
+
+
 }

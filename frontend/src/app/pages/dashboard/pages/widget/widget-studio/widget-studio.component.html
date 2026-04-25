@@ -1,186 +1,358 @@
-<div class="widget-studio">
-  <div class="studio-header">
-    <h1>
-      <mat-icon>palette</mat-icon>
-      Widget Studio
-    </h1>
-    <p>Configure your gamification widget visually</p>
+<!-- Ghost cursor follower -->
+<div *ngIf="ghost" class="ghost-follower"
+  [style.left.px]="ghost.x - 24"
+  [style.top.px]="ghost.y - 18">
+  {{ getLibItem(ghost.type)?.icon }} {{ getLibItem(ghost.type)?.label }}
+</div>
+
+<div class="builder-shell">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-logo">✦</div>
+    <span class="topbar-title">Widget Builder</span>
+    <div class="topbar-sep"></div>
+    <input class="topbar-name" [(ngModel)]="widgetName" />
+
+    <div class="spacer"></div>
+
+    <button class="btn-ghost" [class.active]="showGrid" (click)="showGrid = !showGrid">⊞ Grid</button>
+    <button class="btn-ghost" (click)="clearCanvas()">Clear</button>
+    <div class="live-dot"><span class="dot"></span> Live</div>
+    <button class="btn-save" [class.saved]="saved" (click)="saveWidget()">
+      {{ saved ? '✓ Saved!' : 'Save Widget' }}
+    </button>
   </div>
 
-  <div class="studio-layout">
-    <!-- Left Panel - Controls -->
-    <div class="controls-panel">
-      <div class="control-group">
-        <label>Widget Name</label>
-        <input 
-          type="text" 
-          [formControl]="$any(configForm.controls['name'])"
-          placeholder="My Awesome Widget"
-          class="form-control"
-        />
-      </div>
+  <div class="builder-body">
 
-      <div class="control-group">
-        <label>Display Mode</label>
-        <div class="button-group">
-          <button 
-            *ngFor="let mode of displayModes"
-            [class.active]="configForm.value.displayMode === mode"
-            (click)="configForm.patchValue({ displayMode: mode })"
-          >
-            {{ mode | titlecase }}
-          </button>
-        </div>
-      </div>
+    <!-- LEFT SIDEBAR -->
+    <div class="sidebar-left">
+      <div class="section-label">DRAG TO CANVAS</div>
 
-      <div class="control-group">
-        <label>Show Content</label>
-        <div class="button-group">
-          <button 
-            *ngFor="let content of contentModes"
-            [class.active]="configForm.value.contentMode === content"
-            (click)="configForm.patchValue({ contentMode: content })"
-          >
-            {{ content | titlecase }}
-          </button>
-        </div>
-      </div>
-
-      <div class="control-group">
-        <label>Background Color</label>
-        <div class="color-preview">
-          <input 
-            type="color" 
-            [value]="configForm.value.backgroundColor"
-           (change)="onColorChange($any($event.target).value, 'backgroundColor')"
-
-          />
-          <span class="color-value">{{ configForm.value.backgroundColor }}</span>
-        </div>
-      </div>
-
-      <div class="control-group">
-        <label>Text Color</label>
-        <div class="color-preview">
-          <input 
-            type="color" 
-            [value]="configForm.value.textColor"
-            (change)="onColorChange($any($event.target).value, 'textColor')"
-
-          />
-          <span class="color-value">{{ configForm.value.textColor }}</span>
-        </div>
-      </div>
-
-      <div class="control-group">
-        <label>Accent Color</label>
-        <div class="color-preview">
-          <input 
-            type="color" 
-            [value]="configForm.value.accentColor"
-           (change)="onColorChange($any($event.target).value, 'accentColor')"
-
-          />
-          <span class="color-value">{{ configForm.value.accentColor }}</span>
-        </div>
-      </div>
-
-      <div class="control-group">
-        <label>
-          <input type="checkbox" [formControl]="$any(configForm.controls['showLifetime'])" />
-          Show Lifetime Points
-        </label>
-      </div>
-
-      <div class="control-group">
-        <label>
-          <input type="checkbox" [formControl]="$any(configForm.controls['showLevel'])" />
-          Show Level Badge
-        </label>
-      </div>
-
-      <div class="control-group">
-        <label>Border Radius: {{ configForm.value.borderRadius }}px</label>
-        <input 
-          type="range"
-          min="0"
-          max="30"
-          [formControl]="$any(configForm.controls['borderRadius'])"
-        />
-      </div>
-
-      <div class="control-group">
-        <label>Language</label>
-        <select [formControl]="$any(configForm.controls['language'])">
-          <option *ngFor="let lang of languages" [value]="lang">
-            {{ lang.toUpperCase() }}
-          </option>
-        </select>
-      </div>
-
-      <button 
-        class="save-button"
-        (click)="saveConfig()"
-        [disabled]="saving"
-      >
-        <mat-icon>save</mat-icon>
-        {{ saving ? 'Saving...' : 'Save Configuration' }}
-      </button>
-    </div>
-
-    <!-- Right Panel - Preview & Code -->
-    <div class="preview-panel">
-      <div class="device-switcher">
-        <button 
-          [class.active]="previewMode === 'mobile'"
-          (click)="previewMode = 'mobile'"
-        >
-          📱 Mobile
-        </button>
-        <button 
-          [class.active]="previewMode === 'web'"
-          (click)="previewMode = 'web'"
-        >
-          💻 Web
-        </button>
-      </div>
-
-      <div class="preview-container" [class.mobile]="previewMode === 'mobile'">
-        <div class="widget-preview">
-          <div 
-            class="preview-widget"
-            [style.backgroundColor]="configForm.value.backgroundColor"
-            [style.borderRadius.px]="configForm.value.borderRadius"
-            [style.color]="configForm.value.textColor"
-          >
-            <div class="preview-points">
-              <span class="star">⭐</span>
-              <span class="points-value">
-                1,234 {{ configForm.value.label }}
-              </span>
-            </div>
-            <div *ngIf="configForm.value.showLevel" 
-                 class="level-badge" 
-                 [style.backgroundColor]="configForm.value.accentColor">
-              Bronze
-            </div>
+      <div class="lib-list">
+        <div *ngFor="let item of LIB"
+          class="lib-item"
+          (mousedown)="onSidebarMouseDown(item.type, $event)">
+          <div class="lib-icon">{{ item.icon }}</div>
+          <div>
+            <div class="lib-name">{{ item.label }}</div>
+            <div class="lib-hint">{{ item.hint }}</div>
           </div>
         </div>
       </div>
 
-      <div class="code-panel">
-        <label>📋 Copy this one line into your Flutter app:</label>
-        <div class="code-block">
-          <code>{{ generatedCode }}</code>
-          <button (click)="copyToClipboard()" class="copy-button">
-            <mat-icon>content_copy</mat-icon>
-            Copy
-          </button>
+      <div class="divider"></div>
+      <div class="section-label">WIDGET FRAME</div>
+
+      <div class="prop-row">
+        <div class="prop-label">BACKGROUND</div>
+        <div class="color-row">
+          <label class="color-swatch" [style.background]="frame.bg">
+            <input type="color" [value]="frame.bg" (input)="frame.bg = $any($event.target).value" />
+          </label>
+          <span class="color-hex">{{ frame.bg }}</span>
         </div>
-        <p class="code-hint">
-          That's it! The widget will automatically load your configuration from our servers.
-        </p>
+      </div>
+
+      <div class="prop-row">
+        <div class="prop-label-row">
+          <span class="prop-label">RADIUS</span>
+          <span class="prop-value">{{ frame.radius }}px</span>
+        </div>
+        <input type="range" min="0" max="32" [(ngModel)]="frame.radius" class="slider" />
+      </div>
+
+      <div class="tips-box">
+        <div>⌫ <span>Delete selected</span></div>
+        <div>Esc <span>Deselect</span></div>
       </div>
     </div>
+
+    <!-- CANVAS CENTER -->
+    <div class="canvas-area">
+      <div *ngIf="ghost" class="drop-hint"></div>
+
+      <div class="canvas-label-top">{{ 300 }}×{{ 520 }}px · DRAG COMPONENTS HERE</div>
+
+      <div #canvas class="widget-canvas"
+        [style.background]="frame.bg"
+        [style.borderRadius.px]="frame.radius"
+        [class.show-grid]="showGrid"
+        (mousedown)="selectedId = null">
+
+        <!-- Elements -->
+        <div *ngFor="let el of elements; trackBy: trackById"
+          class="canvas-element"
+          [ngStyle]="getElementStyle(el)"
+          (mousedown)="onElementMouseDown(el, $event)">
+
+          <!-- POINTS -->
+          <ng-container *ngIf="el.type === 'points'">
+            <div class="el-points">
+              <span class="el-icon">⭐</span>
+              <div>
+                <div class="el-val" [style.color]="el.fg">{{ el.val }}</div>
+                <div class="el-sublabel" [style.color]="el.fg">{{ el.label }}</div>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- STREAK -->
+          <ng-container *ngIf="el.type === 'streak'">
+            <div class="el-points">
+              <span class="el-icon">🔥</span>
+              <div>
+                <div class="el-val" [style.color]="el.fg">{{ el.val }} Days</div>
+                <div class="el-sublabel" [style.color]="el.fg">CURRENT STREAK</div>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- LEVEL -->
+          <ng-container *ngIf="el.type === 'level'">
+            <div class="el-center" [style.color]="el.fg">🎖️ {{ el.val }}</div>
+          </ng-container>
+
+          <!-- BADGE -->
+          <ng-container *ngIf="el.type === 'badge'">
+            <div class="el-badge"
+              [style.borderColor]="el.ac"
+              [style.borderRadius.px]="el.r">
+              <div class="badge-dot" [style.background]="el.ac"></div>
+              <span [style.color]="el.fg">{{ el.label }}</span>
+            </div>
+          </ng-container>
+
+          <!-- PROGRESS -->
+          <ng-container *ngIf="el.type === 'progress'">
+            <div class="el-progress">
+              <div class="progress-header">
+                <span [style.color]="el.fg">{{ el.label }}</span>
+                <span [style.color]="el.ac">{{ el.pct }}%</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill"
+                  [style.width]="getProgressWidth(el)"
+                  [style.background]="el.ac">
+                </div>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- AVATAR -->
+          <ng-container *ngIf="el.type === 'avatar'">
+            <div class="el-center el-avatar" [style.color]="el.fg">{{ el.val }}</div>
+          </ng-container>
+
+          <!-- LABEL -->
+          <ng-container *ngIf="el.type === 'label'">
+            <div class="el-label" [style.color]="el.fg" [style.fontSize.px]="el.fs">{{ el.val }}</div>
+          </ng-container>
+
+          <!-- DIVIDER -->
+          <ng-container *ngIf="el.type === 'divider'">
+            <div class="el-divider" [style.background]="el.bg"></div>
+          </ng-container>
+
+          <!-- Resize handles (only when selected) -->
+          <ng-container *ngIf="selectedId === el.id">
+            <div class="rh nw" (mousedown)="onResizeMouseDown(el, 'nw', $event)"></div>
+            <div class="rh ne" (mousedown)="onResizeMouseDown(el, 'ne', $event)"></div>
+            <div class="rh se" (mousedown)="onResizeMouseDown(el, 'se', $event)"></div>
+            <div class="rh sw" (mousedown)="onResizeMouseDown(el, 'sw', $event)"></div>
+          </ng-container>
+        </div>
+
+        <!-- Empty state -->
+        <div *ngIf="elements.length === 0" class="empty-state">
+          <div class="empty-icon">⊕</div>
+          <div class="empty-text">Drag components from<br/>the left to start building</div>
+        </div>
+      </div>
+
+      <div class="canvas-label-bottom">Click to select · Drag to move · Corner handles to resize</div>
+    </div>
+
+    <!-- RIGHT SIDEBAR -->
+    <div class="sidebar-right">
+      <!-- Tabs -->
+      <div class="tabs">
+        <button [class.active]="activeTab === 'props'" (click)="activeTab = 'props'">Properties</button>
+        <button [class.active]="activeTab === 'layers'" (click)="activeTab = 'layers'">Layers</button>
+      </div>
+
+      <!-- PROPERTIES TAB -->
+      <div *ngIf="activeTab === 'props'" class="tab-content">
+        <ng-container *ngIf="selectedEl; else noSelection">
+          <div class="el-header">
+            <span class="el-header-icon">{{ getLibItem(selectedEl.type)?.icon }}</span>
+            <div>
+              <div class="el-header-name">{{ getLibItem(selectedEl.type)?.label }}</div>
+              <div class="el-header-id">id: {{ selectedEl.id }}</div>
+            </div>
+            <button class="btn-delete" (click)="deleteSelected()">✕</button>
+          </div>
+
+          <div class="action-row">
+            <button (click)="duplicate()">⎘ Dup</button>
+            <button (click)="bringForward()">↑ Fwd</button>
+            <button (click)="sendBackward()">↓ Back</button>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Content props -->
+          <div class="prop-group" *ngIf="selectedEl.val !== undefined">
+            <div class="prop-label">{{ selectedEl.type === 'avatar' ? 'INITIAL' : 'VALUE' }}</div>
+            <input class="text-input" [value]="selectedEl.val"
+              (input)="updateProp('val', $any($event.target).value)" />
+          </div>
+
+          <div class="prop-group" *ngIf="selectedEl.label !== undefined">
+            <div class="prop-label">LABEL</div>
+            <input class="text-input" [value]="selectedEl.label"
+              (input)="updateProp('label', $any($event.target).value)" />
+          </div>
+
+          <div class="prop-group" *ngIf="selectedEl.type === 'progress'">
+            <div class="prop-label-row">
+              <span class="prop-label">PROGRESS</span>
+              <span class="prop-value">{{ selectedEl.pct }}%</span>
+            </div>
+            <input type="range" min="0" max="100" class="slider"
+              [value]="selectedEl.pct"
+              (input)="updateProp('pct', +$any($event.target).value)" />
+          </div>
+
+          <div class="prop-group" *ngIf="selectedEl.type === 'label'">
+            <div class="prop-label-row">
+              <span class="prop-label">FONT SIZE</span>
+              <span class="prop-value">{{ selectedEl.fs }}px</span>
+            </div>
+            <input type="range" min="8" max="28" class="slider"
+              [value]="selectedEl.fs"
+              (input)="updateProp('fs', +$any($event.target).value)" />
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Color props -->
+          <div class="prop-group" *ngIf="selectedEl.type !== 'label'">
+            <div class="prop-label">{{ selectedEl.type === 'divider' ? 'COLOR' : 'BACKGROUND' }}</div>
+            <div class="color-row">
+              <label class="color-swatch" [style.background]="selectedEl.bg">
+                <input type="color" [value]="selectedEl.bg"
+                  (input)="updateProp('bg', $any($event.target).value)" />
+              </label>
+              <input class="text-input color-hex-input" [value]="selectedEl.bg"
+                (input)="updateProp('bg', $any($event.target).value)" />
+            </div>
+          </div>
+
+          <div class="prop-group" *ngIf="selectedEl.type !== 'divider'">
+            <div class="prop-label">TEXT COLOR</div>
+            <div class="color-row">
+              <label class="color-swatch" [style.background]="selectedEl.fg">
+                <input type="color" [value]="selectedEl.fg"
+                  (input)="updateProp('fg', $any($event.target).value)" />
+              </label>
+              <input class="text-input color-hex-input" [value]="selectedEl.fg"
+                (input)="updateProp('fg', $any($event.target).value)" />
+            </div>
+          </div>
+
+          <div class="prop-group" *ngIf="selectedEl.ac !== undefined">
+            <div class="prop-label">ACCENT COLOR</div>
+            <div class="color-row">
+              <label class="color-swatch" [style.background]="selectedEl.ac">
+                <input type="color" [value]="selectedEl.ac"
+                  (input)="updateProp('ac', $any($event.target).value)" />
+              </label>
+              <input class="text-input color-hex-input" [value]="selectedEl.ac"
+                (input)="updateProp('ac', $any($event.target).value)" />
+            </div>
+          </div>
+
+          <div class="prop-group" *ngIf="selectedEl.type !== 'divider'">
+            <div class="prop-label-row">
+              <span class="prop-label">RADIUS</span>
+              <span class="prop-value">{{ [selectedEl.r, 32] | min }}px</span>
+            </div>
+            <input type="range" min="0" max="32" class="slider"
+              [value]="[selectedEl.r, 32] | min"
+              (input)="updateProp('r', +$any($event.target).value)" />
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Position & size -->
+          <div class="prop-label">POSITION & SIZE</div>
+          <div class="pos-grid">
+            <div *ngFor="let f of [['X', selectedEl.x, 'x'], ['Y', selectedEl.y, 'y'], ['W', selectedEl.w, 'w'], ['H', selectedEl.h, 'h']]">
+              <div class="pos-label">{{ f[0] }}</div>
+              <input type="number" class="pos-input" [value]="f[1] | number:'1.0-0'"
+            (input)="updateProp($any(f[2]), +$any($event.target).value)"/>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-template #noSelection>
+          <div class="no-selection">
+            <div class="no-sel-arrow">←</div>
+            <div class="no-sel-text">Select an element on<br/>the canvas to edit it</div>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- LAYERS TAB -->
+      <div *ngIf="activeTab === 'layers'" class="tab-content layers-panel">
+        <div class="layers-header">
+          <span>LAYERS</span><span class="layer-count">{{ elements.length }}</span>
+        </div>
+        <div *ngFor="let el of elements | reverse; let ri = index"
+          class="layer-item"
+          [class.selected]="selectedId === el.id"
+          (click)="selectedId = el.id; activeTab = 'props'">
+          <div class="layer-dot" [style.background]="el.bg && el.bg !== 'transparent' ? el.bg : (el.ac || el.fg)"></div>
+          <span class="layer-name">{{ getLibItem(el.type)?.label }}</span>
+          <div class="layer-actions">
+            <button (click)="$event.stopPropagation(); bringForward()">↑</button>
+            <button (click)="$event.stopPropagation(); sendBackward()">↓</button>
+          </div>
+        </div>
+      </div>
+
+    <!-- CODE SNIPPET -->
+<div class="code-panel">
+  <div class="prop-label">FLUTTER SNIPPET</div>
+
+  <div *ngIf="!savedKey" class="save-hint">
+    Save your widget to generate a key.
+  </div>
+
+  <div class="code-block" *ngIf="savedKey">
+    <div class="code-dots">
+      <span style="background:#FF5F57"></span>
+      <span style="background:#FEBC2E"></span>
+      <span style="background:#28C840"></span>
+    </div>
+    <code>
+      <span class="c-blue">GamifWidget</span>
+      <span class="c-gray">(apiKey: </span>
+      <span class="c-str">'{{ savedKey }}'</span>
+      <span class="c-gray">)</span>
+    </code>
+  </div>
+
+  <button class="btn-copy" [disabled]="!savedKey"
+    [style.opacity]="savedKey ? '1' : '0.4'"
+    [style.cursor]="savedKey ? 'pointer' : 'not-allowed'"
+    (click)="copySnippet()">
+    {{ savedKey ? 'Copy Snippet' : 'Save first' }}
+  </button>
+</div>
+    </div>
+
   </div>
 </div>

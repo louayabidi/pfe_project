@@ -1,0 +1,189 @@
+<div class="ai-page">
+
+  <!-- ── HEADER ── -->
+  <div class="page-header">
+    <div class="header-left">
+      <div class="title-row">
+        <div class="page-icon">🤖</div>
+        <h1 class="page-title">AI Engagement Engine</h1>
+      </div>
+      <p class="page-sub">
+        Automatically segments users and applies targeted actions to keep them engaged.
+        <span class="sub-badge" *ngIf="!loading() && selectedAppId()">
+          {{ totalUsers() }} users tracked
+        </span>
+      </p>
+    </div>
+
+    <!-- App selector -->
+    <div class="app-selector-wrap" *ngIf="apps().length > 1 && selectedAppId()">
+      <label class="selector-label">Application</label>
+      <select class="app-select" [value]="selectedAppId()" (change)="selectApp(+$any($event.target).value)">
+        <option *ngFor="let app of apps()" [value]="app.id">{{ app.name }}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- ── CHOOSE APP ── -->
+  <div class="choose-state" *ngIf="!loading() && apps().length > 1 && !selectedAppId()">
+    <span class="choose-icon">📱</span>
+    <h3 class="choose-title">Choose an application</h3>
+    <p class="choose-sub">Select an application to view its AI engine</p>
+    <div class="choose-apps">
+      <button *ngFor="let app of apps()" class="choose-app-btn" (click)="selectApp(app.id)">
+        <span>{{ app.name }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── ERROR ── -->
+  <div class="error-bar" *ngIf="error()">⚠️ {{ error() }}</div>
+
+  <!-- ── SUCCESS ── -->
+  <div class="success-bar" *ngIf="successMsg()">✅ {{ successMsg() }}</div>
+
+  <ng-container *ngIf="selectedAppId()">
+
+    <!-- ── ACTION BUTTONS ── -->
+    <div class="action-row">
+      <button class="btn-run" (click)="runEngine()" [disabled]="running() || loading()">
+        <span *ngIf="!running()">▶ Run Engine Now</span>
+        <span *ngIf="running()">Running...</span>
+      </button>
+      <button class="btn-score" (click)="scoreOutcomes()" [disabled]="scoring()">
+        <span *ngIf="!scoring()">📊 Score Outcomes</span>
+        <span *ngIf="scoring()">Scoring...</span>
+      </button>
+      <div class="action-hint">
+        Run engine daily to apply actions. Score outcomes after 7 days to measure effectiveness.
+      </div>
+    </div>
+
+    <!-- ── LOADING ── -->
+    <div class="loading-state" *ngIf="loading()">
+      <div class="loading-bar"><div class="loading-fill"></div></div>
+      <p>Analyzing users...</p>
+    </div>
+
+    <ng-container *ngIf="!loading()">
+
+      <!-- ── SEGMENT CARDS ── -->
+      <div class="section-title">User Segments</div>
+      <div class="segment-grid">
+        <div
+          *ngFor="let seg of segmentOrder"
+          class="segment-card"
+          [style.--seg-color]="getSegmentColor(seg)">
+          <div class="seg-header">
+            <span class="seg-icon">{{ getSegmentIcon(seg) }}</span>
+            <span class="seg-name">{{ seg.replace('_', ' ') }}</span>
+            <span class="seg-count">{{ segmentCounts()[seg] || 0 }}</span>
+          </div>
+          <p class="seg-desc">{{ getSegmentDescription(seg) }}</p>
+          <div class="seg-bar-wrap">
+            <div class="seg-bar"
+                 [style.width.%]="totalUsers() > 0 ? ((segmentCounts()[seg] || 0) / totalUsers() * 100) : 0">
+            </div>
+          </div>
+          <div class="seg-pct">
+            {{ totalUsers() > 0 ? ((segmentCounts()[seg] || 0) / totalUsers() * 100 | number:'1.0-0') : 0 }}% of users
+          </div>
+        </div>
+      </div>
+
+      <!-- ── OUTCOMES TABLE ── -->
+      <div class="section-title" style="margin-top: 2rem">
+        Action Effectiveness
+        <span class="section-hint">Shows return rate 7 days after each action was applied</span>
+      </div>
+
+      <div class="outcomes-empty" *ngIf="stats().length === 0">
+        No outcome data yet. Run the engine, wait 7 days, then click "Score Outcomes".
+      </div>
+
+      <div class="outcomes-table" *ngIf="stats().length > 0">
+        <table>
+          <thead>
+            <tr>
+              <th>Segment</th>
+              <th>Action</th>
+              <th style="text-align:right">Total</th>
+              <th style="text-align:right">Returned</th>
+              <th style="text-align:right">Return Rate</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let stat of stats(); trackBy: trackByStat">
+              <td>
+                <span class="stat-seg-badge"
+                      [style.background]="getSegmentColor(stat.segment) + '22'"
+                      [style.color]="getSegmentColor(stat.segment)">
+                  {{ getSegmentIcon(stat.segment) }} {{ stat.segment.replace('_', ' ') }}
+                </span>
+              </td>
+              <td class="action-label">{{ getActionLabel(stat.actionType) }}</td>
+              <td style="text-align:right">{{ stat.total }}</td>
+              <td style="text-align:right">{{ stat.returned }}</td>
+              <td style="text-align:right">
+                <span class="rate-badge"
+                      [class.rate-good]="stat.returnRate >= 50"
+                      [class.rate-mid]="stat.returnRate >= 25 && stat.returnRate < 50"
+                      [class.rate-low]="stat.returnRate < 25">
+                  {{ stat.returnRate }}%
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ── USER TABLE ── -->
+      <div class="section-title" style="margin-top: 2rem">
+        All Users
+        <span class="section-hint">Current segment classification for every user</span>
+      </div>
+
+      <div class="users-table" *ngIf="segments().length > 0">
+        <table>
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Segment</th>
+              <th style="text-align:right">Points</th>
+              <th style="text-align:right">Events</th>
+              <th style="text-align:right">Active Days</th>
+              <th style="text-align:right">Last Seen</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let s of segments(); trackBy: trackByUserId">
+              <td class="user-cell">
+                <div class="user-avatar">{{ s.userId.charAt(0).toUpperCase() }}</div>
+                <span class="user-id" [title]="s.userId">{{ s.userId }}</span>
+              </td>
+              <td>
+                <span class="seg-pill"
+                      [style.background]="getSegmentColor(s.segment) + '22'"
+                      [style.color]="getSegmentColor(s.segment)">
+                  {{ getSegmentIcon(s.segment) }} {{ s.segment.replace('_', ' ') }}
+                </span>
+              </td>
+              <td style="text-align:right">{{ s.lifetimePoints | number }}</td>
+              <td style="text-align:right">{{ s.totalEvents | number }}</td>
+              <td style="text-align:right">{{ s.activeDays }}</td>
+              <td style="text-align:right;color:var(--color-text-secondary)">
+                {{ formatSilence(s.daysSilent) }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="outcomes-empty" *ngIf="segments().length === 0">
+        No users found for this application yet.
+      </div>
+
+    </ng-container>
+  </ng-container>
+
+</div>

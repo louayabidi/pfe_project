@@ -9,12 +9,14 @@ import { SplashComponent } from './pages/splash/splash.component';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+
 @NgModule({
   declarations: [
     AppComponent,
     HeaderComponent,
     FooterComponent,
-    SplashComponent
+    SplashComponent,
+  
     
   ],
   imports: [
