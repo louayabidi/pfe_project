@@ -1,7 +1,7 @@
 package com.gamification.backend.service;
 
-import com.gamification.backend.dto.badge.BadgeResponse;
 import com.gamification.backend.dto.points_transaction.PointsResponse;
+import com.gamification.backend.dto.user.SdkBadgeResponse;
 import com.gamification.backend.dto.user.UserProfileResponse;
 import com.gamification.backend.model.Badge;
 import com.gamification.backend.model.PointsBalance;
@@ -10,7 +10,6 @@ import com.gamification.backend.repository.PointsRepository;
 import com.gamification.backend.repository.UserBadgeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,11 +17,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PointsService {
 
-    private final PointsRepository pointsRepository;
+    private final PointsRepository    pointsRepository;
     private final UserBadgeRepository userBadgeRepository;
-    private final BadgeRepository badgeRepository;
+    private final BadgeRepository     badgeRepository;
 
     public UserProfileResponse getUserProfile(String userId, Long appId) {
+
         PointsBalance balance = pointsRepository
                 .findByUserIdAndAppId(userId, appId)
                 .orElse(PointsBalance.builder()
@@ -31,20 +31,19 @@ public class PointsService {
                         .lifetimeEarned(0)
                         .build());
 
-        List<BadgeResponse> badges = userBadgeRepository
+        // ✅ Use SdkBadgeResponse so field names match Flutter
+        List<SdkBadgeResponse> badges = userBadgeRepository
                 .findByUserIdAndAppId(userId, appId)
                 .stream()
                 .map(ub -> {
                     Badge badge = badgeRepository.findById(ub.getBadgeId())
-                            .orElseThrow(() -> new RuntimeException("Badge not found: " + ub.getBadgeId()));
-                    return BadgeResponse.builder()
-                            .id(badge.getId())
-                            .name(badge.getName())
-                            .description(badge.getDescription())
-                            .imageUrl(badge.getImageUrl())
-                            .hidden(badge.getHidden())
-                            .maxAwardsPerUser(badge.getMaxAwardsPerUser())
-                            .createdAt(badge.getCreatedAt())
+                            .orElseThrow(() -> new RuntimeException(
+                                    "Badge not found: " + ub.getBadgeId()));
+                    return SdkBadgeResponse.builder()
+                            .badgeId(badge.getId())
+                            .name(badge.getName()     != null ? badge.getName()     : "")
+                            .imageUrl(badge.getImageUrl() != null ? badge.getImageUrl() : "")
+                            .awardedAt(ub.getAwardedAt().toString()) // "2025-01-15T10:30:00"
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -58,6 +57,7 @@ public class PointsService {
     }
 
     public PointsResponse getUserPoints(String userId, Long appId) {
+
         PointsBalance balance = pointsRepository
                 .findByUserIdAndAppId(userId, appId)
                 .orElse(PointsBalance.builder()

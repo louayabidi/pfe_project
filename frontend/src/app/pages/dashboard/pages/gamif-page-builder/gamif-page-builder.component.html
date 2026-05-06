@@ -1,0 +1,348 @@
+<!-- gamif-page-builder.component.html -->
+<div class="builder">
+
+  <!-- ── TOP BAR ─────────────────────────────────────────────────────────── -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="logo">📱</span>
+      <span class="title">Page Builder</span>
+      <div class="sep"></div>
+      <input class="page-name" [(ngModel)]="pageName" placeholder="Page name" />
+    </div>
+    <div class="topbar-right">
+      <div class="live-badge"><span class="dot"></span> Live preview</div>
+      <button class="btn-save" [class.saved]="saved" [disabled]="saving" (click)="save()">
+        {{ saved ? '✓ Saved!' : saving ? 'Saving…' : 'Save Page' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <!-- ── LEFT: section library + theme ──────────────────────────────────── -->
+    <div class="sidebar-left">
+
+      <div class="panel-label">SECTIONS</div>
+
+      <!-- Draggable section list -->
+      <div class="section-list">
+        <div
+          *ngFor="let s of sections; let i = index"
+          class="section-row"
+          [class.enabled]="s.enabled"
+          [class.selected]="selectedSection?.id === s.id"
+          [class.drag-over]="dragOver === i"
+          draggable="true"
+          (dragstart)="onDragStart(i)"
+          (dragover)="onDragOver($event, i)"
+          (drop)="onDrop(i)"
+          (dragend)="onDragEnd()"
+          (click)="selectSection(s)">
+
+          <span class="drag-handle">⠿</span>
+          <span class="section-icon">{{ getSectionIcon(s.type) }}</span>
+          <div class="section-info">
+            <span class="section-name">{{ s.title }}</span>
+            <span class="section-type">{{ getSectionLabel(s.type) }}</span>
+          </div>
+          <label class="toggle" (click)="$event.stopPropagation()">
+            <input type="checkbox" [checked]="s.enabled" (change)="toggleSection(s)" />
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="panel-divider"></div>
+      <div class="panel-label">ADD SECTION</div>
+
+      <div class="add-library">
+        <button *ngFor="let t of SECTION_TYPES"
+          class="add-btn"
+          (click)="addSection(t)">
+          {{ getSectionIcon(t) }} {{ getSectionLabel(t) }}
+        </button>
+      </div>
+
+      <div class="panel-divider"></div>
+      <div class="panel-label">THEME</div>
+
+      <!-- Theme controls -->
+      <div class="theme-grid">
+        <div class="theme-row">
+          <span class="theme-label">Background</span>
+          <label class="swatch" [style.background]="theme.backgroundColor">
+            <input type="color" [value]="theme.backgroundColor"
+              (input)="setTheme('backgroundColor', $any($event.target).value)" />
+          </label>
+        </div>
+        <div class="theme-row">
+          <span class="theme-label">Primary</span>
+          <label class="swatch" [style.background]="theme.primaryColor">
+            <input type="color" [value]="theme.primaryColor"
+              (input)="setTheme('primaryColor', $any($event.target).value)" />
+          </label>
+        </div>
+        <div class="theme-row">
+          <span class="theme-label">Accent</span>
+          <label class="swatch" [style.background]="theme.accentColor">
+            <input type="color" [value]="theme.accentColor"
+              (input)="setTheme('accentColor', $any($event.target).value)" />
+          </label>
+        </div>
+        <div class="theme-row">
+          <span class="theme-label">Text</span>
+          <label class="swatch" [style.background]="theme.textColor">
+            <input type="color" [value]="theme.textColor"
+              (input)="setTheme('textColor', $any($event.target).value)" />
+          </label>
+        </div>
+        <div class="theme-row">
+          <span class="theme-label">Card</span>
+          <label class="swatch" [style.background]="theme.cardColor">
+            <input type="color" [value]="theme.cardColor"
+              (input)="setTheme('cardColor', $any($event.target).value)" />
+          </label>
+        </div>
+      </div>
+
+      <div class="theme-row">
+        <span class="theme-label">Radius</span>
+        <span class="theme-val">{{ theme.borderRadius }}px</span>
+      </div>
+      <input type="range" min="0" max="32" class="slider"
+        [value]="theme.borderRadius"
+        (input)="setTheme('borderRadius', +$any($event.target).value)" />
+
+      <div class="toggle-row">
+        <label class="toggle">
+          <input type="checkbox" [checked]="theme.animate"
+            (change)="setTheme('animate', $any($event.target).checked)" />
+          <span class="toggle-track"></span>
+        </label>
+        <span class="theme-label">Animations</span>
+      </div>
+    </div>
+
+    <!-- ── CENTER: phone mockup ────────────────────────────────────────────── -->
+    <div class="canvas-area">
+      <div class="phone-wrap">
+        <div class="phone-frame">
+          <div class="phone-notch"></div>
+          <div class="phone-screen"
+            [style.background]="theme.backgroundColor"
+            [style.color]="theme.textColor">
+
+            <!-- Phone app bar -->
+            <div class="phone-appbar" [style.background]="theme.cardColor">
+              <span class="phone-back">←</span>
+              <span class="phone-appbar-title">{{ pageName }}</span>
+            </div>
+
+            <!-- Sections preview -->
+            <div class="phone-content">
+              <ng-container *ngFor="let s of enabledSections">
+
+                <!-- HERO section -->
+                <div *ngIf="s.type === 'hero'" class="preview-hero"
+                  [style.background]="'linear-gradient(135deg,' + theme.primaryColor + ',' + theme.primaryColor + '99)'">
+                  <div class="hero-pts">⭐ 8,420</div>
+                  <div class="hero-label" [style.color]="theme.textColor + 'aa'">{{ s.title }}</div>
+                  <div *ngIf="s.config?.['showStreak']" class="hero-streak">🔥 7 day streak</div>
+                  <div *ngIf="s.config?.['showLifetime']" class="hero-lifetime"
+                    [style.color]="theme.textColor + '88'">12,500 pts lifetime</div>
+                </div>
+
+                <!-- LEADERBOARD section -->
+                <div *ngIf="s.type === 'leaderboard'" class="preview-card"
+                  [style.background]="theme.cardColor"
+                  [style.borderRadius.px]="theme.borderRadius">
+                  <div class="preview-card-title">{{ s.title }}</div>
+                  <div class="preview-podium">
+                    <div class="podium-item silver">🥈<br/><small>Sara</small><br/><b>11k</b></div>
+                    <div class="podium-item gold">🥇<br/><small>Alex</small><br/><b>14k</b></div>
+                    <div class="podium-item bronze">🥉<br/><small>Max</small><br/><b>9k</b></div>
+                  </div>
+                  <div class="preview-userrank" [style.background]="theme.primaryColor + '22'"
+                    [style.borderColor]="theme.primaryColor + '44'">
+                    <span [style.color]="theme.primaryColor">#3</span>
+                    <span>You</span>
+                    <span [style.color]="theme.primaryColor">8,420</span>
+                  </div>
+                </div>
+
+                <!-- BADGES section -->
+                <div *ngIf="s.type === 'badges'" class="preview-card"
+                  [style.background]="theme.cardColor"
+                  [style.borderRadius.px]="theme.borderRadius">
+                  <div class="preview-card-title">{{ s.title }}</div>
+                  <div class="preview-badges">
+                    <div class="badge-item">🏅<div class="badge-name">Early Bird</div></div>
+                    <div class="badge-item">⚡<div class="badge-name">Speed Run</div></div>
+                    <div class="badge-item new-badge" [style.borderColor]="theme.accentColor">
+                      <span class="new-tag" [style.background]="theme.accentColor">NEW</span>
+                      🎖️<div class="badge-name">Level 5</div>
+                    </div>
+                    <div class="badge-item locked"><span class="lock">🔒</span><div class="badge-name">Champion</div></div>
+                    <div class="badge-item locked"><span class="lock">🔒</span><div class="badge-name">Diamond</div></div>
+                    <div class="badge-item locked"><span class="lock">🔒</span><div class="badge-name">Rocket</div></div>
+                  </div>
+                </div>
+
+                <!-- STATS section -->
+                <div *ngIf="s.type === 'stats'" class="preview-card"
+                  [style.background]="theme.cardColor"
+                  [style.borderRadius.px]="theme.borderRadius">
+                  <div class="preview-card-title">{{ s.title }}</div>
+                  <div class="preview-stats">
+                    <div class="stat-item"><div class="stat-val">142</div><div class="stat-key">Events</div></div>
+                    <div class="stat-item"><div class="stat-val">21</div><div class="stat-key">Active days</div></div>
+                    <div class="stat-item"><div class="stat-val">8</div><div class="stat-key">Rules hit</div></div>
+                  </div>
+                </div>
+
+                <!-- ACTIVITY section -->
+                <div *ngIf="s.type === 'activity'" class="preview-card"
+                  [style.background]="theme.cardColor"
+                  [style.borderRadius.px]="theme.borderRadius">
+                  <div class="preview-card-title">{{ s.title }}</div>
+                  <div class="preview-activity">
+                    <div class="act-row">⚡ <span>completeLevel — <b>+50 pts</b></span></div>
+                    <div class="act-row">🏅 <span>Badge: Speed Run</span></div>
+                    <div class="act-row">⚡ <span>purchaseItem — <b>+20 pts</b></span></div>
+                  </div>
+                </div>
+
+              </ng-container>
+
+              <div *ngIf="enabledSections.length === 0" class="empty-preview">
+                Enable sections →
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RIGHT: section config panel ────────────────────────────────────── -->
+    <div class="sidebar-right">
+      <ng-container *ngIf="selectedSection; else noSelect">
+        <div class="panel-label">
+          {{ getSectionIcon(selectedSection.type) }} {{ selectedSection.title }}
+        </div>
+
+        <div class="config-group">
+          <div class="config-label">TITLE</div>
+          <input class="config-input" [(ngModel)]="selectedSection.title" />
+        </div>
+
+        <!-- HERO config -->
+        <ng-container *ngIf="selectedSection.type === 'hero'">
+          <div class="config-toggle">
+            <label class="toggle"><input type="checkbox"
+              [checked]="selectedSection.config['showStreak']"
+              (change)="updateSectionConfig('showStreak', $any($event.target).checked)" />
+              <span class="toggle-track"></span></label>
+            <span class="config-label">Show streak</span>
+          </div>
+          <div class="config-toggle">
+            <label class="toggle"><input type="checkbox"
+              [checked]="selectedSection.config['showLifetime']"
+              (change)="updateSectionConfig('showLifetime', $any($event.target).checked)" />
+              <span class="toggle-track"></span></label>
+            <span class="config-label">Show lifetime total</span>
+          </div>
+        </ng-container>
+
+        <!-- LEADERBOARD config -->
+        <ng-container *ngIf="selectedSection.type === 'leaderboard'">
+          <div class="config-group">
+            <div class="config-label">ENTRIES TO SHOW</div>
+            <input type="number" class="config-input" min="3" max="50"
+              [value]="selectedSection.config['size'] ?? 10"
+              (input)="updateSectionConfig('size', +$any($event.target).value)" />
+          </div>
+          <div class="config-group">
+            <div class="config-label">SORT BY</div>
+            <select class="config-select"
+              [value]="selectedSection.config['sortBy'] ?? 'points'"
+              (change)="updateSectionConfig('sortBy', $any($event.target).value)">
+              <option value="points">Points</option>
+              <option value="events">Events</option>
+              <option value="days">Active days</option>
+            </select>
+          </div>
+          <div class="config-toggle">
+            <label class="toggle"><input type="checkbox"
+              [checked]="selectedSection.config['showPodium'] ?? true"
+              (change)="updateSectionConfig('showPodium', $any($event.target).checked)" />
+              <span class="toggle-track"></span></label>
+            <span class="config-label">Show top 3 podium</span>
+          </div>
+        </ng-container>
+
+        <!-- BADGES config -->
+        <ng-container *ngIf="selectedSection.type === 'badges'">
+          <div class="config-group">
+            <div class="config-label">COLUMNS</div>
+            <select class="config-select"
+              [value]="selectedSection.config['columns'] ?? 3"
+              (change)="updateSectionConfig('columns', +$any($event.target).value)">
+              <option value="2">2 columns</option>
+              <option value="3">3 columns</option>
+              <option value="4">4 columns</option>
+            </select>
+          </div>
+          <div class="config-toggle">
+            <label class="toggle"><input type="checkbox"
+              [checked]="selectedSection.config['showLocked'] ?? true"
+              (change)="updateSectionConfig('showLocked', $any($event.target).checked)" />
+              <span class="toggle-track"></span></label>
+            <span class="config-label">Show locked badges</span>
+          </div>
+        </ng-container>
+
+        <!-- ACTIVITY config -->
+        <ng-container *ngIf="selectedSection.type === 'activity'">
+          <div class="config-group">
+            <div class="config-label">MAX ITEMS</div>
+            <input type="number" class="config-input" min="5" max="50"
+              [value]="selectedSection.config['limit'] ?? 10"
+              (input)="updateSectionConfig('limit', +$any($event.target).value)" />
+          </div>
+        </ng-container>
+
+      </ng-container>
+
+      <ng-template #noSelect>
+        <div class="no-select">
+          <div class="no-select-arrow">←</div>
+          <div class="no-select-text">Click a section<br/>to configure it</div>
+        </div>
+      </ng-template>
+
+      <!-- ── Flutter code snippet ─────────────────────────────────────────── -->
+      <div class="snippet-panel">
+        <div class="panel-label">FLUTTER SNIPPET</div>
+        <div *ngIf="!savedKey" class="snippet-hint">Save to generate your key</div>
+        <div *ngIf="savedKey" class="snippet-block">
+          <div class="snippet-dots">
+            <span style="background:#FF5F57"></span>
+            <span style="background:#FEBC2E"></span>
+            <span style="background:#28C840"></span>
+          </div>
+          <code>
+            <span class="c-comment">// in your route builder:</span><br/>
+            <span class="c-widget">GamifPage</span>(<span class="c-key">apiKey</span>: <span class="c-str">'{{ savedKey }}'</span>)
+          </code>
+        </div>
+        <button class="btn-copy"
+          [disabled]="!savedKey"
+          [style.opacity]="savedKey ? '1' : '0.4'"
+          (click)="copySnippet()">
+          {{ savedKey ? '📋 Copy snippet' : 'Save first' }}
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,46 +1,48 @@
 package com.gamification.backend.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
+import lombok.*;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+@Entity
+@Table(name = "incoming_events")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "incoming_events")
 public class IncomingEvent {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "app_id", nullable = false)
     private App app;
-    
-    @Column(name = "user_id", nullable = false)
+
+    @Column(nullable = false)
     private String userId;
-    
-    @Column(name = "event_name", nullable = false)
+
+    @Column(nullable = true)
+    private String displayName;
+
+    @Column(nullable = false)
     private String eventName;
-    
-    @JdbcTypeCode(SqlTypes.JSON)
+
+    @Column(columnDefinition = "jsonb")
     private Map<String, Object> eventData;
-    
+
+    @Column(nullable = false)
     @Builder.Default
     private Boolean processed = false;
-    
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+
+    @Column(nullable = false, updatable = false)
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
 }

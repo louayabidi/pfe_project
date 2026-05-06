@@ -1,6 +1,7 @@
 export interface IncomingEvent {
   id: number;
   userId: string;
+  displayName: string; 
   eventName: string;
   eventData: Record<string, unknown> | null;
   processed: boolean;

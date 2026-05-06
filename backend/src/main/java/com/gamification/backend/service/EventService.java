@@ -31,13 +31,14 @@ public class EventService {
     private final RegisteredEventRepository registeredEventRepository;
     private final AppRepository appRepository;
 
-   @Transactional
+@Transactional
 public void saveEvent(App app, TrackEventRequest request) {
-    String status = request.resolveStatus(); // ✅ lit depuis data
+    String status = request.resolveStatus();
 
     IncomingEvent event = IncomingEvent.builder()
             .app(app)
             .userId(request.getUserId())
+            .displayName(request.getDisplayName() != null ? request.getDisplayName() : request.getUserId())
             .eventName(request.getEventName())
             .eventData(request.getData())
             .processed(false)
@@ -45,8 +46,11 @@ public void saveEvent(App app, TrackEventRequest request) {
 
     incomingEventRepository.save(event);
 
-    log.info("Event sauvegardé: {} | user={} | status={}",
-            request.getEventName(), request.getUserId(), status);
+    log.info("Event sauvegardé: {} | user={} | displayName={} | status={}",
+            request.getEventName(), 
+            request.getUserId(), 
+            event.getDisplayName(),
+            status);
 }
 
     @Transactional
@@ -115,6 +119,7 @@ public Page<IncomingEventDTO> getIncomingEvents(Long appId, EventFilterRequest f
                 .userId(e.getUserId())
                 .eventName(e.getEventName())
                 .eventData(e.getEventData())
+                .displayName(e.getDisplayName())
                 .processed(e.getProcessed())
                 .createdAt(e.getCreatedAt())
                 .build();

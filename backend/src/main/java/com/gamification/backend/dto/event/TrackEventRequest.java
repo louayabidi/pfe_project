@@ -1,7 +1,6 @@
 package com.gamification.backend.dto.event;
 
 import java.util.Map;
-
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -11,13 +10,15 @@ public class TrackEventRequest {
     @NotBlank(message = "L'ID utilisateur est obligatoire")
     private String userId;
 
+    // ✅ NEW - displayName from Flutter SDK
+    private String displayName;
+
     @NotBlank(message = "Le nom de l'événement est obligatoire")
     private String eventName;
 
     private Map<String, Object> data;
 
-    // ✅ NOUVEAU — envoyé par le SDK via data.status
-    // On le lit depuis data pour ne pas casser le contrat existant
+    // ✅ Status resolver for try-finally injection
     public String resolveStatus() {
         if (data == null) return "UNKNOWN";
         Object s = data.get("status");

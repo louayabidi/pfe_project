@@ -28,51 +28,45 @@ public class EventController {
     private final RuleEngineService ruleEngineService;
     private final AdvancedRuleEvaluationService advancedRuleEvaluationService; 
 
-    @PostMapping("/track")
-    public ResponseEntity<List<RewardResponse>> trackEvent(
-            @RequestHeader("X-API-Key") String apiKey,
-            @Valid @RequestBody TrackEventRequest request) {
-        
-        log.info("Réception d'un événement: {} pour l'utilisateur {}", 
-                 request.getEventName(), request.getUserId());
-        
-        // 1. Valider la clé API
-        App app = appRepository.findByApiKey(apiKey)
-                .orElseThrow(() -> new RuntimeException("Clé API invalide"));
-        
-        // 2. Sauvegarder l'événement
-        eventService.saveEvent(app, request);
-        
-        // 3. Créer l'objet événement pour les règles basiques
-        IncomingEvent event = IncomingEvent.builder()
-                .app(app)
-                .userId(request.getUserId())
-                .eventName(request.getEventName())
-                .eventData(request.getData())
-                .build();
-        
-        // 4. Évaluer les règles basiques
-        List<RewardResponse> rewards = ruleEngineService.evaluateEvent(event);
+@PostMapping("/track")
+public ResponseEntity<Map<String, Object>> trackEvent(
+        @RequestHeader("X-API-Key") String apiKey,
+        @Valid @RequestBody TrackEventRequest request) {
 
-        // 5. Évaluer les règles avancées ← ADD THIS BLOCK
-        List<AdvancedRule> matchingAdvancedRules = advancedRuleEvaluationService
-                .evaluateRulesForEvent(app.getId(), request);
+    log.info("Réception d'un événement: {} pour l'utilisateur {}",
+             request.getEventName(), request.getUserId());
 
-        for (AdvancedRule rule : matchingAdvancedRules) {
-            List<Map<String, Object>> advancedRewards = advancedRuleEvaluationService
-                    .executeRuleActions(rule, request.getUserId(), app.getId());
-            
-          advancedRewards.forEach(r -> rewards.add(
-    RewardResponse.builder()
-        .type((String) r.get("type"))
-        .data(r.get("value"))
-        .message((String) r.get("description"))
-        .build()
-));
-        }
-        
-        log.info("{} récompenses générées pour l'événement {}", rewards.size(), request.getEventName());
-        
-        return ResponseEntity.ok(rewards);
+    App app = appRepository.findByApiKey(apiKey)
+            .orElseThrow(() -> new RuntimeException("Clé API invalide"));
+
+    eventService.saveEvent(app, request);
+
+    IncomingEvent event = IncomingEvent.builder()
+            .app(app)
+            .userId(request.getUserId())
+            .eventName(request.getEventName())
+            .eventData(request.getData())
+            .build();
+
+    List<RewardResponse> rewards = ruleEngineService.evaluateEvent(event);
+
+    List<AdvancedRule> matchingAdvancedRules = advancedRuleEvaluationService
+            .evaluateRulesForEvent(app.getId(), request);
+    for (AdvancedRule rule : matchingAdvancedRules) {
+        List<Map<String, Object>> advancedRewards = advancedRuleEvaluationService
+                .executeRuleActions(rule, request.getUserId(), app.getId());
+        advancedRewards.forEach(r -> rewards.add(
+            RewardResponse.builder()
+                .type((String) r.get("type"))
+                .data(r.get("value"))
+                .message((String) r.get("description"))
+                .build()
+        ));
     }
+
+    log.info("{} récompenses générées pour l'événement {}", rewards.size(), request.getEventName());
+
+    // ✅ Wrap in object so Flutter can do response['rewards']
+    return ResponseEntity.ok(Map.of("rewards", rewards));
+}
 }

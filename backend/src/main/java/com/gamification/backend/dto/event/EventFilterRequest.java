@@ -8,6 +8,7 @@ import java.time.LocalDate;
 public class EventFilterRequest {
     private String userId;
     private String eventName;
+    private String displayName;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate dateFrom;

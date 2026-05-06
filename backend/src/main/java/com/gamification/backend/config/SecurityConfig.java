@@ -39,11 +39,19 @@ public class SecurityConfig {
                 .requestMatchers("/api/widgets/public/**").permitAll()  //  Flutter SDK
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/ai/**").authenticated()
+                .requestMatchers("/api/gamif-page/public/**").permitAll()
+                 .requestMatchers("/api/levels/config/**").permitAll()
+                .requestMatchers("/api/gamif-page/*").authenticated()
+                .requestMatchers("/api/events/incoming/display-names").permitAll()
+
+                .requestMatchers("/api/events/incoming/display-names").authenticated()
+              .requestMatchers(HttpMethod.PUT, "/api/profile/password").authenticated()
+              
        
                 .requestMatchers("/api/widgets/config/**").authenticated()  // Dashboard only
                 .requestMatchers("/api/events/incoming/**").authenticated()
                 
-                // ✅ Default: require authentication
+               
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

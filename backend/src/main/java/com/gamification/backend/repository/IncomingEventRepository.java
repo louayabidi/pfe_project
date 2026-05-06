@@ -52,7 +52,8 @@ boolean existsByAppIdAndUserIdAfter(
     @Param("after")  java.time.LocalDateTime after
 );
 
-
+@Query("SELECT DISTINCT e.displayName FROM IncomingEvent e WHERE e.app.id = :appId ORDER BY e.displayName ASC")
+List<String> findDistinctDisplayNamesByAppId(@Param("appId") Long appId);
 
 }
 

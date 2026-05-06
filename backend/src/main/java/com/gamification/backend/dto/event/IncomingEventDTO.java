@@ -11,6 +11,7 @@ public class IncomingEventDTO {
     private Long id;
     private String userId;
     private String eventName;
+    private String displayName; 
     private Map<String, Object> eventData;
     private Boolean processed;
     private LocalDateTime createdAt;

@@ -1,26 +1,19 @@
 import { IncomingEvent, EventFilters, EventPage } from '../core/models/event.model';
-
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
-
-
 @Injectable({ providedIn: 'root' })
 export class EventService {
   private readonly API = `${environment.apiUrl}/api/events`;
   
-  // Simple metadata cache per app
   private usersCache = new Map<number, string[]>();
   private eventNamesCache = new Map<number, string[]>();
 
   constructor(private http: HttpClient) {}
 
-  /**
-   * Get registered events (from scanner) for an app
-   */
   getRegisteredEvents(appId: number): Observable<string[]> {
     const params = new HttpParams().set('appId', appId.toString());
     return this.http.get<string[]>(`${this.API}/registered`, { params }).pipe(
@@ -31,9 +24,6 @@ export class EventService {
     );
   }
 
-  /**
-   * Get incoming events with pagination and filters
-   */
   getIncomingEvents(appId: number, filters: EventFilters): Observable<EventPage> {
     let params = new HttpParams()
       .set('appId', appId.toString())
@@ -53,10 +43,6 @@ export class EventService {
     );
   }
 
-  /**
-   * Get distinct users who triggered events in an app
-   * Uses cache to minimize requests
-   */
   getDistinctUsers(appId: number): Observable<string[]> {
     if (this.usersCache.has(appId)) {
       return of(this.usersCache.get(appId)!);
@@ -72,10 +58,6 @@ export class EventService {
     );
   }
 
-  /**
-   * Get distinct event names for an app
-   * Uses cache to minimize requests
-   */
   getDistinctEventNames(appId: number): Observable<string[]> {
     if (this.eventNamesCache.has(appId)) {
       return of(this.eventNamesCache.get(appId)!);
@@ -91,17 +73,26 @@ export class EventService {
     );
   }
 
-  /**
-   * Invalidate metadata caches for an app
-   */
+  getDistinctDisplayNames(appId: number): Observable<string[]> {
+    if (this.usersCache.has(appId)) {
+      return of(this.usersCache.get(appId)!);
+    }
+
+    const params = new HttpParams().set('appId', appId.toString());
+    return this.http.get<string[]>(`${this.API}/incoming/display-names`, { params }).pipe(
+      tap(names => this.usersCache.set(appId, names)),
+      catchError(err => {
+        console.error('Error fetching distinct display names:', err);
+        return of([]);
+      })
+    );
+  }
+
   invalidateMetadata(appId: number): void {
     this.usersCache.delete(appId);
     this.eventNamesCache.delete(appId);
   }
 
-  /**
-   * Clear all caches (for logout)
-   */
   clearCache(): void {
     this.usersCache.clear();
     this.eventNamesCache.clear();

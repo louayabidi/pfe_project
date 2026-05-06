@@ -15,6 +15,9 @@ import { UserProfileComponent } from './pages/user/user-profile/user-profile.com
 import { WidgetStudioComponent } from './pages/widget/widget-studio/widget-studio.component';
 import { LeaderboardComponent } from './pages/leaderboard/leaderboard.component';
 import { AiEngineComponent } from './pages/ai-engine/ai-engine.component';
+import { GamifPageBuilderComponent } from './pages/gamif-page-builder/gamif-page-builder.component';
+import { SettingsComponent } from './pages/settings/settings.component';
+import { EngagementComponent } from './pages/engagement/engagement.component';
 
 const routes: Routes = [
   {
@@ -28,6 +31,19 @@ const routes: Routes = [
         pathMatch: 'full'
       },
 
+
+      {
+  path: 'page-builder',
+  component: GamifPageBuilderComponent,
+  data: { title: 'Page Builder' }
+},
+
+
+
+{ path: 'settings', component: SettingsComponent, data: { title: 'Settings' } },
+
+
+{ path: 'engagement', component: EngagementComponent, data: { title: 'Settings' } },
 
 
       {

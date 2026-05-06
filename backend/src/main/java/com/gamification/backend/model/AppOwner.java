@@ -36,7 +36,7 @@ public class AppOwner {
     
     @Builder.Default
     @Column(name = "is_verified")
-    private Boolean verified = false;  // Changé de boolean à Boolean
+    private Boolean verified = false;  
     
     @Column(name = "verification_token")
     private String verificationToken;

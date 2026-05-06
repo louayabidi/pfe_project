@@ -202,16 +202,16 @@
                 </span>
               </td>
 
-              <td>
-                <div class="user-cell">
-                  <div class="user-avatar">
-                    {{ event.userId.charAt(0).toUpperCase() }}
-                  </div>
-                  <span class="user-id" [title]="event.userId">
-                    {{ event.userId }}
-                  </span>
-                </div>
-              </td>
+             <td>
+  <div class="user-cell">
+    <div class="user-avatar">
+     {{ (event.displayName || event.userId || '?').charAt(0).toUpperCase() }}
+    </div>
+    <span class="user-id" [title]="event.displayName">
+      {{ event.displayName }}
+    </span>
+  </div>
+</td>
 
               <td>
                 <span class="date-cell">

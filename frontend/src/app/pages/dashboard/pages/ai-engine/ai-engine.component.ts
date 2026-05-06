@@ -1,6 +1,7 @@
 import {
   Component, OnInit, OnDestroy, signal, computed, inject, ChangeDetectionStrategy
 } from '@angular/core';
+import { trigger, transition, style, animate, state } from '@angular/animations';
 import { Subject, takeUntil, catchError, of, forkJoin } from 'rxjs';
 import { AiEngineService, UserSegment, SegmentStat } from 'src/app/services/ai-engine.service';
 import { AppStateService } from 'src/app/services/app-state.service';
@@ -9,7 +10,35 @@ import { AppStateService } from 'src/app/services/app-state.service';
   selector: 'app-ai-engine',
   templateUrl: './ai-engine.component.html',
   styleUrls: ['./ai-engine.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  animations: [
+    trigger('slideInDown', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(-10px)' }),
+        animate('400ms cubic-bezier(0.16, 1, 0.3, 1)', style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ]),
+    trigger('slideUp', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(20px)' }),
+        animate('600ms cubic-bezier(0.16, 1, 0.3, 1)', style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ]),
+    trigger('fadeIn', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('300ms ease-in-out', style({ opacity: 1 }))
+      ])
+    ]),
+    trigger('pulse', [
+      state('false', style({ opacity: 1 })),
+      state('true', style({ opacity: 1 })),
+      transition('false => true', [
+        animate('0.5s ease-in-out', style({ opacity: 0.7 })),
+        animate('0.5s ease-in-out', style({ opacity: 1 }))
+      ])
+    ])
+  ]
 })
 export class AiEngineComponent implements OnInit, OnDestroy {
 
@@ -81,14 +110,14 @@ export class AiEngineComponent implements OnInit, OnDestroy {
 
     this.aiService.runEngine(appId)
       .pipe(takeUntil(this.destroy$), catchError(err => {
-        this.error.set('Engine run failed');
+        this.error.set('Engine run failed — please try again');
         this.running.set(false);
         return of(null);
       }))
       .subscribe(res => {
         if (res) {
-          this.successMsg.set('Engine ran successfully — actions have been applied to users.');
-          this.loadData(appId);
+          this.successMsg.set('🎉 Engine executed successfully — actions applied to all segments.');
+          setTimeout(() => this.loadData(appId), 600);
         }
         this.running.set(false);
       });
@@ -98,18 +127,19 @@ export class AiEngineComponent implements OnInit, OnDestroy {
     if (this.scoring()) return;
     this.scoring.set(true);
     this.successMsg.set(null);
+    this.error.set(null);
 
     this.aiService.scoreOutcomes()
       .pipe(takeUntil(this.destroy$), catchError(() => {
-        this.error.set('Outcome scoring failed');
+        this.error.set('Outcome scoring failed — please try again');
         this.scoring.set(false);
         return of(null);
       }))
       .subscribe(res => {
         if (res) {
-          this.successMsg.set('Outcomes scored — return rates updated.');
+          this.successMsg.set('📊 Outcomes scored successfully — return rates updated.');
           const appId = this.selectedAppId();
-          if (appId) this.loadData(appId);
+          if (appId) setTimeout(() => this.loadData(appId), 600);
         }
         this.scoring.set(false);
       });
@@ -142,24 +172,24 @@ export class AiEngineComponent implements OnInit, OnDestroy {
 
   getSegmentDescription(segment: string): string {
     const map: Record<string, string> = {
-      POWER_USER:   'Daily active, highly engaged users.',
-      MAINTAINER:   'Consistent weekly users — steady engagement.',
-      EXPERIMENTER: 'Tried the app but activity has dropped.',
-      LURKER:       'Signed up but barely interacted.',
-      AT_RISK:      'Silent for 14+ days — at risk of leaving.',
-      CHURNED:      'No activity for 28+ days.'
+      POWER_USER:   'Daily active users — your most engaged segment.',
+      MAINTAINER:   'Consistent weekly engagement — very stable users.',
+      EXPERIMENTER: 'Tried the product but activity has declined.',
+      LURKER:       'Signed up but minimal interaction — untapped potential.',
+      AT_RISK:      'Silent for 14+ days — at critical churn risk.',
+      CHURNED:      'No activity for 28+ days — likely lost to churn.'
     };
     return map[segment] ?? '';
   }
 
   getActionLabel(actionType: string): string {
     const map: Record<string, string> = {
-      AWARD_WELCOME_BONUS:     '+25 pts welcome bonus',
-      AWARD_COMEBACK_BONUS:    '+50 pts comeback bonus',
-      AWARD_RETENTION_BONUS:   '+100 pts retention bonus',
-      AWARD_WINBACK_BONUS:     '+200 pts win-back bonus',
-      AWARD_CONSISTENCY_BONUS: '+30 pts consistency bonus',
-      OBSERVED_POWER_USER:     'Observed — no action needed'
+      AWARD_WELCOME_BONUS:     '+25 pts Welcome Bonus',
+      AWARD_COMEBACK_BONUS:    '+50 pts Comeback Bonus',
+      AWARD_RETENTION_BONUS:   '+100 pts Retention Bonus',
+      AWARD_WINBACK_BONUS:     '+200 pts Win-Back Bonus',
+      AWARD_CONSISTENCY_BONUS: '+30 pts Consistency Bonus',
+      OBSERVED_POWER_USER:     'Observed (No Action Needed)'
     };
     return map[actionType] ?? actionType;
   }
@@ -167,9 +197,9 @@ export class AiEngineComponent implements OnInit, OnDestroy {
   formatSilence(days: number): string {
     if (days < 1)  return 'Today';
     if (days < 2)  return 'Yesterday';
-    if (days < 7)  return `${Math.floor(days)}d ago`;
-    if (days < 30) return `${Math.floor(days / 7)}w ago`;
-    return `${Math.floor(days / 30)}mo ago`;
+    if (days < 7)  return `${Math.floor(days)}d`;
+    if (days < 30) return `${Math.floor(days / 7)}w`;
+    return `${Math.floor(days / 30)}mo`;
   }
 
   trackByUserId(_: number, s: UserSegment) { return s.userId; }

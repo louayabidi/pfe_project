@@ -72,6 +72,22 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
     return `#${rank}`;
   };
 
+  /** Returns an array of page numbers (1-based) with -1 as ellipsis markers */
+  getPaginationRange(): number[] {
+    const total   = this.leaderboard()?.totalPages ?? 0;
+    const current = this.currentPage() + 1;
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+
+    const pages: number[] = [1];
+    if (current > 3) pages.push(-1);
+    for (let p = Math.max(2, current - 1); p <= Math.min(total - 1, current + 1); p++) {
+      pages.push(p);
+    }
+    if (current < total - 2) pages.push(-1);
+    pages.push(total);
+    return pages;
+  }
+
   // ── PRIVATE ──────────────────────────────────────────────────────
   private readonly destroy$ = new Subject<void>();
   private readonly appId$   = toObservable(this.appState.currentAppId);
@@ -153,9 +169,9 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
 
   formatDate(date: string | null): string {
     if (!date) return 'Never';
-    const d       = new Date(date);
-    const now     = new Date();
-    const diffMs  = now.getTime() - d.getTime();
+    const d        = new Date(date);
+    const now      = new Date();
+    const diffMs   = now.getTime() - d.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
     if (diffDays === 0) return 'Today';

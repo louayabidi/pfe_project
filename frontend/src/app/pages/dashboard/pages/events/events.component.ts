@@ -87,17 +87,17 @@ export class EventsComponent implements OnInit, OnDestroy {
       });
 
     // React to filter changes with debounce
-    this.filterForm.valueChanges
-      .pipe(
-        debounceTime(400),
-        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(() => {
-        if (!this.appState.currentAppId()) return;
-        this.currentPage.set(0);
-        this.loadEvents();
-      });
+this.filterForm.valueChanges
+  .pipe(
+    debounceTime(400),
+    distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
+    takeUntil(this.destroy$)
+  )
+  .subscribe(() => {
+    if (!this.appState.currentAppId()) return;
+    this.currentPage.set(0);  
+    this.loadEvents();
+  });
   }
 
   selectApp(appId: number): void {
@@ -118,71 +118,75 @@ export class EventsComponent implements OnInit, OnDestroy {
     });
   }
 
-  private loadMetadata(appId: number): void {
-    this.eventService.getDistinctUsers(appId)
-      .pipe(
-        takeUntil(this.destroy$),
-        catchError(() => of([]))
-      )
-      .subscribe(users => this.users.set(users));
+private loadMetadata(appId: number): void {
+  this.eventService.getDistinctDisplayNames(appId)  // ← NEW method
+    .pipe(
+      takeUntil(this.destroy$),
+      catchError(() => of([]))
+    )
+    .subscribe(names => this.users.set(names));  // ← reuse users signal
 
-    this.eventService.getDistinctEventNames(appId)
-      .pipe(
-        takeUntil(this.destroy$),
-        catchError(() => of([]))
-      )
-      .subscribe(names => this.eventNames.set(names));
-  }
+  this.eventService.getDistinctEventNames(appId)
+    .pipe(
+      takeUntil(this.destroy$),
+      catchError(() => of([]))
+    )
+    .subscribe(names => this.eventNames.set(names));
+}
 
-  loadEvents(): void {
-    const appId = this.appState.currentAppId();
-    if (!appId) return;
+loadEvents(): void {
+  const appId = this.appState.currentAppId();
+  if (!appId) return;
 
-    this.loading.set(true);
-    this.error.set(null);
+  this.loading.set(true);
+  this.error.set(null);
 
-    const f = this.filterForm.value;
-    const filters: EventFilters = {
-      userId: f.userId || undefined,
-      eventName: f.eventName || undefined,
-      dateFrom: f.dateFrom || undefined,
-      dateTo: f.dateTo || undefined,
-      page: this.currentPage(),
-      size: this.pageSize
-    };
+  const f = this.filterForm.value;
+  const page = this.currentPage(); 
 
-    this.eventService.getIncomingEvents(appId, filters)
-      .pipe(
-        takeUntil(this.destroy$),
-        catchError(err => {
-          console.error('Events error:', err);
-          this.error.set('Erreur lors du chargement des événements');
-          this.loading.set(false);
-          return of(null);
-        })
-      )
-      .subscribe((page: EventPage | null) => {
-        if (!page) return;
-        this.events.set(page.content);
-        this.totalElements.set(page.totalElements);
-        this.totalPages.set(page.totalPages);
+  const filters: EventFilters = {
+    userId: f.userId || undefined,
+    eventName: f.eventName || undefined,
+    dateFrom: f.dateFrom || undefined,
+    dateTo: f.dateTo || undefined,
+    page: page,           
+    size: this.pageSize
+  };
+
+  this.eventService.getIncomingEvents(appId, filters)
+    .pipe(
+      takeUntil(this.destroy$),
+      catchError(err => {
+        console.error('Events error:', err);
+        this.error.set('Erreur lors du chargement des événements');
         this.loading.set(false);
-      });
-  }
+        return of(null);
+      })
+    )
+    .subscribe((page: EventPage | null) => {
+      if (!page) return;
+      this.events.set(page.content);
+      this.totalElements.set(page.totalElements);
+      this.totalPages.set(page.totalPages);
+      this.loading.set(false);
+    });
+}
 
-  goToPage(page: number): void {
-    if (page < 0 || page >= this.totalPages()) return;
-    this.currentPage.set(page);
-    this.loadEvents();
-  }
+ // events.component.ts
+
+goToPage(page: number): void {
+  if (page < 0 || page >= this.totalPages()) return;
+  this.currentPage.set(page);
+  this.loadEvents();
+}
 
   toggleExpand(id: number): void {
     this.expandedId.set(this.expandedId() === id ? null : id);
   }
 
   resetFilters(): void {
-    this.filterForm.reset({ userId: '', eventName: '', dateFrom: '', dateTo: '' });
-    this.currentPage.set(0);
+ this.filterForm.reset({ userId: '', eventName: '', dateFrom: '', dateTo: '' });
+   
   }
 
   hasActiveFilters(): boolean {

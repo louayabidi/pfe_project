@@ -53,7 +53,7 @@
   <!-- ── MAIN CONTENT (app selected) ── -->
   <ng-container *ngIf="selectedAppId()">
 
-    <!-- ── TOOLBAR: tabs + search + export ── -->
+    <!-- ── STICKY TOOLBAR ── -->
     <div class="toolbar">
       <div class="sort-tabs">
         <button class="sort-tab" [class.active]="sortBy() === 'points'" (click)="setSortBy('points')">
@@ -87,15 +87,21 @@
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
             <path d="M6.5 1v8M3.5 6l3 3 3-3M1 10h11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          CSV
+          Export CSV
         </button>
       </div>
     </div>
 
-    <!-- ── LOADING ── -->
-    <div class="loading-state" *ngIf="loading()">
-      <div class="loading-bar"><div class="loading-fill"></div></div>
-      <p>Loading leaderboard...</p>
+    <!-- ── SKELETON LOADING ── -->
+    <div class="skeleton-state" *ngIf="loading()">
+      <div class="skeleton-podium">
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card tall"></div>
+        <div class="skeleton-card"></div>
+      </div>
+      <div class="skeleton-rows">
+        <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5,6,7]" [style.animation-delay]="(i * 0.06) + 's'"></div>
+      </div>
     </div>
 
     <!-- ── EMPTY STATE ── -->
@@ -111,17 +117,39 @@
 
       <!-- ── PODIUM (top 3, page 1, no search) ── -->
       <div class="podium" *ngIf="currentPage() === 0 && !searchQuery()">
-        <div
-          *ngFor="let entry of leaderboard()!.entries.slice(0, 3)"
-          class="podium-card"
-          [class.gold]="entry.rank === 1"
-          [class.silver]="entry.rank === 2"
-          [class.bronze]="entry.rank === 3">
-          <div class="podium-medal">{{ getRankBadge(entry.rank) }}</div>
-          <div class="podium-avatar">{{ entry.userId.charAt(0).toUpperCase() }}</div>
-          <div class="podium-user" [title]="entry.userId">{{ entry.userId }}</div>
-          <div class="podium-value">{{ getSortValue(entry) | number }}</div>
-          <div class="podium-label">{{ getSortLabel() }}</div>
+        <!-- Silver (2nd) -->
+        <div class="podium-slot slot-second" *ngIf="leaderboard()!.entries.length > 1">
+          <div class="podium-card silver">
+            <div class="podium-medal">🥈</div>
+            <div class="podium-avatar">{{ leaderboard()!.entries[1].userId.charAt(0).toUpperCase() }}</div>
+            <div class="podium-user" [title]="leaderboard()!.entries[1].userId">{{ leaderboard()!.entries[1].userId }}</div>
+            <div class="podium-value">{{ getSortValue(leaderboard()!.entries[1]) | number }}</div>
+            <div class="podium-label">{{ getSortLabel() }}</div>
+          </div>
+          <div class="podium-stand silver-stand">2nd</div>
+        </div>
+        <!-- Gold (1st) -->
+        <div class="podium-slot slot-first">
+          <div class="podium-card gold">
+            <div class="podium-crown">👑</div>
+            <div class="podium-medal">🥇</div>
+            <div class="podium-avatar">{{ leaderboard()!.entries[0].userId.charAt(0).toUpperCase() }}</div>
+            <div class="podium-user" [title]="leaderboard()!.entries[0].userId">{{ leaderboard()!.entries[0].userId }}</div>
+            <div class="podium-value">{{ getSortValue(leaderboard()!.entries[0]) | number }}</div>
+            <div class="podium-label">{{ getSortLabel() }}</div>
+          </div>
+          <div class="podium-stand gold-stand">1st</div>
+        </div>
+        <!-- Bronze (3rd) -->
+        <div class="podium-slot slot-third" *ngIf="leaderboard()!.entries.length > 2">
+          <div class="podium-card bronze">
+            <div class="podium-medal">🥉</div>
+            <div class="podium-avatar">{{ leaderboard()!.entries[2].userId.charAt(0).toUpperCase() }}</div>
+            <div class="podium-user" [title]="leaderboard()!.entries[2].userId">{{ leaderboard()!.entries[2].userId }}</div>
+            <div class="podium-value">{{ getSortValue(leaderboard()!.entries[2]) | number }}</div>
+            <div class="podium-label">{{ getSortLabel() }}</div>
+          </div>
+          <div class="podium-stand bronze-stand">3rd</div>
         </div>
       </div>
 
@@ -135,9 +163,9 @@
       <div class="leaderboard-table" *ngIf="filteredEntries().length > 0">
         <div class="table-header">
           <span class="table-count">
-            {{ filteredEntries().length }}
+            <strong>{{ filteredEntries().length }}</strong>
             <ng-container *ngIf="searchQuery()"> match{{ filteredEntries().length !== 1 ? 'es' : '' }}</ng-container>
-            <ng-container *ngIf="!searchQuery()"> / {{ leaderboard()!.totalCount | number }} users</ng-container>
+            <ng-container *ngIf="!searchQuery()"> of {{ leaderboard()!.totalCount | number }} users</ng-container>
           </span>
           <span class="table-page-size">
             Page {{ currentPage() + 1 }} / {{ leaderboard()!.totalPages }}
@@ -166,18 +194,24 @@
           </thead>
           <tbody>
             <tr
-              *ngFor="let entry of filteredEntries(); trackBy: trackByUserId"
-              [class.top-3]="entry.rank <= 3">
+              *ngFor="let entry of filteredEntries(); trackBy: trackByUserId; let i = index"
+              [class.top-3]="entry.rank <= 3"
+              [style.animation-delay]="(i * 0.04) + 's'"
+              class="table-row-animate">
 
               <!-- Rank -->
               <td class="rank-cell">
-                <span class="rank-badge">{{ getRankBadge(entry.rank) }}</span>
+                <span class="rank-badge" [class.rank-medal]="entry.rank <= 3">{{ getRankBadge(entry.rank) }}</span>
               </td>
 
               <!-- User -->
               <td class="user-cell">
-                <div class="user-avatar">{{ entry.userId.charAt(0).toUpperCase() }}</div>
-                <span class="user-id" [title]="entry.userId">{{ entry.userId }}</span>
+                <div class="user-avatar" [class.avatar-gold]="entry.rank === 1" [class.avatar-silver]="entry.rank === 2" [class.avatar-bronze]="entry.rank === 3">
+                  {{ entry.userId.charAt(0).toUpperCase() }}
+                </div>
+                <div class="user-info">
+                  <span class="user-id" [title]="entry.userId">{{ entry.userId }}</span>
+                </div>
               </td>
 
               <!-- Points -->
@@ -225,7 +259,9 @@
               </td>
 
               <!-- Last Active -->
-              <td class="last-cell">{{ formatDate(entry.lastEventAt) }}</td>
+              <td class="last-cell">
+                <span class="last-badge">{{ formatDate(entry.lastEventAt) }}</span>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -233,16 +269,29 @@
         <!-- ── PAGINATION ── -->
         <div class="pagination" *ngIf="leaderboard()!.totalPages > 1 && !searchQuery()">
           <button class="pagination-btn" [disabled]="currentPage() === 0" (click)="prevPage()">
-            ← Previous
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M9 3L5 7l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            Previous
           </button>
-          <span class="page-info">
-            Page {{ currentPage() + 1 }} of {{ leaderboard()!.totalPages }}
-            ({{ leaderboard()!.totalCount | number }} users)
-          </span>
+
+          <div class="page-dots">
+            <span
+              *ngFor="let p of getPaginationRange()"
+              class="page-dot"
+              [class.active]="p === currentPage() + 1"
+              [class.ellipsis]="p === -1">
+              {{ p === -1 ? '…' : p }}
+            </span>
+          </div>
+
           <button class="pagination-btn"
                   [disabled]="currentPage() >= leaderboard()!.totalPages - 1"
                   (click)="nextPage()">
-            Next →
+            Next
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
           </button>
         </div>
       </div>

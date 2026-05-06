@@ -27,9 +27,9 @@ public class JwtFilter extends OncePerRequestFilter {
         "/api/auth/",
        // "/api/events/register",
         "/api/events/track",
-        
-        "/api/users/",
-        "/api/widgets/public/" 
+         "/api/widgets/public/",    // ← plural with trailing slash
+    "/api/users/",             // ← this should allow profile endpoint
+    "/api/gamif-page/public/"
        
     );
 

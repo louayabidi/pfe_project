@@ -1,7 +1,7 @@
 <div class="dashboard-layout">
 
   <!-- ═══════════════════ SIDEBAR ═══════════════════ -->
-  <aside class="sidebar" [class.collapsed()]="collapsed()">
+  <aside class="sidebar" [class.collapsed]="collapsed()">
 
     <!-- Logo -->
     <div class="sidebar-header">
@@ -154,6 +154,22 @@
           <span class="nav-active-bar"></span>
         </a>
 
+
+<a routerLink="/dashboard/engagement"
+   routerLinkActive="active"
+   class="nav-item"
+   [attr.data-tooltip]="collapsed() ? 'Engagement' : null">
+  <span class="nav-icon">
+    <svg viewBox="0 0 24 24" fill="none">
+      <path d="M12 2C12 2 7 7 7 13a5 5 0 0010 0c0-3-2-5.5-2-5.5S13.5 9 13 11c0 0-1-1-1-3 0 0-2 2-2 5a3 3 0 006 0c0-2.5-2-4-2-4"
+            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </span>
+  <span class="nav-label">Engagement</span>
+  <span class="nav-active-bar"></span>
+</a>
+
+
         <a routerLink="/dashboard/leaderboard"
    routerLinkActive="active"
    class="nav-item">
@@ -184,6 +200,25 @@
   <span class="nav-label">AI Engine</span>
   <span class="nav-active-bar"></span>
 </a>
+
+
+
+<a routerLink="/dashboard/page-builder"
+   routerLinkActive="active"
+   class="nav-item"
+   [attr.data-tooltip]="collapsed() ? 'Page Builder' : null">
+  <span class="nav-icon">
+    <svg viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12"
+            stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+  </span>
+  <span class="nav-label">Page Builder</span>
+  <span class="nav-active-bar"></span>
+</a>
+
 
       </div>
 
@@ -273,13 +308,13 @@
 
     <!-- User -->
     <div class="sidebar-user">
-      <div class="user-avatar">
-        <span>JL</span>
-      </div>
-      <div class="user-info">
-        <span class="user-name">Jamie Liu</span>
-        <span class="user-role">Admin</span>
-      </div>
+     <div class="user-avatar">
+  <span>{{ userInitials() }}</span>
+</div>
+<div class="user-info">
+  <span class="user-name">{{ userName() }}</span>
+  <span class="user-role">{{ userRole() }}</span>
+</div>
       <button class="user-menu-btn" aria-label="User menu">
         <svg viewBox="0 0 16 16" fill="none">
           <circle cx="8" cy="3"  r="1.2" fill="currentColor"/>
@@ -288,6 +323,24 @@
         </svg>
       </button>
     </div>
+
+
+<button class="theme-toggle" (click)="toggleTheme()"
+        [title]="isDark() ? 'Switch to light mode' : 'Switch to dark mode'">
+  <!-- Sun icon (shown in dark mode) -->
+  <svg *ngIf="isDark()" viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.5"/>
+    <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
+          stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  </svg>
+  <!-- Moon icon (shown in light mode) -->
+  <svg *ngIf="!isDark()" viewBox="0 0 24 24" fill="none">
+    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"
+          stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</button>
+
+
 
   </aside>
 

@@ -1,5 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
 
+// ═══════════════════════════════════════════════════════════════════════════
+//  DARK MODE (default)
+// ═══════════════════════════════════════════════════════════════════════════
 :root {
   --primary:    #6C63FF;
   --secondary:  #FF6584;
@@ -9,8 +12,65 @@
   --border:     rgba(255, 255, 255, 0.07);
   --surface:    rgba(255, 255, 255, 0.04);
   --text-muted: rgba(255, 255, 255, 0.45);
+
+  // Shell (sidebar + layout)
+  --shell-bg:      #06050f;
+  --shell-bg2:     #0d0b1a;
+  --shell-bg3:     #131120;
+  --shell-border:  rgba(255, 255, 255, 0.06);
+  --shell-border2: rgba(255, 255, 255, 0.1);
+  --shell-surface: rgba(255, 255, 255, 0.04);
+  --shell-text:    rgba(255, 255, 255, 0.82);
+  --shell-muted:   rgba(255, 255, 255, 0.38);
+
+  // Pages (leaderboard, rules, badges, etc.)
+  --color-background-primary:   #0f1117;
+  --color-background-secondary: #1a1d27;
+  --color-background-tertiary:  #12151f;
+  --color-text-primary:         #ffffff;
+  --color-text-secondary:       rgba(255, 255, 255, 0.55);
+  --color-text-tertiary:        rgba(255, 255, 255, 0.3);
+  --color-border-tertiary:      rgba(255, 255, 255, 0.07);
+  --color-border-secondary:     rgba(255, 255, 255, 0.12);
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+//  LIGHT MODE
+// ═══════════════════════════════════════════════════════════════════════════
+[data-theme="light"] {
+  --primary:    #6C63FF;
+  --secondary:  #FF6584;
+  --accent:     #2ecc71;
+  --gold:       #f59e0b;
+  --bg:         #f5f4ff;
+  --border:     rgba(0, 0, 0, 0.08);
+  --surface:    rgba(108, 99, 255, 0.04);
+  --text-muted: rgba(0, 0, 0, 0.45);
+
+  // Shell
+  --shell-bg:      #edecfa;
+  --shell-bg2:     #ffffff;
+  --shell-bg3:     #f0effe;
+  --shell-border:  rgba(0, 0, 0, 0.07);
+  --shell-border2: rgba(0, 0, 0, 0.12);
+  --shell-surface: rgba(108, 99, 255, 0.05);
+  --shell-text:    rgba(0, 0, 0, 0.82);
+  --shell-muted:   rgba(0, 0, 0, 0.45);
+
+  // Pages
+  --color-background-primary:   #f8f8fc;
+  --color-background-secondary: #ffffff;
+  --color-background-tertiary:  #f0effe;
+  --color-text-primary:         #0f0e1a;
+  --color-text-secondary:       rgba(0, 0, 0, 0.55);
+  --color-text-tertiary:        rgba(0, 0, 0, 0.35);
+  --color-border-tertiary:      rgba(0, 0, 0, 0.07);
+  --color-border-secondary:     rgba(0, 0, 0, 0.12);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  RESET
+// ═══════════════════════════════════════════════════════════════════════════
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -22,29 +82,82 @@ html, body {
   height: 100%;
 }
 
-/* Only the splash screen needs overflow hidden */
+// Only the splash screen needs overflow hidden
 app-root:has(app-splash) {
   overflow: hidden;
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+//  BASE STYLES — theme-aware
+// ═══════════════════════════════════════════════════════════════════════════
 body {
-  background: #0A0814;
-  color: #fff;
+  background: var(--bg);
+  color: var(--color-text-primary);
   font-family: 'DM Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+//  SCROLLBAR
+// ═══════════════════════════════════════════════════════════════════════════
 ::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: #0A0814; }
+
+::-webkit-scrollbar-track {
+  background: var(--shell-bg);
+}
+
 ::-webkit-scrollbar-thumb {
   background: rgba(108, 99, 255, 0.4);
   border-radius: 4px;
 }
 
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: rgba(108, 99, 255, 0.25);
+}
+
 ::selection {
   background: rgba(108, 99, 255, 0.3);
-  color: #fff;
+  color: var(--color-text-primary);
 }
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  RESPONSIVE TYPOGRAPHY
+// ═══════════════════════════════════════════════════════════════════════════
+html {
+  font-size: 16px;
+
+  @media (max-width: 768px) { font-size: 14px; }
+  @media (max-width: 480px) { font-size: 13px; }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  RESPONSIVE IMAGES
+// ═══════════════════════════════════════════════════════════════════════════
+img, video, iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  UTILITIES
+// ═══════════════════════════════════════════════════════════════════════════
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+
+  @media (max-width: 768px) { padding: 0 1rem; }
+}
+
+.hide-mobile { @media (max-width: 767px)  { display: none !important; } }
+.hide-tablet { @media (max-width: 1024px) { display: none !important; } }
+.show-mobile { @media (min-width: 768px)  { display: none !important; } }
+
+.grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}

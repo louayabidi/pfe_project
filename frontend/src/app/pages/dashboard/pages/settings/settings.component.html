@@ -1,0 +1,591 @@
+<div class="settings-page">
+
+  <!-- Ambient -->
+  <div class="ambient" aria-hidden="true">
+    <div class="ambient-line" *ngFor="let n of [1,2,3,4,5]"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="settings-header">
+    <div class="header-left">
+      <div class="breadcrumb">
+        <span class="mono dim">DASHBOARD</span>
+        <svg width="10" height="10" viewBox="0 0 10 10"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        <span class="mono accent">Settings</span>
+      </div>
+      <h1 class="settings-title">Settings</h1>
+      <p class="settings-sub">Manage your account, security, and platform preferences</p>
+    </div>
+    <!-- Save feedback -->
+    <div class="save-toast" [class.visible]="saved()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M2 7l4 4 6-6" stroke="#39e07a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Changes saved
+    </div>
+  </header>
+
+  <!-- Layout: sidebar + content -->
+  <div class="settings-layout">
+
+    <!-- ── Left nav ──────────────────────────────────────────────────────── -->
+    <nav class="settings-nav">
+      <button
+        *ngFor="let item of navItems"
+        class="snav-item"
+        [class.active]="activeSection() === item.id"
+        [class.danger]="item.danger"
+        (click)="setSection(item.id)">
+
+        <!-- Icon -->
+        <span class="snav-icon">
+          <!-- user -->
+          <svg *ngIf="item.icon === 'user'" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M2 14c0-3 2.5-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          <!-- bell -->
+          <svg *ngIf="item.icon === 'bell'" viewBox="0 0 16 16" fill="none">
+            <path d="M8 2a5 5 0 00-5 5v3l-1 1h12l-1-1V7a5 5 0 00-5-5z" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M6.5 13a1.5 1.5 0 003 0" stroke="currentColor" stroke-width="1.3"/>
+          </svg>
+          <!-- lock -->
+          <svg *ngIf="item.icon === 'lock'" viewBox="0 0 16 16" fill="none">
+            <rect x="3" y="7" width="10" height="8" rx="2" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M5 7V5a3 3 0 016 0v2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          <!-- key -->
+          <svg *ngIf="item.icon === 'key'" viewBox="0 0 16 16" fill="none">
+            <circle cx="6" cy="7" r="3.5" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M9 9l5.5 5.5M11.5 11.5L13 13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          <!-- zap -->
+          <svg *ngIf="item.icon === 'zap'" viewBox="0 0 16 16" fill="none">
+            <path d="M9 2L4 9h4l-1 5 5-7H8l1-5z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <!-- code -->
+          <svg *ngIf="item.icon === 'code'" viewBox="0 0 16 16" fill="none">
+            <path d="M5 4L1 8l4 4M11 4l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <!-- credit-card -->
+          <svg *ngIf="item.icon === 'credit-card'" viewBox="0 0 16 16" fill="none">
+            <rect x="1" y="3" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M1 7h14" stroke="currentColor" stroke-width="1.3"/>
+          </svg>
+          <!-- alert -->
+          <svg *ngIf="item.icon === 'alert'" viewBox="0 0 16 16" fill="none">
+            <path d="M8 1.5L1 14h14L8 1.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+            <path d="M8 6v4M8 11.5v.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+        </span>
+
+        <span class="snav-label">{{ item.label }}</span>
+
+        <span class="snav-badge" *ngIf="item.badge">{{ item.badge }}</span>
+      </button>
+    </nav>
+
+    <!-- ── Content panels ─────────────────────────────────────────────────── -->
+    <div class="settings-content">
+
+      <!-- ══════════════════ GENERAL ══════════════════ -->
+      <section *ngIf="activeSection() === 'general'" class="panel">
+        <div class="panel-head">
+          <h2>General</h2>
+          <p>Your account information and preferences</p>
+        </div>
+
+        <form [formGroup]="generalForm" (ngSubmit)="saveGeneral()" novalidate>
+
+          <div class="form-section">
+            <div class="form-section-label">Identity</div>
+            <div class="field-row">
+              <div class="field">
+                <label>Full name <span class="req">*</span></label>
+                <input class="inp" formControlName="fullName" placeholder="John Doe"/>
+                <span class="verr" *ngIf="generalForm.get('fullName')?.invalid && generalForm.get('fullName')?.touched">
+                  Required (min. 2 chars)
+                </span>
+              </div>
+              <div class="field">
+                <label>Company <span class="opt">optional</span></label>
+                <input class="inp" formControlName="companyName" placeholder="Acme Corp"/>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-label">Preferences</div>
+            <div class="field-row">
+              <div class="field">
+                <label>Timezone</label>
+                <select class="inp" formControlName="timezone">
+                  <option value="Europe/Paris">Europe / Paris (UTC+1)</option>
+                  <option value="UTC">UTC</option>
+                  <option value="America/New_York">America / New York (UTC-5)</option>
+                  <option value="America/Los_Angeles">America / Los Angeles (UTC-8)</option>
+                  <option value="Asia/Tokyo">Asia / Tokyo (UTC+9)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Language</label>
+                <select class="inp" formControlName="language">
+                  <option value="fr">Français</option>
+                  <option value="en">English</option>
+                  <option value="es">Español</option>
+                  <option value="de">Deutsch</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-footer">
+            <button type="submit" class="btn-save" [disabled]="saving()">
+              <span class="spinner" *ngIf="saving()"></span>
+              {{ saving() ? 'Saving…' : 'Save changes' }}
+            </button>
+          </div>
+
+        </form>
+      </section>
+
+      <!-- ══════════════════ NOTIFICATIONS ══════════════════ -->
+      <section *ngIf="activeSection() === 'notifications'" class="panel">
+        <div class="panel-head">
+          <h2>Notifications</h2>
+          <p>Choose which events trigger an email notification</p>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-label">Reward events</div>
+
+          <div class="toggle-row" (click)="toggleNotif('badgeUnlock')">
+            <div class="toggle-info">
+              <span class="toggle-title">Badge unlock</span>
+              <span class="toggle-desc">Notify when a user earns a new badge</span>
+            </div>
+            <div class="toggle-pill" [class.on]="notif().badgeUnlock">
+              <div class="toggle-thumb"></div>
+            </div>
+          </div>
+
+          <div class="toggle-row" (click)="toggleNotif('milestone')">
+            <div class="toggle-info">
+              <span class="toggle-title">Milestone reached</span>
+              <span class="toggle-desc">Notify on points or streak milestones</span>
+            </div>
+            <div class="toggle-pill" [class.on]="notif().milestone">
+              <div class="toggle-thumb"></div>
+            </div>
+          </div>
+
+          <div class="toggle-row" (click)="toggleNotif('ruleTriggered')">
+            <div class="toggle-info">
+              <span class="toggle-title">Rule triggered</span>
+              <span class="toggle-desc">Alert when an advanced rule fires</span>
+            </div>
+            <div class="toggle-pill" [class.on]="notif().ruleTriggered">
+              <div class="toggle-thumb"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-label">Platform events</div>
+
+          <div class="toggle-row" (click)="toggleNotif('newUser')">
+            <div class="toggle-info">
+              <span class="toggle-title">New user detected</span>
+              <span class="toggle-desc">Alert when a first-time user is identified</span>
+            </div>
+            <div class="toggle-pill" [class.on]="notif().newUser">
+              <div class="toggle-thumb"></div>
+            </div>
+          </div>
+
+          <div class="toggle-row" (click)="toggleNotif('sdkErrors')">
+            <div class="toggle-info">
+              <span class="toggle-title">SDK errors</span>
+              <span class="toggle-desc">Alert on authentication or network failures</span>
+            </div>
+            <div class="toggle-pill" [class.on]="notif().sdkErrors">
+              <div class="toggle-thumb"></div>
+            </div>
+          </div>
+
+          <div class="toggle-row" (click)="toggleNotif('weeklyDigest')">
+            <div class="toggle-info">
+              <span class="toggle-title">Weekly digest</span>
+              <span class="toggle-desc">Summary of events, top users, and rules every Monday</span>
+            </div>
+            <div class="toggle-pill" [class.on]="notif().weeklyDigest">
+              <div class="toggle-thumb"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════ SECURITY ══════════════════ -->
+      <section *ngIf="activeSection() === 'security'" class="panel">
+        <div class="panel-head">
+          <h2>Security</h2>
+          <p>Password, two-factor authentication, and active sessions</p>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-label">Change password</div>
+          <form [formGroup]="passwordForm" (ngSubmit)="savePassword()" novalidate>
+            <div class="field">
+              <label>Current password <span class="req">*</span></label>
+              <input class="inp" type="password" formControlName="currentPassword" placeholder="••••••••" autocomplete="current-password"/>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label>New password <span class="req">*</span></label>
+                <input class="inp" type="password" formControlName="newPassword" placeholder="••••••••" autocomplete="new-password"/>
+                <span class="verr" *ngIf="passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched">
+                  Min. 8 characters
+                </span>
+              </div>
+              <div class="field">
+                <label>Confirm <span class="req">*</span></label>
+                <input class="inp" type="password" formControlName="confirmPassword" placeholder="••••••••" autocomplete="new-password"/>
+              </div>
+            </div>
+            <div class="panel-footer">
+              <button type="submit" class="btn-save" [disabled]="saving()">
+                <span class="spinner" *ngIf="saving()"></span>
+                {{ saving() ? 'Updating…' : 'Update password' }}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-label">Two-factor authentication</div>
+          <div class="tfa-card">
+            <div class="tfa-icon">🔐</div>
+            <div class="tfa-body">
+              <span class="tfa-title">Two-factor authentication is <strong>disabled</strong></span>
+              <span class="tfa-desc">Add an extra layer of security with an authenticator app</span>
+            </div>
+            <button class="btn-outline">Enable 2FA</button>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-label">Active sessions</div>
+          <div class="session-card">
+            <div class="session-icon">💻</div>
+            <div class="session-body">
+              <span class="session-device">Chrome on Windows</span>
+              <span class="session-meta">Tunis, TN · Current session · Active now</span>
+            </div>
+            <span class="session-current">Current</span>
+          </div>
+          <button class="btn-danger-outline" style="margin-top: 12px">
+            Revoke all other sessions
+          </button>
+        </div>
+      </section>
+
+      <!-- ══════════════════ API & KEYS ══════════════════ -->
+      <section *ngIf="activeSection() === 'api'" class="panel">
+        <div class="panel-head">
+          <h2>API & Keys</h2>
+          <p>Manage your secret API keys — treat them like passwords</p>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-label">Secret key</div>
+          <div class="api-card">
+            <div class="api-key-row">
+              <span class="mono api-key-val">{{ maskedKey() }}</span>
+              <button class="icon-btn" (click)="toggleApiKeyVisibility()" [title]="apiKeyVisible() ? 'Hide' : 'Show'">
+                <svg *ngIf="!apiKeyVisible()" viewBox="0 0 16 16" fill="none" width="14" height="14">
+                  <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" stroke-width="1.3"/>
+                  <circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/>
+                </svg>
+                <svg *ngIf="apiKeyVisible()" viewBox="0 0 16 16" fill="none" width="14" height="14">
+                  <path d="M2 2l12 12M6.8 6.9A2 2 0 0010 9.2M1 8s.7-1.4 2-2.6m3-1.8C7.3 3.2 8.2 3 9 3c4.5 0 6 5 6 5s-.4.9-1 1.9"
+                        stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                </svg>
+              </button>
+              <button class="icon-btn" (click)="copyApiKey()" [title]="copied() ? 'Copied!' : 'Copy'">
+                <svg *ngIf="!copied()" viewBox="0 0 16 16" fill="none" width="14" height="14">
+                  <rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+                  <path d="M11 5V3a1 1 0 00-1-1H3a1 1 0 00-1 1v7a1 1 0 001 1h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                </svg>
+                <svg *ngIf="copied()" viewBox="0 0 16 16" fill="none" width="14" height="14">
+                  <path d="M2 8l4 4 8-7" stroke="#39e07a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+            <div class="api-meta">
+              <span class="api-meta-chip">Created Jan 12, 2026</span>
+              <span class="api-meta-chip">Last used 2h ago</span>
+            </div>
+          </div>
+          <div class="info-block">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" stroke-width="1.2"/>
+              <path d="M6.5 5.5v4M6.5 4v.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+            Never share your secret key. Use it only in server-side code.
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-label">Rate limits</div>
+          <div class="rate-grid">
+            <div class="rate-item">
+              <span class="rate-label">Events / min</span>
+              <span class="rate-value">1,000</span>
+            </div>
+            <div class="rate-item">
+              <span class="rate-label">Requests / hour</span>
+              <span class="rate-value">10,000</span>
+            </div>
+            <div class="rate-item">
+              <span class="rate-label">Concurrent SDK connections</span>
+              <span class="rate-value">50</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════ WEBHOOKS ══════════════════ -->
+      <section *ngIf="activeSection() === 'webhooks'" class="panel">
+        <div class="panel-head">
+          <h2>Webhooks</h2>
+          <p>POST real-time events to your own endpoints</p>
+        </div>
+
+        <div class="webhook-list">
+          <div class="webhook-card" *ngFor="let wh of webhooks()">
+            <div class="wh-left">
+              <div class="wh-dot" [class.active]="wh.active"></div>
+              <div class="wh-body">
+                <span class="wh-url mono">{{ wh.url }}</span>
+                <div class="wh-events">
+                  <span class="event-tag" *ngFor="let ev of wh.events">{{ ev }}</span>
+                </div>
+              </div>
+            </div>
+            <button class="icon-btn danger" (click)="deleteWebhook(wh.id)">
+              <svg viewBox="0 0 14 14" fill="none" width="13" height="13">
+                <path d="M2 3.5h10M5.5 3.5v-2h3v2M3 3.5l.5 8.5h7l.5-8.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="empty-webhooks" *ngIf="webhooks().length === 0">
+            No webhooks configured yet
+          </div>
+        </div>
+
+        <button class="btn-outline" (click)="showWebhookForm.set(!showWebhookForm())" style="margin-top: 16px">
+          {{ showWebhookForm() ? 'Cancel' : '+ Add webhook' }}
+        </button>
+
+        <form *ngIf="showWebhookForm()" [formGroup]="webhookForm" (ngSubmit)="addWebhook()" class="webhook-form">
+          <div class="field">
+            <label>Endpoint URL <span class="req">*</span></label>
+            <input class="inp" formControlName="url" placeholder="https://your-server.com/hooks/gamify"/>
+            <span class="verr" *ngIf="webhookForm.get('url')?.invalid && webhookForm.get('url')?.touched">
+              Valid HTTPS URL required
+            </span>
+          </div>
+          <div class="field">
+            <label>Events to send</label>
+            <div class="checkbox-group">
+              <label class="chk" *ngFor="let ev of ['badge.awarded','points.added','rule.triggered','user.identified']">
+                <input type="checkbox"/> {{ ev }}
+              </label>
+            </div>
+          </div>
+          <button type="submit" class="btn-save">Add webhook</button>
+        </form>
+      </section>
+
+      <!-- ══════════════════ SDK CONFIG ══════════════════ -->
+      <section *ngIf="activeSection() === 'sdk'" class="panel">
+        <div class="panel-head">
+          <h2>SDK Configuration</h2>
+          <p>Global defaults applied to all SDK instances</p>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-label">Tracking</div>
+
+          <div class="sdk-row">
+            <div class="sdk-row-info">
+              <span class="sdk-row-title">Event cooldown</span>
+              <span class="sdk-row-desc">Minimum seconds between identical events per user</span>
+            </div>
+            <div class="number-input-wrap">
+              <input class="inp number-inp" type="number" min="0" max="3600"
+                     [value]="sdkConfig().eventCooldown"
+                     (change)="setSdkConfig('eventCooldown', +$any($event.target).value)"/>
+              <span class="number-unit">sec</span>
+            </div>
+          </div>
+
+          <div class="sdk-row">
+            <div class="sdk-row-info">
+              <span class="sdk-row-title">Max events / day / user</span>
+              <span class="sdk-row-desc">Hard cap to prevent event spam</span>
+            </div>
+            <div class="number-input-wrap">
+              <input class="inp number-inp" type="number" min="1" max="10000"
+                     [value]="sdkConfig().maxEventsPerDay"
+                     (change)="setSdkConfig('maxEventsPerDay', +$any($event.target).value)"/>
+              <span class="number-unit">evt</span>
+            </div>
+          </div>
+
+          <div class="sdk-row">
+            <div class="sdk-row-info">
+              <span class="sdk-row-title">Points multiplier</span>
+              <span class="sdk-row-desc">Global multiplier on all point rewards (1.0 = normal)</span>
+            </div>
+            <div class="number-input-wrap">
+              <input class="inp number-inp" type="number" min="0.1" max="10" step="0.1"
+                     [value]="sdkConfig().defaultMultiplier"
+                     (change)="setSdkConfig('defaultMultiplier', +$any($event.target).value)"/>
+              <span class="number-unit">×</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-label">Developer</div>
+
+          <div class="toggle-row" (click)="setSdkConfig('sandboxMode', !sdkConfig().sandboxMode)">
+            <div class="toggle-info">
+              <span class="toggle-title">Sandbox mode</span>
+              <span class="toggle-desc">Events tracked but no real rewards issued</span>
+            </div>
+            <div class="toggle-pill" [class.on]="sdkConfig().sandboxMode">
+              <div class="toggle-thumb"></div>
+            </div>
+          </div>
+
+          <div class="toggle-row" (click)="setSdkConfig('verboseLogging', !sdkConfig().verboseLogging)">
+            <div class="toggle-info">
+              <span class="toggle-title">Verbose logging</span>
+              <span class="toggle-desc">Log all SDK calls and responses to console</span>
+            </div>
+            <div class="toggle-pill" [class.on]="sdkConfig().verboseLogging">
+              <div class="toggle-thumb"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-footer">
+          <button class="btn-save" (click)="saveSdkConfig()">Save SDK config</button>
+        </div>
+      </section>
+
+      <!-- ══════════════════ BILLING ══════════════════ -->
+      <section *ngIf="activeSection() === 'billing'" class="panel">
+        <div class="panel-head">
+          <h2>Billing</h2>
+          <p>Your plan, usage, and payment details</p>
+        </div>
+
+        <!-- Current plan -->
+        <div class="plan-card">
+          <div class="plan-left">
+            <span class="plan-badge">{{ plan().name }}</span>
+            <div class="plan-body">
+              <span class="plan-name">{{ plan().name }} Plan</span>
+              <span class="plan-renewal">Renews on {{ plan().nextBilling }}</span>
+            </div>
+          </div>
+          <button class="btn-outline">Upgrade to Enterprise →</button>
+        </div>
+
+        <!-- Usage -->
+        <div class="form-section">
+          <div class="form-section-label">Usage this month</div>
+
+          <div class="usage-item">
+            <div class="usage-header">
+              <span>Events tracked</span>
+              <span class="mono">{{ formatNum(plan().eventsUsed) }} / {{ formatNum(plan().eventsLimit) }}</span>
+            </div>
+            <div class="usage-bar">
+              <div class="usage-fill events-fill" [style.width.%]="usagePct(plan().eventsUsed, plan().eventsLimit)"></div>
+            </div>
+            <span class="usage-pct">{{ usagePct(plan().eventsUsed, plan().eventsLimit) | number:'1.0-0' }}% used</span>
+          </div>
+
+          <div class="usage-item">
+            <div class="usage-header">
+              <span>Applications</span>
+              <span class="mono">{{ plan().appsUsed }} / {{ plan().appsLimit }}</span>
+            </div>
+            <div class="usage-bar">
+              <div class="usage-fill apps-fill" [style.width.%]="usagePct(plan().appsUsed, plan().appsLimit)"></div>
+            </div>
+          </div>
+
+          <div class="usage-item">
+            <div class="usage-header">
+              <span>Rules</span>
+              <span class="mono">{{ plan().rulesUsed }} / {{ plan().rulesLimit }}</span>
+            </div>
+            <div class="usage-bar">
+              <div class="usage-fill rules-fill" [style.width.%]="usagePct(plan().rulesUsed, plan().rulesLimit)"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment method -->
+        <div class="form-section">
+          <div class="form-section-label">Payment method</div>
+          <div class="payment-card">
+            <span class="payment-brand">VISA</span>
+            <span class="mono">•••• •••• •••• 4242</span>
+            <span class="payment-expiry">Exp 09/28</span>
+            <button class="btn-outline btn-sm">Update</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════ DANGER ZONE ══════════════════ -->
+      <section *ngIf="activeSection() === 'danger'" class="panel">
+        <div class="panel-head">
+          <h2>Danger Zone</h2>
+          <p>Irreversible actions — proceed with caution</p>
+        </div>
+
+        <div class="danger-card">
+          <div class="danger-card-body">
+            <span class="danger-card-title">Reset all event data</span>
+            <span class="danger-card-desc">Permanently deletes all tracked events across all apps. Rules, badges and configurations remain intact.</span>
+          </div>
+          <button class="btn-danger-outline">Reset events</button>
+        </div>
+
+        <div class="danger-card">
+          <div class="danger-card-body">
+            <span class="danger-card-title">Delete all apps</span>
+            <span class="danger-card-desc">Removes all applications, rules, badges, and associated data. Your account remains active.</span>
+          </div>
+          <button class="btn-danger-outline">Delete all apps</button>
+        </div>
+
+        <div class="danger-card danger-card--critical">
+          <div class="danger-card-body">
+            <span class="danger-card-title">Delete account</span>
+            <span class="danger-card-desc">Permanently deletes your account and all associated data. This cannot be undone.</span>
+          </div>
+          <button class="btn-danger">Delete account</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>

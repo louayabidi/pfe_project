@@ -1,15 +1,6 @@
-/**
- * ============================================================================
- * DASHBOARD SHELL COMPONENT (UPDATED)
- * ============================================================================
- * Main layout component that initializes AppStateService.
- * Manages sidebar collapse state.
- * 
- * Location: src/app/pages/dashboard/dashboard-shell/dashboard-shell.component.ts
- */
-
 import { Component, OnInit, OnDestroy, HostListener, signal } from '@angular/core';
 import { AppStateService } from 'src/app/services/app-state.service';
+import { ProfileService } from 'src/app/services/profile.service';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
@@ -18,41 +9,57 @@ import { Subject, takeUntil } from 'rxjs';
   styleUrls: ['./dashboard-shell.component.scss']
 })
 export class DashboardShellComponent implements OnInit, OnDestroy {
-  // ── SIGNALS ──────────────────────────────────────────────────────
-  collapsed = signal(false);
+
+  // ── Signals ───────────────────────────────────────────────────────────────
+  collapsed    = signal(false);
   appInitError = signal<string | null>(null);
 
-get currentApp() {
-    return this.appState.currentApp(); 
-  }
+  // ── User signals (replaces hardcoded "Jamie Liu") ─────────────────────────
+  userName     = signal('…');
+  userInitials = signal('?');
+  userRole     = signal('Admin');
 
+  get currentApp() { return this.appState.currentApp(); }
 
-  // ── PRIVATE ──────────────────────────────────────────────────────
   private readonly destroy$ = new Subject<void>();
 
-  constructor(private appState: AppStateService) {}
+  constructor(
+    private appState: AppStateService,
+    private profileService: ProfileService,   // ← NEW
+  ) {}
 
   ngOnInit(): void {
-    // Restore collapse preference from localStorage
     const saved = localStorage.getItem('sidebar-collapsed');
-    if (saved !== null) {
-      this.collapsed.set(saved === 'true');
-    }
-
-    // Auto-collapse on small screens
+    if (saved !== null) this.collapsed.set(saved === 'true');
     this.checkBreakpoint();
 
-    // Initialize app state (load apps and select one if needed)
     this.appState.initialize()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: () => {
-          // App state initialized successfully
-          this.appInitError.set(null);
-        },
+        next:  () => this.appInitError.set(null),
         error: (err) => {
           console.error('Failed to initialize app state:', err);
           this.appInitError.set('Impossible de charger les applications');
+        }
+      });
+
+    // ── Load real user profile ──────────────────────────────────────────────
+    this.profileService.getProfile()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (p) => {
+          const name = p.fullName?.trim() || p.email || 'User';
+          this.userName.set(name);
+          this.userInitials.set(
+            name.split(' ')
+                .map((w: string) => w[0])
+                .join('')
+                .toUpperCase()
+                .slice(0, 2)
+          );
+        },
+        error: () => {
+          // Keep placeholder on error — non-critical
         }
       });
   }
@@ -67,10 +74,21 @@ get currentApp() {
     if (window.innerWidth < 1024) {
       this.collapsed.set(true);
     } else {
-      // Restore saved state on larger screens
       const saved = localStorage.getItem('sidebar-collapsed');
       if (saved === null) this.collapsed.set(false);
     }
+  }
+
+  isDark = signal(
+    (localStorage.getItem('gamify-theme') ?? 'dark') === 'dark'
+  );
+
+  toggleTheme(): void {
+    this.isDark.update(v => !v);
+    localStorage.setItem('gamify-theme', this.isDark() ? 'dark' : 'light');
+    document.documentElement.setAttribute(
+      'data-theme', this.isDark() ? 'dark' : 'light'
+    );
   }
 
   ngOnDestroy(): void {
