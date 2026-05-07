@@ -47,6 +47,8 @@ const routes: Routes = [
         loadChildren: () =>
           import('./pages/analytics/analytics.module').then(m => m.AnalyticsModule)
       },
+
+      
     ]
   }
 ];

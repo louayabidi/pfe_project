@@ -1,0 +1,106 @@
+<div class="overview">
+
+  <!-- Stats grid -->
+  <div class="stats-grid">
+    <div class="stat-card" *ngFor="let s of stats">
+      <div class="stat-icon" [class]="'icon-' + s.icon">
+        <!-- Owners -->
+        <svg *ngIf="s.icon==='owners'" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="7" r="3.5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M3 17c0-3.314 3.134-6 7-6s7 2.686 7 6"
+                stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <!-- Apps -->
+        <svg *ngIf="s.icon==='apps'" viewBox="0 0 20 20" fill="none">
+          <rect x="2" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="11" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="2" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="11" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <!-- Events -->
+        <svg *ngIf="s.icon==='events'" viewBox="0 0 20 20" fill="none">
+          <path d="M3 10l4 4 7-8" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <!-- Flag -->
+        <svg *ngIf="s.icon==='flag'" viewBox="0 0 20 20" fill="none">
+          <path d="M4 3v14M4 3h9l-2 4 2 4H4" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="stat-body">
+        <span class="stat-label">{{ s.label }}</span>
+        <span class="stat-value">{{ s.value }}</span>
+      </div>
+      <div class="stat-delta" [class.up]="s.up" [class.down]="!s.up">
+        <svg viewBox="0 0 12 12" fill="none" width="10" height="10">
+          <path [attr.d]="s.up ? 'M6 10V2M2 6l4-4 4 4' : 'M6 2v8M2 6l4 4 4-4'"
+                stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {{ s.delta }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Content row -->
+  <div class="content-row">
+
+    <!-- Recent activity -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Recent Activity</span>
+        <span class="panel-link">View all</span>
+      </div>
+      <div class="activity-list">
+        <div class="activity-item" *ngFor="let item of [
+          { label: 'New owner registered',  sub: 'acme-corp · 2 min ago',  color: '#6C63FF' },
+          { label: 'App suspended',          sub: 'test-app-3 · 14 min ago', color: '#ef4444' },
+          { label: 'Badge rule triggered',   sub: 'shopify-demo · 1 hr ago', color: '#10b981' },
+          { label: 'New admin invited',      sub: 'super admin · 3 hr ago',  color: '#f59e0b' },
+          { label: 'Webhook failed (x3)',    sub: 'beta-store · 5 hr ago',   color: '#ef4444' }
+        ]">
+          <div class="activity-dot" [style.background]="item.color"></div>
+          <div class="activity-body">
+            <span class="activity-label">{{ item.label }}</span>
+            <span class="activity-sub">{{ item.sub }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Platform health -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Platform Health</span>
+        <span class="badge-online">All systems operational</span>
+      </div>
+      <div class="health-list">
+        <div class="health-row" *ngFor="let h of [
+          { name: 'API Gateway',    pct: 99, status: 'ok'   },
+          { name: 'Auth Service',   pct: 100, status: 'ok'  },
+          { name: 'Event Engine',   pct: 97,  status: 'warn'},
+          { name: 'Webhook Queue',  pct: 100, status: 'ok'  },
+          { name: 'Badge Engine',   pct: 100, status: 'ok'  }
+        ]">
+          <div class="health-label">
+            <span class="health-dot"
+                  [class.ok]="h.status==='ok'"
+                  [class.warn]="h.status==='warn'"></span>
+            {{ h.name }}
+          </div>
+          <div class="health-bar-wrap">
+            <div class="health-bar">
+              <div class="health-fill"
+                   [class.warn]="h.status==='warn'"
+                   [style.width.%]="h.pct"></div>
+            </div>
+            <span class="health-pct">{{ h.pct }}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

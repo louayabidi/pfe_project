@@ -32,6 +32,22 @@
   --color-text-tertiary:        rgba(255, 255, 255, 0.3);
   --color-border-tertiary:      rgba(255, 255, 255, 0.07);
   --color-border-secondary:     rgba(255, 255, 255, 0.12);
+  
+
+   // ── ADMIN PANEL VARS (dark baseline) ───────────────────────────────────
+  --bg-base:         #0A0814;
+  --bg-surface:      #110e1f;
+  --bg-elevated:     #18142a;
+  --bg-hover:        #1e1933;
+  --border-mid:      rgba(255, 255, 255, 0.11);
+  --border-strong:   rgba(255, 255, 255, 0.18);
+  --text-primary:    #f1f0f8;
+  --text-secondary:  rgba(241, 240, 248, 0.55);
+  --text-tertiary:   rgba(241, 240, 248, 0.32);
+  --shadow-sm:       0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md:       0 4px 16px rgba(0,0,0,0.5);
+  --shadow-lg:       0 12px 40px rgba(0,0,0,0.6);
+  --sidebar-width:   240px;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -66,6 +82,21 @@
   --color-text-tertiary:        rgba(0, 0, 0, 0.35);
   --color-border-tertiary:      rgba(0, 0, 0, 0.07);
   --color-border-secondary:     rgba(0, 0, 0, 0.12);
+
+  // ── ADMIN PANEL VARS (light) ────────────────────────────────────────────
+  --bg-base:         #f6f8fa;
+  --bg-surface:      #ffffff;
+  --bg-elevated:     #ffffff;
+  --bg-hover:        #f3f4f6;
+  --border-mid:      #d1d5db;
+  --border-strong:   #9ca3af;
+  --text-primary:    #111827;
+  --text-secondary:  #6b7280;
+  --text-tertiary:   #9ca3af;
+  --shadow-sm:       0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md:       0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg:       0 12px 40px rgba(0,0,0,0.1);
+  --sidebar-width:   240px;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

@@ -61,7 +61,8 @@ import { EngagementComponent } from './pages/engagement/engagement.component';
     AiEngineComponent,
     GamifPageBuilderComponent,
     SettingsComponent,
-    EngagementComponent
+    EngagementComponent,
+    
 
   ],
   imports: [

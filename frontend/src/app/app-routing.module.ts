@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { SplashComponent } from './pages/splash/splash.component';
 import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/admin.guard';
 
 const routes: Routes = [
   // Splash
@@ -39,7 +40,15 @@ const routes: Routes = [
     import('./pages/admin-login/admin-login.module').then(m => m.AdminLoginModule)
 },
 
-  // Fallback — toujours en dernier
+
+// ── Admin dashboard — fully isolated from user dashboard ──────────────────
+  {
+  path: 'admin/dashboard',
+  canActivate: [adminGuard],
+  loadChildren: () =>
+    import('./pages/admin-dashboard/admin-dashboard/admin-dashboard.module')
+      .then(m => m.AdminDashboardModule)
+},
   { path: '',   redirectTo: 'splash', pathMatch: 'full' },
   { path: '**', redirectTo: 'splash' },
 ];
