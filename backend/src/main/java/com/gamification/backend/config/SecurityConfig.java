@@ -32,6 +32,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // PUBLIC endpoints FIRST (most specific) — evaluated before general rules
                 .requestMatchers("/api/auth/**").permitAll()
+                 .requestMatchers("/api/admin/**").permitAll()
                 .requestMatchers("/api/events/register").permitAll()
                 .requestMatchers("/api/events/track").permitAll()
                 .requestMatchers("/api/users/*/points").permitAll()
@@ -42,9 +43,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/gamif-page/public/**").permitAll()
                  .requestMatchers("/api/levels/config/**").permitAll()
                 .requestMatchers("/api/gamif-page/*").authenticated()
-                .requestMatchers("/api/events/incoming/display-names").permitAll()
-
-                .requestMatchers("/api/events/incoming/display-names").authenticated()
+              
               .requestMatchers(HttpMethod.PUT, "/api/profile/password").authenticated()
               
        

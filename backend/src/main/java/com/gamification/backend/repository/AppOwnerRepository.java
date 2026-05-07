@@ -8,10 +8,13 @@ import java.util.Optional;
 
 @Repository
 public interface AppOwnerRepository extends JpaRepository<AppOwner, Long> {
-    
+
     Optional<AppOwner> findByEmail(String email);
-    
+
     boolean existsByEmail(String email);
-    
-    Optional<AppOwner> findByVerificationToken(String token);
+
+    // Used by AdminService for platform stats
+    long countByActive(Boolean active);
+
+    long countByVerified(Boolean verified);
 }

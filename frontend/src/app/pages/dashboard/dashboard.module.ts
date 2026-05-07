@@ -1,12 +1,3 @@
-/**
- * ============================================================================
- * DASHBOARD MODULE (UPDATED)
- * ============================================================================
- * Includes new AppStateService, AppSelector, and AppChooser components.
- * 
- * Location: src/app/pages/dashboard/dashboard.module.ts
- */
-
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';

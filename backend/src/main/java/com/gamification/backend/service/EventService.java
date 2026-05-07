@@ -124,4 +124,9 @@ public Page<IncomingEventDTO> getIncomingEvents(Long appId, EventFilterRequest f
                 .createdAt(e.getCreatedAt())
                 .build();
     }
+
+
+    public List<String> getDistinctDisplayNames(Long appId) {
+    return incomingEventRepository.findDistinctDisplayNamesByAppId(appId);
+}
 }

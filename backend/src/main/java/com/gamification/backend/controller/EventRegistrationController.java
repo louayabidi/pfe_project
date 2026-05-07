@@ -86,4 +86,15 @@ public ResponseEntity<List<String>> getDistinctEventNames(
     return ResponseEntity.ok(eventService.getDistinctEventNames(appId));
 }
 
+
+@GetMapping("/incoming/display-names")
+public ResponseEntity<List<String>> getDistinctDisplayNames(
+        @RequestHeader("Authorization") String token,
+        @RequestParam Long appId) {
+
+    String email = extractEmail(token);
+    appService.verifyOwnership(email, appId);
+    return ResponseEntity.ok(eventService.getDistinctDisplayNames(appId));
+}
+
 }

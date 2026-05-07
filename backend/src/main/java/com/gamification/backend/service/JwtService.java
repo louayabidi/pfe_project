@@ -27,6 +27,18 @@ public class JwtService {
                 .compact();
     }
 
+    // ✅ Admin token with role + type claims
+    public String generateAdminToken(String email, String role) {
+        return Jwts.builder()
+                .setSubject(email)
+                .claim("role", role)
+                .claim("type", "ADMIN")
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(Keys.hmacShaKeyFor(secret.getBytes()), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
     public String extractEmail(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(Keys.hmacShaKeyFor(secret.getBytes()))
@@ -36,7 +48,6 @@ public class JwtService {
                 .getSubject();
     }
 
-    // ✅ Simple validity check — no UserDetails needed
     public boolean isTokenValid(String token) {
         try {
             extractEmail(token);
@@ -46,7 +57,6 @@ public class JwtService {
         }
     }
 
-    // ✅ Overload that checks token belongs to correct user
     public boolean isTokenValid(String token, UserDetails userDetails) {
         try {
             final String email = extractEmail(token);

@@ -18,6 +18,7 @@ export interface AuthResponse {
   message: string;
   verified: boolean;
   token: string;
+  role?: string; 
 }
 
 export interface AuthState {

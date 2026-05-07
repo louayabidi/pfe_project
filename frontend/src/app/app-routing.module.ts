@@ -33,6 +33,12 @@ const routes: Routes = [
         .then(m => m.DashboardModule)
   },
 
+  {
+  path: 'admin/login',
+  loadChildren: () =>
+    import('./pages/admin-login/admin-login.module').then(m => m.AdminLoginModule)
+},
+
   // Fallback — toujours en dernier
   { path: '',   redirectTo: 'splash', pathMatch: 'full' },
   { path: '**', redirectTo: 'splash' },
