@@ -18,8 +18,16 @@ public class OwnerSummaryResponse {
     private LocalDateTime createdAt;
     private LocalDateTime lastLogin;
 
+
+    // ── Verification audit trail ───────────────────────────────────────────────
+    private String        verifiedByAdminEmail;
+    private LocalDateTime verifiedAt;
     // Stats
     private long totalApps;
     private long totalRules;
     private long totalAdvancedRules;
+
+
+
+    
 }

@@ -30,27 +30,29 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                // PUBLIC endpoints FIRST (most specific) — evaluated before general rules
+                // ── Public owner/user auth ────────────────────────────────
                 .requestMatchers("/api/auth/**").permitAll()
-                 .requestMatchers("/api/admin/**").permitAll()
+
+                // ── Admin login only — management endpoints require a token ─
+                .requestMatchers("/api/admin/auth/**").permitAll()
+                .requestMatchers("/api/admin/**").authenticated()   
+                // ── Public SDK / event endpoints ─────────────────────────
                 .requestMatchers("/api/events/register").permitAll()
                 .requestMatchers("/api/events/track").permitAll()
                 .requestMatchers("/api/users/*/points").permitAll()
                 .requestMatchers("/api/users/**").permitAll()
-                .requestMatchers("/api/widgets/public/**").permitAll()  //  Flutter SDK
+                .requestMatchers("/api/widgets/public/**").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/api/ai/**").authenticated()
                 .requestMatchers("/api/gamif-page/public/**").permitAll()
-                 .requestMatchers("/api/levels/config/**").permitAll()
+                .requestMatchers("/api/levels/config/**").permitAll()
+
+                // ── Authenticated owner endpoints ─────────────────────────
+                .requestMatchers("/api/ai/**").authenticated()
                 .requestMatchers("/api/gamif-page/*").authenticated()
-              
-              .requestMatchers(HttpMethod.PUT, "/api/profile/password").authenticated()
-              
-       
-                .requestMatchers("/api/widgets/config/**").authenticated()  // Dashboard only
+                .requestMatchers(HttpMethod.PUT, "/api/profile/password").authenticated()
+                .requestMatchers("/api/widgets/config/**").authenticated()
                 .requestMatchers("/api/events/incoming/**").authenticated()
-                
-               
+
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
@@ -61,10 +63,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        
-        // ✅ Allow localhost on any port (for development)
         config.setAllowedOriginPatterns(List.of("http://localhost:*"));
-        
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

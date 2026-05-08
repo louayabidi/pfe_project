@@ -56,4 +56,10 @@ public class AppOwner {
 
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
+
+    @Column(name = "verified_by_admin_email")
+private String verifiedByAdminEmail;
+
+@Column(name = "verified_at")
+private LocalDateTime verifiedAt;
 }

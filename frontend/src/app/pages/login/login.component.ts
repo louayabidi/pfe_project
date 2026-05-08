@@ -1,5 +1,5 @@
 import {
-  Component, ChangeDetectionStrategy, signal, OnDestroy
+  Component, ChangeDetectionStrategy, signal, OnDestroy ,HostListener
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -59,5 +59,17 @@ export class LoginComponent implements OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+
+  //  Global Key Listener
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    
+   
+    if (event.altKey && event.key.toLowerCase() === 'a') {
+      event.preventDefault(); // Prevent default browser behavior if any
+      this.router.navigate(['/admin/login']);
+    }
   }
 }

@@ -1,1 +1,247 @@
-<p>owners works!</p>
+
+<div class="owners-page">
+
+  <!-- ── HEADER ─────────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="header-left">
+      <h1 class="page-title">App Owners</h1>
+      <span class="count-badge">{{ filtered().length }} / {{ owners().length }}</span>
+    </div>
+    <div class="header-search">
+      <svg class="search-icon" viewBox="0 0 20 20" fill="none">
+        <circle cx="9" cy="9" r="5.5" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M13.5 13.5L17 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <input
+        class="search-input"
+        type="text"
+        placeholder="Search by name, email or company…"
+        [value]="search()"
+        (input)="onSearch($event)"
+      />
+    </div>
+  </div>
+
+  <!-- ── ERROR ──────────────────────────────────────────────────────────── -->
+  <div class="error-banner" *ngIf="error()">
+    <span>⚠️</span> {{ error() }}
+  </div>
+
+  <!-- ── SKELETON ───────────────────────────────────────────────────────── -->
+  <div class="skeleton-wrap" *ngIf="loading()">
+    <div class="skel-row" *ngFor="let i of [1,2,3,4,5]">
+      <div class="skel-avatar"></div>
+      <div class="skel-lines">
+        <div class="skel-line w55"></div>
+        <div class="skel-line w35"></div>
+      </div>
+      <div class="skel-pill"></div>
+      <div class="skel-pill"></div>
+    </div>
+  </div>
+
+  <!-- ── TABLE ──────────────────────────────────────────────────────────── -->
+  <div class="table-wrap" *ngIf="!loading() && !error()">
+
+    <div class="empty-state" *ngIf="filtered().length === 0">
+      <svg viewBox="0 0 48 48" fill="none" width="40" height="40">
+        <circle cx="24" cy="24" r="20" stroke="currentColor" stroke-width="1.5" opacity=".3"/>
+        <path d="M24 16v9M24 29v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <p>No owners match your search.</p>
+    </div>
+
+    <table class="owners-table" *ngIf="filtered().length > 0">
+      <thead>
+        <tr>
+          <th>Owner</th>
+          <th>Company</th>
+          <th>Joined</th>
+          <th>Last Login</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let owner of filtered()">
+
+          <!-- ── Main row ── -->
+          <tr
+            class="owner-row"
+            [class.expanded]="isExpanded(owner.id)"
+            [class.suspended]="!owner.active"
+            (click)="toggleExpand(owner.id)"
+          >
+            <td>
+              <div class="td-owner">
+                <div class="owner-avatar" [class.verified]="owner.verified">
+                  {{ initial(owner.fullName) }}
+                  <span class="verified-tick" *ngIf="owner.verified">✓</span>
+                </div>
+                <div class="owner-info">
+                  <span class="owner-name">{{ owner.fullName }}</span>
+                  <span class="owner-email">{{ owner.email }}</span>
+                </div>
+                <svg class="expand-arrow" [class.open]="isExpanded(owner.id)"
+                     viewBox="0 0 12 12" fill="none" width="12">
+                  <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5"
+                        stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </td>
+            <td class="td-company">{{ owner.companyName || '—' }}</td>
+            <td class="td-date">{{ owner.createdAt | date:'mediumDate' }}</td>
+            <td class="td-date">{{ owner.lastLogin ? (owner.lastLogin | date:'short') : 'Never' }}</td>
+            <td>
+              <div class="status-pill" [class.active]="owner.active" [class.suspended]="!owner.active">
+                <span class="status-dot"></span>
+                {{ owner.active ? 'Active' : 'Suspended' }}
+              </div>
+            </td>
+          <td>
+  <div class="td-actions" (click)="$event.stopPropagation()">
+    <button class="action-btn toggle"
+            (click)="onToggleStatus(owner, $event)"
+            [title]="owner.active ? 'Suspend' : 'Activate'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14">
+        <path d="M18.36 6.64a9 9 0 1 1-12.73 0"/>
+        <line x1="12" y1="2" x2="12" y2="12"/>
+      </svg>
+    </button>
+    <button class="action-btn verify"
+            [class.verified]="owner.verified"
+            (click)="onVerify(owner, $event)"
+            [title]="owner.verified ? 'Unverify' : 'Verify'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14">
+        <path d="M20 6L9 17l-5-5"/>
+      </svg>
+    </button>
+    <button class="action-btn delete"
+            (click)="onDelete(owner, $event)"
+            title="Delete owner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14">
+        <polyline points="3 6 5 6 21 6"/>
+        <path d="M19 6l-1 14H6L5 6"/>
+        <path d="M10 11v6M14 11v6"/>
+        <path d="M9 6V4h6v2"/>
+      </svg>
+    </button>
+  </div>
+</td>
+          </tr>
+
+          <!-- ── Expand row ── -->
+          <tr class="expand-row" [class.open]="isExpanded(owner.id)">
+            <td colspan="6">
+              <div class="expand-panel">
+
+                <!-- Stats -->
+                <div class="expand-section">
+                  <span class="expand-section-label">Account Stats</span>
+                  <div class="stat-chips">
+                    <div class="stat-chip">
+                      <svg viewBox="0 0 20 20" fill="none" width="14">
+                        <rect x="2" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="11" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="2" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+                        <rect x="11" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+                      </svg>
+                      <span class="chip-val">{{ owner.totalApps }}</span>
+                      <span class="chip-label">Apps</span>
+                    </div>
+                    <div class="stat-chip">
+                      <svg viewBox="0 0 20 20" fill="none" width="14">
+                        <path d="M4 3v14M4 3h9l-2 4 2 4H4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      <span class="chip-val">{{ owner.totalRules }}</span>
+                      <span class="chip-label">Simple Rules</span>
+                    </div>
+                    <div class="stat-chip">
+                      <svg viewBox="0 0 20 20" fill="none" width="14">
+                        <path d="M3 10l4 4 7-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
+                      </svg>
+                      <span class="chip-val">{{ owner.totalAdvancedRules }}</span>
+                      <span class="chip-label">Advanced Rules</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Toggles -->
+                <div class="expand-section">
+                  <span class="expand-section-label">Account Controls</span>
+                  <div class="control-row">
+                    <div class="control-item">
+                      <span class="control-label">
+                        <span class="badge-dot" [class.on]="owner.active"></span>
+                        Account {{ owner.active ? 'Active' : 'Suspended' }}
+                      </span>
+                      <button class="ctrl-btn"
+                              [class.danger]="owner.active"
+                              [class.success]="!owner.active"
+                              (click)="onToggleStatus(owner, $event)">
+                        {{ owner.active ? 'Suspend Account' : 'Reactivate Account' }}
+                      </button>
+                    </div>
+                    <div class="control-item">
+                      <span class="control-label">
+                        <span class="badge-dot" [class.on]="owner.verified" [class.purple]="owner.verified"></span>
+                        {{ owner.verified ? 'Verified Owner' : 'Not Verified' }}
+                      </span>
+                    </div>
+                    <div class="control-item danger-zone">
+                      <span class="control-label danger-label">Danger Zone</span>
+                      <button class="ctrl-btn danger"
+                              (click)="onDelete(owner, $event)">
+                        <svg viewBox="0 0 16 16" fill="none" width="13" stroke="currentColor" stroke-width="1.5">
+                          <polyline points="2 4 4 4 14 4"/>
+                          <path d="M13 4l-.7 9.3a1 1 0 01-1 .7H4.7a1 1 0 01-1-.7L3 4"/>
+                          <path d="M6 7v4M10 7v4M6.5 4V2.5h3V4"/>
+                        </svg>
+                        Delete Owner
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+<!-- Verification Info & Control -->
+<div class="verification-block">
+  <div class="verification-header">
+    <span class="verify-status" [class.verified]="owner.verified">
+      <span class="badge-dot" [class.on]="owner.verified" [class.purple]="owner.verified"></span>
+      {{ owner.verified ? 'Verified Owner' : 'Not Verified' }}
+    </span>
+    <button class="ctrl-btn verify-btn"
+            [class.verified]="owner.verified"
+            (click)="onVerify(owner, $event)">
+      <svg viewBox="0 0 16 16" fill="none" width="12" stroke="currentColor" stroke-width="1.5">
+        <path d="M13 3L6 10 3 7"/>
+      </svg>
+      {{ owner.verified ? 'Unverify Owner' : 'Verify Owner' }}
+    </button>
+  </div>
+
+  <!-- Audit Trail -->
+  <div class="audit-trail" *ngIf="owner.verified && owner.verifiedAt">
+    <div class="audit-item">
+      <span class="audit-label">Verified by:</span>
+      <span class="audit-value">{{ owner.verifiedByAdminEmail }}</span>
+    </div>
+    <div class="audit-item">
+      <span class="audit-label">Verified on:</span>
+      <span class="audit-value">{{ owner.verifiedAt | date:'medium' }}</span>
+    </div>
+  </div>
+</div>
+
+            </td>
+          </tr>
+
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+
+</div>

@@ -1,1 +1,185 @@
-<p>admins works!</p>
+<div class="admins-page">
+
+  <!-- ── HEADER ─────────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="header-left">
+      <h1 class="page-title">Admin Team</h1>
+      <span class="count-badge">{{ admins().length }} Total</span>
+    </div>
+    <button class="btn-primary" (click)="openModal()">
+      <svg viewBox="0 0 16 16" fill="none" width="14">
+        <path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      Add New Admin
+    </button>
+  </div>
+
+  <!-- ── ERROR ──────────────────────────────────────────────────────────── -->
+  <div class="error-banner" *ngIf="error()">
+    <span>⚠️</span> {{ error() }}
+  </div>
+
+  <!-- ── SKELETON ───────────────────────────────────────────────────────── -->
+  <div class="skeleton-table" *ngIf="loading()">
+    <div class="skel-row" *ngFor="let i of [1,2,3]">
+      <div class="skel-avatar"></div>
+      <div class="skel-lines">
+        <div class="skel-line w60"></div>
+        <div class="skel-line w40"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TABLE ──────────────────────────────────────────────────────────── -->
+  <div class="table-wrap" *ngIf="!loading()">
+    <table class="admins-table">
+      <thead>
+        <tr>
+          <th>Admin User</th>
+          <th>Role</th>
+          <th>Created At</th>
+          <th>Last Login</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let admin of admins()" [class.suspended]="!admin.active">
+          <td>
+            <div class="td-admin">
+              <div class="admin-avatar">{{ admin.fullName.charAt(0) }}</div>
+              <div class="admin-info">
+                <span class="admin-name">{{ admin.fullName }}</span>
+                <span class="admin-email">{{ admin.email }}</span>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="role-badge" [class.super]="admin.role === 'SUPER_ADMIN'">
+              {{ admin.role === 'SUPER_ADMIN' ? 'Super Admin' : 'Admin' }}
+            </span>
+          </td>
+          <td class="td-date">{{ admin.createdAt | date:'mediumDate' }}</td>
+          <td class="td-date">{{ admin.lastLogin ? (admin.lastLogin | date:'short') : 'Never' }}</td>
+          <td>
+            <div class="status-pill" [class.active]="admin.active" [class.suspended]="!admin.active">
+              <span class="status-dot"></span>
+              {{ admin.active ? 'Active' : 'Disabled' }}
+            </div>
+          </td>
+          <td>
+            <div class="td-actions">
+              <button class="action-btn"
+                      (click)="onToggleStatus(admin)"
+                      [title]="admin.active ? 'Disable' : 'Enable'"
+                      [disabled]="admin.role === 'SUPER_ADMIN'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14">
+                  <path d="M18.36 6.64a9 9 0 1 1-12.73 0"/>
+                  <line x1="12" y1="2" x2="12" y2="12"/>
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     ADD ADMIN MODAL
+══════════════════════════════════════════════════════════════════════════ -->
+<div class="modal-backdrop" [class.open]="modalOpen()" (click)="closeModal()">
+  <div class="modal-panel" [class.open]="modalOpen()" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <div class="modal-title-wrap">
+        <div class="modal-icon">
+          <svg viewBox="0 0 20 20" fill="none" width="18">
+            <path d="M10 2l1.8 3.6L16 6.2l-3 2.9.7 4.1L10 11l-3.7 2.2.7-4.1L4 6.2l4.2-.6L10 2z"
+                  stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="modal-title">Add New Admin</h3>
+          <p class="modal-subtitle">Creates an ADMIN role account</p>
+        </div>
+      </div>
+      <button class="modal-close" (click)="closeModal()">
+        <svg viewBox="0 0 16 16" fill="none" width="16">
+          <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+
+      <div class="form-field">
+        <label class="form-label">Full Name</label>
+        <input
+          class="form-input"
+          type="text"
+          placeholder="e.g. Alice Martin"
+          [class.invalid]="fieldError('fullName')"
+          [(ngModel)]="form.fullName"
+        />
+        <span class="field-error" *ngIf="fieldError('fullName')">Full name is required</span>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Email Address</label>
+        <input
+          class="form-input"
+          type="email"
+          placeholder="alice@company.com"
+          [class.invalid]="fieldError('email')"
+          [(ngModel)]="form.email"
+        />
+        <span class="field-error" *ngIf="fieldError('email')">Valid email is required</span>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Password</label>
+        <div class="input-wrap">
+          <input
+            class="form-input"
+            [type]="showPassword() ? 'text' : 'password'"
+            placeholder="Min. 8 characters"
+            [class.invalid]="fieldError('password')"
+            [(ngModel)]="form.password"
+          />
+          <button class="eye-btn" type="button" (click)="showPassword.set(!showPassword())">
+            <svg *ngIf="!showPassword()" viewBox="0 0 20 20" fill="none" width="16">
+              <path d="M2 10s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6z" stroke="currentColor" stroke-width="1.5"/>
+              <circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            <svg *ngIf="showPassword()" viewBox="0 0 20 20" fill="none" width="16">
+              <path d="M3 3l14 14M8.6 8.7a2.5 2.5 0 003.7 3.7M5.3 5.4C3.4 6.8 2 10 2 10s3 6 8 6c1.5 0 2.9-.4 4.1-1.1M14.7 14.6C16.5 13.2 18 10 18 10s-3-6-8-6c-.5 0-1 .05-1.5.14"
+                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <span class="field-error" *ngIf="fieldError('password')">Password must be at least 8 characters</span>
+      </div>
+
+      <div class="modal-error" *ngIf="modalError()">
+        <svg viewBox="0 0 16 16" fill="none" width="14">
+          <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M8 5v4M8 10.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        {{ modalError() }}
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-ghost" (click)="closeModal()">Cancel</button>
+      <button class="btn-submit" (click)="onSubmit()" [class.loading]="submitting()">
+        <span class="btn-spinner" *ngIf="submitting()"></span>
+        <span>{{ submitting() ? 'Creating…' : 'Create Admin' }}</span>
+      </button>
+    </div>
+
+  </div>
+</div>

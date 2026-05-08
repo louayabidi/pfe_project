@@ -1,5 +1,6 @@
 package com.gamification.backend.service;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -27,7 +28,6 @@ public class JwtService {
                 .compact();
     }
 
-    // ✅ Admin token with role + type claims
     public String generateAdminToken(String email, String role) {
         return Jwts.builder()
                 .setSubject(email)
@@ -48,6 +48,20 @@ public class JwtService {
                 .getSubject();
     }
 
+    public String extractRole(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(Keys.hmacShaKeyFor(secret.getBytes()))  // ← fixed
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            Object role = claims.get("role");
+            return role != null ? role.toString() : "";
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
     public boolean isTokenValid(String token) {
         try {
             extractEmail(token);
@@ -65,4 +79,6 @@ public class JwtService {
             return false;
         }
     }
+
+    
 }

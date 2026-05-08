@@ -120,6 +120,31 @@ public class AdminService {
     }
 
     @Transactional
+    public OwnerSummaryResponse verifyOwner(Long ownerId, VerifyOwnerRequest request, String adminEmail) {
+        AppOwner owner = findOwner(ownerId);
+
+        if (request.getVerify()) {
+            // Verify the owner
+            owner.setVerified(true);
+            owner.setVerifiedByAdminEmail(adminEmail);
+            owner.setVerifiedAt(LocalDateTime.now());
+            ownerRepository.save(owner);
+            log.info("[Admin] Owner {} vérifiée par {} (id={})",
+                    owner.getEmail(), adminEmail, ownerId);
+        } else {
+            // Unverify the owner
+            owner.setVerified(false);
+            owner.setVerifiedByAdminEmail(null);
+            owner.setVerifiedAt(null);
+            ownerRepository.save(owner);
+            log.info("[Admin] Vérification supprimée pour {} par {} (id={})",
+                    owner.getEmail(), adminEmail, ownerId);
+        }
+
+        return toOwnerSummary(owner);
+    }
+
+    @Transactional
     public void deleteOwner(Long id) {
         AppOwner owner = findOwner(id);
         ownerRepository.delete(owner);
@@ -197,6 +222,8 @@ public class AdminService {
                 .active(Boolean.TRUE.equals(o.getActive()))
                 .createdAt(o.getCreatedAt())
                 .lastLogin(o.getLastLogin())
+                .verifiedByAdminEmail(o.getVerifiedByAdminEmail())
+                .verifiedAt(o.getVerifiedAt())
                 .totalApps(apps)
                 .totalRules(rules)
                 .totalAdvancedRules(advancedRules)

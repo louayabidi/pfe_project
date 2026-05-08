@@ -17,16 +17,22 @@ export interface PlatformStats {
 }
 
 export interface OwnerSummary {
-  id:                 number;
-  email:              string;
-  fullName:           string;
-  companyName:        string;
-  verified:           boolean;
-  active:             boolean;
-  createdAt:          string;
-  lastLogin:          string | null;
-  totalApps:          number;
-  totalRules:         number;
+  id: number;
+  email: string;
+  fullName: string;
+  companyName?: string;
+  verified: boolean;
+  active: boolean;
+  createdAt: Date;
+  lastLogin?: Date;
+  
+  // Verification audit trail
+  verifiedByAdminEmail?: string;
+  verifiedAt?: Date;
+
+  // Stats
+  totalApps: number;
+  totalRules: number;
   totalAdvancedRules: number;
 }
 
@@ -80,4 +86,12 @@ export class AdminApiService {
   toggleAdmin(id: number): Observable<AdminUser> {
     return this.http.put<AdminUser>(`${this.BASE}/admins/${id}/toggle`, {});
   }
+
+
+  verifyOwner(ownerId: number, verify: boolean): Observable<OwnerSummary> {
+  return this.http.patch<OwnerSummary>(
+    `${this.BASE}/owners/${ownerId}/verify`,
+    { verify }
+  );
+}
 }
