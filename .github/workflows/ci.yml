@@ -2,9 +2,9 @@ name: Gamify Platform CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ analytics ]  
   pull_request:
-    branches: [ main ]
+    branches: [ analytics ]  
 
 jobs:
   # ─── BACKEND CHECK ───────────────────────────────────────
@@ -33,7 +33,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '18.x' # Best for Angular 16
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
@@ -44,6 +44,3 @@ jobs:
       - name: Build Angular App
         working-directory: ./frontend
         run: npm run build -- --configuration=production
-
-      # Note: We skip 'npm test' for now because Karma requires a 
-      # browser (ChromeHeadless) configuration to run in CI.
