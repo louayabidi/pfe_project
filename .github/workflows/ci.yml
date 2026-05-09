@@ -2,14 +2,31 @@ name: Gamify Platform CI
 
 on:
   push:
-    branches: [ analytics ]  
+    branches: [ analytics ]
   pull_request:
-    branches: [ analytics ]  
+    branches: [ analytics ]
 
 jobs:
   # ─── BACKEND CHECK ───────────────────────────────────────
   backend-build:
     runs-on: ubuntu-latest
+
+    # PostgreSQL service container (matches your docker-compose.yml)
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: gamification
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: admin123
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
 
@@ -23,6 +40,10 @@ jobs:
       - name: Build and Test Backend
         working-directory: ./backend
         run: mvn clean verify
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/gamification
+          SPRING_DATASOURCE_USERNAME: postgres
+          SPRING_DATASOURCE_PASSWORD: postgres
 
   # ─── FRONTEND CHECK ──────────────────────────────────────
   frontend-build:
@@ -33,7 +54,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18.x' # Best for Angular 16
+          node-version: '18.x'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
