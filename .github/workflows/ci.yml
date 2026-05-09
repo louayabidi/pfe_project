@@ -120,7 +120,7 @@ jobs:
 
       - name: Start Backend
         working-directory: ./backend
-        run: mvn spring-boot:run &
+        run: nohup mvn spring-boot:run > /tmp/backend.log 2>&1 &
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/gamification
           SPRING_DATASOURCE_USERNAME: admin
@@ -128,10 +128,24 @@ jobs:
 
       - name: Start Frontend
         working-directory: ./frontend
-        run: npm start &
+        run: nohup npm start > /tmp/frontend.log 2>&1 &
 
       - name: Wait for servers
-        run: npx wait-on http://localhost:4200 http://localhost:8080 --timeout 120000
+        run: |
+          echo "Waiting for backend..."
+          npx wait-on http://localhost:8080/actuator/health --timeout 180000
+          echo "Backend is up!"
+          echo "Waiting for frontend..."
+          npx wait-on http://localhost:4200 --timeout 60000
+          echo "Frontend is up!"
+
+      - name: Show logs on failure
+        if: failure()
+        run: |
+          echo "=== BACKEND LOG ==="
+          cat /tmp/backend.log || echo "No backend log"
+          echo "=== FRONTEND LOG ==="
+          cat /tmp/frontend.log || echo "No frontend log"
 
       - name: Run Playwright Tests
         working-directory: ./frontend
