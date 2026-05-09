@@ -133,7 +133,7 @@ jobs:
       - name: Wait for servers
         run: |
           echo "Waiting for backend..."
-          npx wait-on http://localhost:8080/actuator/health --timeout 180000
+          npx wait-on http://localhost:8081/actuator/health --timeout 180000
           echo "Backend is up!"
           echo "Waiting for frontend..."
           npx wait-on http://localhost:4200 --timeout 60000
