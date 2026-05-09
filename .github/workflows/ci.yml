@@ -7,6 +7,22 @@ on:
     branches: [ analytics ]
 
 jobs:
+
+
+# ─── SECURITY SCAN (Semgrep) ─────────────────────────────
+  security-scan:
+    name: Security Analysis
+    runs-on: ubuntu-latest
+    container:
+      image: returntocorp/semgrep # Utilise l'image officielle pour plus de rapidité
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Semgrep with Auto Config
+        run: semgrep scan --config auto --error # --error fait échouer le build s'il trouve une faille critique
+        # Pas besoin de working-directory ici, Semgrep va trouver ./backend et ./frontend tout seul !
+
+
   # ─── BACKEND CHECK ───────────────────────────────────────
   backend-build:
     runs-on: ubuntu-latest
