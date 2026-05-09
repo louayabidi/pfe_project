@@ -40,13 +40,13 @@
 
       <!-- Social links -->
       <div class="social-links">
-        <a *ngFor="let s of socialLinks"
+      <a *ngFor="let s of socialLinks"
    [href]="s.url"
    target="_blank"
    rel="noopener noreferrer"
    class="social-link"
-   [attr.aria-label]="s.label"
-   [innerHTML]="sanitize(s.icon)">
+   [attr.aria-label]="s.label">
+  <svg-icon [name]="s.icon"></svg-icon>
 </a>
       </div>
 
