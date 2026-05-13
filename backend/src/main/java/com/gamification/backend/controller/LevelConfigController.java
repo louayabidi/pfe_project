@@ -70,12 +70,16 @@ public class LevelConfigController {
     // ── SDK: get user level ───────────────────────────────────────────────────
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Map<String, Object>>> getUserLevels(
-            @PathVariable String userId,
-            @RequestParam Long appId) {
+   public ResponseEntity<List<Map<String, Object>>> getUserLevels(
+        @PathVariable String userId,
+        @RequestHeader("X-API-Key") String apiKey) {  
 
-        List<UserLevel> levels = levelService.getUserLevels(userId, appId);
-        List<LevelConfig> configs = levelConfigRepo.findByAppIdAndActiveTrue(appId);
+    App app = appRepo.findByApiKey(apiKey)
+            .orElseThrow(() -> new RuntimeException("Clé API invalide"));
+    Long appId = app.getId();                          
+
+    List<UserLevel> levels = levelService.getUserLevels(userId, appId);
+    List<LevelConfig> configs = levelConfigRepo.findByAppIdAndActiveTrue(appId);
 
         List<Map<String, Object>> result = new ArrayList<>();
 

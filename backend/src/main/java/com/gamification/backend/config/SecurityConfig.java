@@ -45,7 +45,11 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/gamif-page/public/**").permitAll()
                 .requestMatchers("/api/levels/config/**").permitAll()
-
+                .requestMatchers("/api/streaks/config/**").permitAll()
+                .requestMatchers("/api/levels/user/**").permitAll()  
+                .requestMatchers("/api/streaks/user/**").permitAll() 
+                .requestMatchers("/api/events/names").permitAll()
+                .requestMatchers("/api/events/names/**").permitAll()
                 // ── Authenticated owner endpoints ─────────────────────────
                 .requestMatchers("/api/ai/**").authenticated()
                 .requestMatchers("/api/gamif-page/*").authenticated()

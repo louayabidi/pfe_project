@@ -3,26 +3,37 @@
     <div class="grid-line" *ngFor="let n of [1,2,3,4,5]"></div>
   </div>
 
-  <!-- ── Header ───────────────────────────────────────────────────────────── -->
   <header class="page-header">
     <div>
       <div class="breadcrumb">
         <span class="mono accent">APP #{{ appState.currentAppId() }}</span>
-        <svg width="10" height="10" viewBox="0 0 10 10"><path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+        <svg width="10" height="10" viewBox="0 0 10 10">
+          <path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.5" fill="none" />
+        </svg>
         <span class="mono">Engagement</span>
       </div>
       <h1 class="page-title">🔥 Streaks &amp; Levels</h1>
       <p class="page-sub">Configure retention mechanics — app owners control everything from here</p>
     </div>
+
+    <div style="display:flex; align-items:center; gap:16px;">
+    <app-selector></app-selector>
     <div class="save-toast" [class.visible]="saved()">
       <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-        <path d="M2 6.5l3.5 3.5 5.5-6" stroke="#39e07a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M2 6.5l3.5 3.5 5.5-6" stroke="#39e07a" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      Saved
+    </div>
+  </div>
+    <div class="save-toast" [class.visible]="saved()">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+        <path d="M2 6.5l3.5 3.5 5.5-6" stroke="#39e07a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
       </svg>
       Saved
     </div>
   </header>
 
-  <!-- ── Tabs ─────────────────────────────────────────────────────────────── -->
   <div class="tabs">
     <button class="tab" [class.active]="activeTab() === 'streaks'" (click)="activeTab.set('streaks')">
       🔥 Streaks
@@ -34,29 +45,28 @@
     </button>
   </div>
 
-  <!-- ══════════════════════════════ STREAKS ═══════════════════════════════ -->
   <div *ngIf="activeTab() === 'streaks'">
 
     <div class="section-actions">
       <p class="section-desc">
-        Define which events build a streak, set daily/rolling windows, milestones, freeze tokens and comeback bonuses.
-        One app can have multiple independent streaks (login streak + purchase streak simultaneously).
+        Define which events build a streak, set daily/rolling windows, milestones, and freeze tokens.
+        One app can have multiple independent streaks (login streak + workout streak).
       </p>
       <button class="btn-primary" (click)="openNewStreak()">
         <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-          <path d="M6.5 1v11M1 6.5h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M6.5 1v11M1 6.5h11" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
         </svg>
         New streak
       </button>
     </div>
 
-    <!-- Loading -->
     <div class="loading-state" *ngIf="loading()">
-      <div class="loading-bar"><div class="loading-fill"></div></div>
+      <div class="loading-bar">
+        <div class="loading-fill"></div>
+      </div>
       <span>Loading...</span>
     </div>
 
-    <!-- Empty -->
     <div class="empty-state" *ngIf="!loading() && streakConfigs().length === 0 && !showStreakForm()">
       <span class="empty-icon">🔥</span>
       <h3>No streaks configured</h3>
@@ -64,7 +74,6 @@
       <button class="btn-primary" (click)="openNewStreak()">Create first streak</button>
     </div>
 
-    <!-- Cards -->
     <div class="config-grid" *ngIf="streakConfigs().length > 0">
       <div class="config-card" *ngFor="let cfg of streakConfigs()">
         <div class="cc-head">
@@ -74,29 +83,33 @@
               <span class="chip chip-window">{{ cfg.windowType === 'CALENDAR_DAY' ? '📅 Calendar day' : '⏱ Rolling 24h' }}</span>
               <span class="chip chip-grace" *ngIf="cfg.graceHours">⏳ {{ cfg.graceHours }}h grace</span>
               <span class="chip chip-freeze">❄️ {{ cfg.maxFreezeTokens }} freeze token{{ cfg.maxFreezeTokens !== 1 ? 's' : '' }}</span>
-              <span class="chip chip-comeback" *ngIf="cfg.comebackAfterDays">
-                🎉 Comeback after {{ cfg.comebackAfterDays }}d (+{{ cfg.comebackBonusPoints }}pts)
+            </div>
+
+            <div class="milestones-row" *ngIf="parseQualifyingEvents(cfg.qualifyingEventsJson).length" style="margin-top: 10px;">
+              <span class="ms-label">Triggered by:</span>
+              <span class="ms-chip" *ngFor="let ev of parseQualifyingEvents(cfg.qualifyingEventsJson)">
+                ⚡ {{ ev }}
               </span>
             </div>
           </div>
+
           <div class="cc-actions">
             <div class="toggle-pill" [class.on]="cfg.active" (click)="toggleStreak(cfg.id!)">
               <div class="toggle-thumb"></div>
             </div>
             <button class="icon-btn" (click)="editStreak(cfg)" title="Edit">
               <svg viewBox="0 0 14 14" fill="none" width="13" height="13">
-                <path d="M10 2l2 2-7 7H3V9L10 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+                <path d="M10 2l2 2-7 7H3V9L10 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" />
               </svg>
             </button>
             <button class="icon-btn danger" (click)="deleteStreak(cfg.id!)" title="Delete">
               <svg viewBox="0 0 14 14" fill="none" width="13" height="13">
-                <path d="M2 4h10M5 4V2.5h4V4M3.5 4l.5 8h6l.5-8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                <path d="M2 4h10M5 4V2.5h4V4M3.5 4l.5 8h6l.5-8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
               </svg>
             </button>
           </div>
         </div>
 
-        <!-- Milestones preview -->
         <div class="milestones-row" *ngIf="parseMilestones(cfg.milestonesJson).length">
           <span class="ms-label">Milestones:</span>
           <span class="ms-chip" *ngFor="let m of parseMilestones(cfg.milestonesJson)">
@@ -109,7 +122,6 @@
       </div>
     </div>
 
-    <!-- ── Streak form ──────────────────────────────────────────────────────── -->
     <div class="form-panel" *ngIf="showStreakForm()">
       <div class="form-panel-head">
         <h2>{{ editingStreak() ? 'Edit streak' : 'New streak' }}</h2>
@@ -122,13 +134,39 @@
           <div class="form-section-label">01 — Identity</div>
           <div class="field">
             <label>Name <span class="req">*</span></label>
-            <input class="inp" formControlName="name" placeholder="Daily Login Streak"/>
+            <input class="inp" formControlName="name" placeholder="Daily Login Streak" />
             <span class="verr" *ngIf="streakForm.get('name')?.invalid && streakForm.get('name')?.touched">Required (min. 2 chars)</span>
           </div>
         </div>
 
         <div class="form-section">
-          <div class="form-section-label">02 — Window &amp; Grace</div>
+          <div class="form-section-label">02 — Qualifying Events</div>
+          <div class="field">
+            <label>Events that count toward this streak</label>
+
+            <div class="selected-events" *ngIf="streakForm.get('qualifyingEvents')?.value?.length">
+              <span class="event-chip selected" *ngFor="let ev of streakForm.get('qualifyingEvents')?.value" (click)="toggleStreakEvent(ev)">
+                {{ ev }} <span class="chip-remove">✕</span>
+              </span>
+            </div>
+
+            <div class="event-dropdown">
+              <div class="empty-events" *ngIf="availableEvents().length === 0">
+                <span class="mono" style="font-size:11px; color:var(--text-3)">
+                  No events received yet — send your first event via SDK.
+                </span>
+              </div>
+              <div class="event-option" *ngFor="let ev of availableEvents()" [class.selected]="isStreakEventSelected(ev)" (click)="toggleStreakEvent(ev)">
+                <span class="event-dot" [class.active]="isStreakEventSelected(ev)"></span>
+                {{ ev }}
+              </div>
+            </div>
+            <span class="hint">Leave empty to accept any event. Select multiple for OR logic.</span>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-label">03 — Window &amp; Grace</div>
           <div class="field-row">
             <div class="field">
               <label>Window type</label>
@@ -139,32 +177,18 @@
             </div>
             <div class="field">
               <label>Grace period (hours)</label>
-              <input class="inp" type="number" formControlName="graceHours" min="0" max="23"/>
+              <input class="inp" type="number" formControlName="graceHours" min="0" max="23" />
               <span class="hint">0 = no grace, max 23h</span>
             </div>
           </div>
         </div>
 
         <div class="form-section">
-          <div class="form-section-label">03 — Freeze tokens</div>
+          <div class="form-section-label">04 — Freeze Tokens</div>
           <div class="field">
             <label>Max freeze tokens per user</label>
-            <input class="inp" type="number" formControlName="maxFreezeTokens" min="0" max="10"/>
+            <input class="inp" type="number" formControlName="maxFreezeTokens" min="0" max="10" />
             <span class="hint">Users earn tokens from milestones. 1 token protects against 1 missed day.</span>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <div class="form-section-label">04 — Comeback bonus</div>
-          <div class="field-row">
-            <div class="field">
-              <label>Award after N missed days <span class="opt">optional</span></label>
-              <input class="inp" type="number" formControlName="comebackAfterDays" min="2" placeholder="7"/>
-            </div>
-            <div class="field">
-              <label>Bonus points on return</label>
-              <input class="inp" type="number" formControlName="comebackBonusPoints" min="0" placeholder="200"/>
-            </div>
           </div>
         </div>
 
@@ -174,15 +198,15 @@
             <div class="milestone-row" *ngFor="let m of streakMilestones; let i = index">
               <div class="ms-field">
                 <label>Day</label>
-                <input class="inp-sm" type="number" [(ngModel)]="m.day" [ngModelOptions]="{standalone:true}" min="1"/>
+                <input class="inp-sm" type="number" [(ngModel)]="m.day" [ngModelOptions]="{standalone:true}" min="1" />
               </div>
               <div class="ms-field">
                 <label>Points</label>
-                <input class="inp-sm" type="number" [(ngModel)]="m.points" [ngModelOptions]="{standalone:true}" min="0"/>
+                <input class="inp-sm" type="number" [(ngModel)]="m.points" [ngModelOptions]="{standalone:true}" min="0" />
               </div>
               <div class="ms-field ms-check">
                 <label>Freeze token</label>
-                <input type="checkbox" [(ngModel)]="m.freezeToken" [ngModelOptions]="{standalone:true}"/>
+                <input type="checkbox" [(ngModel)]="m.freezeToken" [ngModelOptions]="{standalone:true}" />
               </div>
               <button type="button" class="remove-btn" (click)="removeMilestone(i)">✕</button>
             </div>
@@ -201,17 +225,15 @@
     </div>
   </div>
 
-  <!-- ══════════════════════════════ LEVELS ════════════════════════════════ -->
   <div *ngIf="activeTab() === 'levels'">
 
     <div class="section-actions">
       <p class="section-desc">
-        Configure XP thresholds, level titles, and rewards. The progress bar in the Flutter widget starts at
-        <strong>headStartPct%</strong> after each level-up — users never see an empty bar.
+        Configure XP thresholds, titles, and rewards. Users level up by earning points from any rule.
       </p>
       <button class="btn-primary" (click)="openNewLevel()">
         <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-          <path d="M6.5 1v11M1 6.5h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M6.5 1v11M1 6.5h11" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
         </svg>
         New level config
       </button>
@@ -241,24 +263,22 @@
             </div>
             <button class="icon-btn" (click)="editLevel(cfg)">
               <svg viewBox="0 0 14 14" fill="none" width="13" height="13">
-                <path d="M10 2l2 2-7 7H3V9L10 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+                <path d="M10 2l2 2-7 7H3V9L10 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" />
               </svg>
             </button>
             <button class="icon-btn danger" (click)="deleteLevel(cfg.id!)">
               <svg viewBox="0 0 14 14" fill="none" width="13" height="13">
-                <path d="M2 4h10M5 4V2.5h4V4M3.5 4l.5 8h6l.5-8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                <path d="M2 4h10M5 4V2.5h4V4M3.5 4l.5 8h6l.5-8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
               </svg>
             </button>
           </div>
         </div>
 
-        <!-- Titles preview -->
         <div class="milestones-row" *ngIf="parseTitles(cfg.levelTitlesJson).length">
           <span class="ms-label">Titles:</span>
           <span class="ms-chip" *ngFor="let t of parseTitles(cfg.levelTitlesJson)">{{ t }}</span>
         </div>
 
-        <!-- Rewards preview -->
         <div class="milestones-row" *ngIf="parseLevelRewards(cfg.levelRewardsJson).length">
           <span class="ms-label">Rewards:</span>
           <span class="ms-chip" *ngFor="let r of parseLevelRewards(cfg.levelRewardsJson)">
@@ -268,7 +288,6 @@
       </div>
     </div>
 
-    <!-- ── Level form ───────────────────────────────────────────────────────── -->
     <div class="form-panel" *ngIf="showLevelForm()">
       <div class="form-panel-head">
         <h2>{{ editingLevel() ? 'Edit level config' : 'New level config' }}</h2>
@@ -276,17 +295,16 @@
       </div>
 
       <form [formGroup]="levelForm" (ngSubmit)="saveLevel()" novalidate>
-
         <div class="form-section">
           <div class="form-section-label">01 — Identity</div>
           <div class="field">
             <label>Name <span class="req">*</span></label>
-            <input class="inp" formControlName="name" placeholder="Main Level System"/>
+            <input class="inp" formControlName="name" placeholder="Main Level System" />
           </div>
         </div>
 
         <div class="form-section">
-          <div class="form-section-label">02 — XP thresholds</div>
+          <div class="form-section-label">02 — XP Thresholds</div>
           <div class="field-row">
             <div class="field">
               <label>Threshold type</label>
@@ -297,32 +315,32 @@
             </div>
             <div class="field" *ngIf="levelForm.get('thresholdType')?.value === 'FLAT'">
               <label>XP per level</label>
-              <input class="inp" type="number" formControlName="flatThreshold" min="1"/>
+              <input class="inp" type="number" formControlName="flatThreshold" min="1" />
             </div>
           </div>
         </div>
 
         <div class="form-section">
-          <div class="form-section-label">03 — Head start &amp; max level</div>
+          <div class="form-section-label">03 — Progress Tuning</div>
           <div class="field-row">
             <div class="field">
-              <label>Head start % <span class="hint-inline">(0–25)</span></label>
-              <input class="inp" type="number" formControlName="headStartPct" min="0" max="25"/>
-              <span class="hint">Progress bar starts pre-filled after each level-up. Recommended: 15%.</span>
+              <label>Head start %</label>
+              <input class="inp" type="number" formControlName="headStartPct" min="0" max="25" />
+              <span class="hint">Pre-filled bar after level-up (Rec: 15%)</span>
             </div>
             <div class="field">
               <label>Max level</label>
-              <input class="inp" type="number" formControlName="maxLevel" min="2" max="1000"/>
+              <input class="inp" type="number" formControlName="maxLevel" min="2" max="1000" />
             </div>
           </div>
         </div>
 
         <div class="form-section">
-          <div class="form-section-label">04 — Level titles</div>
+          <div class="form-section-label">04 — Level Titles</div>
           <div class="title-list">
             <div class="title-row" *ngFor="let t of levelTitles; let i = index">
               <span class="title-idx">Lv{{ i + 1 }}</span>
-              <input class="inp-sm" [value]="t" (input)="updateTitle(i, $any($event.target).value)" placeholder="Title..."/>
+              <input class="inp-sm" [value]="t" (input)="updateTitle(i, $any($event.target).value)" placeholder="Title..." />
               <button type="button" class="remove-btn" (click)="removeTitle(i)">✕</button>
             </div>
           </div>
@@ -330,16 +348,16 @@
         </div>
 
         <div class="form-section">
-          <div class="form-section-label">05 — Level rewards</div>
+          <div class="form-section-label">05 — Level Rewards</div>
           <div class="milestone-list">
             <div class="milestone-row" *ngFor="let r of levelRewards; let i = index">
               <div class="ms-field">
                 <label>Level</label>
-                <input class="inp-sm" type="number" [(ngModel)]="r.level" [ngModelOptions]="{standalone:true}" min="2"/>
+                <input class="inp-sm" type="number" [(ngModel)]="r.level" [ngModelOptions]="{standalone:true}" min="2" />
               </div>
               <div class="ms-field">
                 <label>Points bonus</label>
-                <input class="inp-sm" type="number" [(ngModel)]="r.points" [ngModelOptions]="{standalone:true}" min="0"/>
+                <input class="inp-sm" type="number" [(ngModel)]="r.points" [ngModelOptions]="{standalone:true}" min="0" />
               </div>
               <button type="button" class="remove-btn" (click)="removeLevelReward(i)">✕</button>
             </div>

@@ -7,6 +7,7 @@ import com.gamification.backend.dto.event.TrackEventRequest;
 import com.gamification.backend.model.App;
 import com.gamification.backend.model.IncomingEvent;
 import com.gamification.backend.repository.AppRepository;
+import com.gamification.backend.repository.IncomingEventRepository;
 import com.gamification.backend.service.EventService;
 import com.gamification.backend.service.RuleEngineService;
 import jakarta.validation.Valid;
@@ -27,7 +28,7 @@ public class EventController {
     private final EventService eventService;
     private final RuleEngineService ruleEngineService;
     private final AdvancedRuleEvaluationService advancedRuleEvaluationService; 
-
+   private final IncomingEventRepository incomingEventRepository;
 @PostMapping("/track")
 public ResponseEntity<Map<String, Object>> trackEvent(
         @RequestHeader("X-API-Key") String apiKey,
@@ -69,4 +70,14 @@ public ResponseEntity<Map<String, Object>> trackEvent(
     // ✅ Wrap in object so Flutter can do response['rewards']
     return ResponseEntity.ok(Map.of("rewards", rewards));
 }
+
+@GetMapping("/names")
+public ResponseEntity<List<String>> getEventNames(@RequestParam Long appId) {
+    // 1. On récupère l'app (getAppById vérifie déjà normalement que l'owner est le bon)
+    // Sinon, assure-tu que ton service filtre par l'utilisateur connecté via le JWT
+    log.info("Fetching events for appId: {}", appId);
+    
+    return ResponseEntity.ok(incomingEventRepository.findDistinctEventNamesByAppId(appId));
+}
+
 }

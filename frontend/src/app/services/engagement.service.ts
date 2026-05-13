@@ -3,8 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
-// ── Streak types ──────────────────────────────────────────────────────────────
-
 export interface StreakMilestone {
   day: number;
   points: number;
@@ -20,20 +18,18 @@ export interface StreakMultiplier {
 export interface StreakConfig {
   id?: number;
   name: string;
-  qualifyingEventsJson: string;   // JSON string of string[]
+  qualifyingEventsJson: string;
   windowType: 'CALENDAR_DAY' | 'ROLLING_24H';
   graceHours: number;
   maxFreezeTokens: number;
-  milestonesJson: string;          // JSON string of StreakMilestone[]
-  multipliersJson: string;         // JSON string of StreakMultiplier[]
+  milestonesJson: string;
+  multipliersJson: string;
   comebackAfterDays: number | null;
   comebackBonusPoints: number | null;
   active: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
-
-// ── Level types ───────────────────────────────────────────────────────────────
 
 export interface LevelReward {
   level: number;
@@ -46,17 +42,15 @@ export interface LevelConfig {
   name: string;
   thresholdType: 'FLAT' | 'CUSTOM';
   flatThreshold: number;
-  customThresholdsJson: string;    // JSON string of number[]
+  customThresholdsJson: string;
   headStartPct: number;
-  levelTitlesJson: string;         // JSON string of string[]
-  levelRewardsJson: string;        // JSON string of LevelReward[]
+  levelTitlesJson: string;
+  levelRewardsJson: string;
   maxLevel: number;
   active: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Injectable({ providedIn: 'root' })
 export class EngagementService {
@@ -109,6 +103,16 @@ export class EngagementService {
     return this.http.patch<LevelConfig>(`${this.API}/api/levels/config/${id}/toggle`, {});
   }
 
+  // ── Event names (for dropdowns) ───────────────────────────────────────────
+
+  getEventNames(appId: number): Observable<string[]> {
+    // ✅ JWT token ajouté automatiquement par l'intercepteur HTTP
+    // ✅ URL corrigée : /api/events/names (pas /rules/event-names)
+    return this.http.get<string[]>(`${this.API}/api/events/names`, {
+      params: { appId }
+    });
+  }
+
   // ── Helpers ───────────────────────────────────────────────────────────────
 
   parseMilestones(json: string): StreakMilestone[] {
@@ -124,6 +128,10 @@ export class EngagementService {
   }
 
   parseLevelRewards(json: string): LevelReward[] {
+    try { return JSON.parse(json || '[]'); } catch { return []; }
+  }
+
+  parseQualifyingEvents(json: string): string[] {
     try { return JSON.parse(json || '[]'); } catch { return []; }
   }
 }

@@ -8,6 +8,7 @@ import { FooterComponent } from './components/footer/footer.component';
 import { SplashComponent } from './pages/splash/splash.component';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { DocsComponent } from './components/docs/docs.component';
 
 
 @NgModule({
@@ -16,6 +17,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     HeaderComponent,
     FooterComponent,
     SplashComponent,
+    DocsComponent,
   
     
   ],

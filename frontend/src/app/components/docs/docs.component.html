@@ -1,0 +1,645 @@
+<div class="docs-shell">
+
+  <!-- ══ TOP BAR ══════════════════════════════════════════════════════════ -->
+  <header class="docs-topbar">
+    <div class="topbar-left">
+      <button class="mobile-menu-btn" (click)="mobileNavOpen.set(!mobileNavOpen())">
+        <svg viewBox="0 0 20 20" fill="none" width="18" height="18">
+          <path d="M3 5h14M3 10h14M3 15h14"
+                stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <a class="docs-logo" routerLink="/">
+        <div class="logo-icon">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+            <path d="M10 2L13.5 7H17L14 11.5L15.5 16.5L10 13.5L4.5 16.5L6 11.5L3 7H6.5L10 2Z"
+                  fill="currentColor"/>
+          </svg>
+        </div>
+        <span class="logo-text">Gami<span class="logo-accent">fy</span></span>
+        <span class="logo-badge">Docs</span>
+      </a>
+    </div>
+    <div class="topbar-center">
+      <div class="topbar-search">
+        <svg viewBox="0 0 20 20" fill="none" width="14" height="14">
+          <circle cx="9" cy="9" r="5.5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M13.5 13.5L17 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <input placeholder="Search docs…"
+               [value]="searchQuery()"
+               (input)="searchQuery.set($any($event.target).value)" />
+        <kbd>⌘K</kbd>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <a href="https://github.com" target="_blank" class="topbar-link">GitHub</a>
+      <button class="topbar-cta" (click)="goToDashboard()">Dashboard →</button>
+    </div>
+  </header>
+
+  <div class="docs-body">
+
+    <!-- ══ SIDEBAR ════════════════════════════════════════════════════════ -->
+    <aside class="docs-sidebar" [class.mobile-open]="mobileNavOpen()">
+
+      <div class="sidebar-inner">
+        <!-- Version badge -->
+        <div class="version-row">
+          <span class="version-badge">v1.0</span>
+          <span class="version-label">Stable</span>
+        </div>
+
+        <!-- Nav -->
+        <nav class="sidebar-nav">
+          <ng-container *ngFor="let section of filteredNav()">
+            <div class="nav-group" [class.open]="isActive(section)">
+
+              <button class="nav-group-btn"
+                      [class.active]="isActive(section)"
+                      (click)="scrollTo(section.id)">
+                <!-- Icons -->
+                <span class="nav-icon">
+                  <svg *ngIf="section.icon==='rocket'" viewBox="0 0 20 20" fill="none" width="14" height="14">
+                    <path d="M10 2c0 0 5 2 5 8l-5 8-5-8c0-6 5-8 5-8z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+                    <circle cx="10" cy="10" r="1.5" fill="currentColor"/>
+                  </svg>
+                  <svg *ngIf="section.icon==='key'" viewBox="0 0 20 20" fill="none" width="14" height="14">
+                    <circle cx="8" cy="9" r="4" stroke="currentColor" stroke-width="1.4"/>
+                    <path d="M11.5 11.5L17 17M14 14.5l2-2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                  </svg>
+                  <svg *ngIf="section.icon==='bolt'" viewBox="0 0 20 20" fill="none" width="14" height="14">
+                    <path d="M12 2L6 11h5l-3 7 9-10h-5l3-6z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+                  </svg>
+                  <svg *ngIf="section.icon==='shield'" viewBox="0 0 20 20" fill="none" width="14" height="14">
+                    <path d="M10 2l7 3v5c0 4-3.5 7-7 8C6.5 17 3 14 3 10V5l7-3z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+                  </svg>
+                  <svg *ngIf="section.icon==='badge'" viewBox="0 0 20 20" fill="none" width="14" height="14">
+                    <circle cx="10" cy="9" r="4" stroke="currentColor" stroke-width="1.4"/>
+                    <path d="M6 13l-2 5 6-2.5L16 18l-2-5" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+                  </svg>
+                  <svg *ngIf="section.icon==='star'" viewBox="0 0 20 20" fill="none" width="14" height="14">
+                    <path d="M10 2l2.4 5H18l-4.2 3.4 1.6 5.6L10 13l-5.4 3 1.6-5.6L2 7h5.6L10 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+                  </svg>
+                  <svg *ngIf="section.icon==='flutter'" viewBox="0 0 20 20" fill="none" width="14" height="14">
+                    <path d="M4 10L10 4l6 6-6 6-2-2 4-4-4-4-2 2" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+                  </svg>
+                  <svg *ngIf="section.icon==='webhook'" viewBox="0 0 20 20" fill="none" width="14" height="14">
+                    <circle cx="5"  cy="15" r="2.5" stroke="currentColor" stroke-width="1.4"/>
+                    <circle cx="15" cy="5"  r="2.5" stroke="currentColor" stroke-width="1.4"/>
+                    <path d="M7.5 14C9 11 11 9 13 7.5M7 5a3 3 0 006 0M13 15a3 3 0 00-6 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                  </svg>
+                </span>
+                {{ section.label }}
+                <svg class="chevron" viewBox="0 0 12 12" fill="none" width="10" height="10">
+                  <path d="M4 4.5L6 6.5L8 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+
+              <div class="nav-children" *ngIf="isActive(section) && section.children">
+                <button class="nav-child"
+                        *ngFor="let child of section.children"
+                        [class.active]="activeSection() === child.id"
+                        (click)="scrollTo(child.id)">
+                  {{ child.label }}
+                </button>
+              </div>
+
+            </div>
+          </ng-container>
+        </nav>
+
+        <!-- Help footer -->
+        <div class="sidebar-footer">
+          <div class="help-card">
+            <span class="help-emoji">💬</span>
+            <div>
+              <div class="help-title">Need help?</div>
+              <div class="help-sub">Join our Discord</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Mobile backdrop -->
+    <div class="sidebar-backdrop" *ngIf="mobileNavOpen()" (click)="mobileNavOpen.set(false)"></div>
+
+    <!-- ══ CONTENT ══════════════════════════════════════════════════════════ -->
+    <main class="docs-content">
+      <div class="content-inner">
+
+        <!-- ─── QUICK START ──────────────────────────────────────────────── -->
+        <section id="quickstart" class="doc-section">
+          <div class="section-eyebrow">Introduction</div>
+          <h1 class="section-h1">Quick Start</h1>
+          <p class="section-lead">
+            Gamify is a backend-agnostic gamification engine. Add points, badges, streaks,
+            and leaderboards to any app in minutes — just send events via REST or our Flutter SDK.
+          </p>
+
+          <div class="concept-grid">
+            <div class="concept-card">
+              <div class="concept-icon orange">
+                <svg viewBox="0 0 20 20" fill="none" width="18" height="18">
+                  <path d="M12 2L6 11h5l-3 7 9-10h-5l3-6z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="concept-title">Events</div>
+              <div class="concept-desc">Track user actions from any source using your API key.</div>
+            </div>
+            <div class="concept-card">
+              <div class="concept-icon purple">
+                <svg viewBox="0 0 20 20" fill="none" width="18" height="18">
+                  <path d="M10 2l7 3v5c0 4-3.5 7-7 8C6.5 17 3 14 3 10V5l7-3z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="concept-title">Rules</div>
+              <div class="concept-desc">Define when and how users earn rewards automatically.</div>
+            </div>
+            <div class="concept-card">
+              <div class="concept-icon green">
+                <svg viewBox="0 0 20 20" fill="none" width="18" height="18">
+                  <circle cx="10" cy="9" r="4" stroke="currentColor" stroke-width="1.4"/>
+                  <path d="M6 13l-2 5 6-2.5L16 18l-2-5" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="concept-title">Rewards</div>
+              <div class="concept-desc">Points, badges, levels — returned instantly in the response.</div>
+            </div>
+          </div>
+        </section>
+
+        <div id="qs-overview" class="doc-anchor"></div>
+
+        <section id="qs-install" class="doc-section">
+          <h2 class="section-h2">Installation</h2>
+          <p class="section-p">No SDK required for REST usage. For Flutter, add the package:</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">pubspec.yaml</span>
+              <!-- FIX: use copySnippet() instead of inline backtick string -->
+              <button class="copy-btn" (click)="copySnippet('pubspec')">
+                <svg *ngIf="copiedKey() !== 'pubspec'" viewBox="0 0 20 20" fill="none" width="13" height="13">
+                  <rect x="7" y="7" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M13 7V5a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+                <svg *ngIf="copiedKey() === 'pubspec'" viewBox="0 0 20 20" fill="none" width="13" height="13">
+                  <path d="M4 10l4 4 8-8" stroke="#10b981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                {{ copiedKey() === 'pubspec' ? 'Copied!' : 'Copy' }}
+              </button>
+            </div>
+            <pre class="code-pre"><span class="kw">dependencies:</span>
+  <span class="str">gamify_sdk</span><span class="op">:</span> <span class="num">^1.0.0</span></pre>
+          </div>
+
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">Terminal</span>
+              <!-- FIX: use copySnippet() -->
+              <button class="copy-btn" (click)="copySnippet('pubget')">
+                {{ copiedKey() === 'pubget' ? '✓ Copied' : 'Copy' }}
+              </button>
+            </div>
+            <pre class="code-pre"><span class="dollar">$</span> flutter pub get</pre>
+          </div>
+        </section>
+
+        <section id="qs-first-event" class="doc-section">
+          <h2 class="section-h2">Your First Event</h2>
+          <p class="section-p">
+            Get your API key from the <a class="inline-link" (click)="goToDashboard()">Dashboard → Apps</a>,
+            then fire your first event:
+          </p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">cURL</span>
+              <!-- FIX: was a multi-line backtick string in the attribute — now a method call -->
+              <button class="copy-btn" (click)="copySnippet('curl1')">
+                {{ copiedKey() === 'curl1' ? '✓ Copied' : 'Copy' }}
+              </button>
+            </div>
+            <pre class="code-pre"><span class="fn">curl</span> -X POST https://api.gamify.io/api/events/track \
+  -H <span class="str">'X-API-Key: YOUR_API_KEY'</span> \
+  -H <span class="str">'Content-Type: application/json'</span> \
+  -d <span class="str">'&#123;"userId":"user_123","eventName":"completeLevel","data":&#123;"level":1&#125;&#125;'</span></pre>
+          </div>
+
+          <div class="callout success">
+            <svg viewBox="0 0 20 20" fill="none" width="16" height="16">
+              <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M6.5 10l2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div>The response includes any rewards earned — badges, points — so you can show them in-app immediately.</div>
+          </div>
+        </section>
+
+        <!-- ─── AUTHENTICATION ───────────────────────────────────────────── -->
+        <section id="authentication" class="doc-section">
+          <div class="section-eyebrow">Security</div>
+          <h1 class="section-h1">Authentication</h1>
+        </section>
+
+        <section id="auth-apikey" class="doc-section">
+          <h2 class="section-h2">API Keys</h2>
+          <p class="section-p">
+            Every app you create gets a unique API key. Use it to track events from your backend or mobile SDK.
+            Never expose your API key client-side in a web browser.
+          </p>
+
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>Header</th><th>Value</th><th>Required</th></tr></thead>
+              <tbody>
+                <tr><td><code>X-API-Key</code></td><td>Your app API key</td><td><span class="badge-req">Required</span></td></tr>
+                <tr><td><code>Content-Type</code></td><td><code>application/json</code></td><td><span class="badge-req">Required</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout warning">
+            <svg viewBox="0 0 20 20" fill="none" width="16" height="16">
+              <path d="M10 3L2 17h16L10 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+              <path d="M10 9v4M10 14.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <div>Rotate your API key from <strong>Dashboard → Apps → Regenerate Key</strong> if it's ever compromised.</div>
+          </div>
+        </section>
+
+        <section id="auth-jwt" class="doc-section">
+          <h2 class="section-h2">JWT Tokens (Dashboard API)</h2>
+          <p class="section-p">
+            The dashboard and analytics endpoints require a JWT obtained via the owner login flow.
+            Pass it as a Bearer token:
+          </p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">HTTP Header</span>
+              <!-- FIX: use copySnippet() -->
+              <button class="copy-btn" (click)="copySnippet('jwt')">
+                {{ copiedKey() === 'jwt' ? '✓ Copied' : 'Copy' }}
+              </button>
+            </div>
+            <pre class="code-pre"><span class="kw">Authorization:</span> Bearer <span class="str">eyJhbGciOiJIUzI1NiJ9...</span></pre>
+          </div>
+        </section>
+
+        <!-- ─── EVENTS ───────────────────────────────────────────────────── -->
+        <section id="events" class="doc-section">
+          <div class="section-eyebrow">Core API</div>
+          <h1 class="section-h1">Events</h1>
+          <p class="section-lead">Events are the entry point for all gamification logic. Every user action you want to reward must be tracked as an event.</p>
+        </section>
+
+        <section id="ev-track" class="doc-section">
+          <h2 class="section-h2">Track an Event</h2>
+          <div class="endpoint-pill">
+            <span class="method post">POST</span>
+            <span class="path">/api/events/track</span>
+            <span class="auth-note">🔑 X-API-Key</span>
+          </div>
+
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><code>userId</code></td><td><code>string</code></td>
+                  <td><span class="badge-req">Required</span></td>
+                  <td>Unique identifier for the user in your system</td>
+                </tr>
+                <tr>
+                  <td><code>eventName</code></td><td><code>string</code></td>
+                  <td><span class="badge-req">Required</span></td>
+                  <td>Name of the event (e.g. <code>completeLevel</code>)</td>
+                </tr>
+                <tr>
+                  <td><code>displayName</code></td><td><code>string</code></td>
+                  <td><span class="badge-opt">Optional</span></td>
+                  <td>Human-readable name shown in the dashboard</td>
+                </tr>
+                <tr>
+                  <td><code>data</code></td><td><code>object</code></td>
+                  <td><span class="badge-opt">Optional</span></td>
+                  <td>Arbitrary key-value metadata about the event</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">Request body</span>
+              <!-- FIX: was a multi-line escaped backtick string — now a method call -->
+              <button class="copy-btn" (click)="copySnippet('trackbody')">
+                {{ copiedKey() === 'trackbody' ? '✓ Copied' : 'Copy' }}
+              </button>
+            </div>
+            <pre class="code-pre">&#123;
+  <span class="kw">"userId"</span><span class="op">:</span> <span class="str">"user_123"</span>,
+  <span class="kw">"eventName"</span><span class="op">:</span> <span class="str">"completeLevel"</span>,
+  <span class="kw">"displayName"</span><span class="op">:</span> <span class="str">"Alice"</span>,
+  <span class="kw">"data"</span><span class="op">:</span> &#123;
+    <span class="kw">"level"</span><span class="op">:</span> <span class="num">5</span>,
+    <span class="kw">"score"</span><span class="op">:</span> <span class="num">9800</span>,
+    <span class="kw">"status"</span><span class="op">:</span> <span class="str">"perfect"</span>
+  &#125;
+&#125;</pre>
+          </div>
+        </section>
+
+        <section id="ev-register" class="doc-section">
+          <h2 class="section-h2">Register Events</h2>
+          <p class="section-p">
+            Before you can use events in rules, register them via the scanner or API.
+            This populates the event picker in the dashboard.
+          </p>
+          <div class="endpoint-pill">
+            <span class="method post">POST</span>
+            <span class="path">/api/events/register</span>
+            <span class="auth-note">🔑 X-Api-Key</span>
+          </div>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">Request body</span>
+              <!-- FIX: was escaped double-quotes inside single-quoted string — now a method call -->
+              <button class="copy-btn" (click)="copySnippet('regevt')">
+                {{ copiedKey() === 'regevt' ? '✓ Copied' : 'Copy' }}
+              </button>
+            </div>
+            <pre class="code-pre">&#123; <span class="kw">"events"</span><span class="op">:</span> [<span class="str">"completeLevel"</span>, <span class="str">"purchaseItem"</span>, <span class="str">"login"</span>] &#125;</pre>
+          </div>
+        </section>
+
+        <section id="ev-payload" class="doc-section">
+          <h2 class="section-h2">Event Response</h2>
+          <p class="section-p">Every tracked event returns the rewards earned synchronously:</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">Response 200</span>
+              <button class="copy-btn" (click)="copy('', 'evres')">Copy</button>
+            </div>
+            <pre class="code-pre">&#123;
+  <span class="kw">"rewards"</span><span class="op">:</span> [
+    &#123;
+      <span class="kw">"type"</span><span class="op">:</span> <span class="str">"POINTS"</span>,
+      <span class="kw">"data"</span><span class="op">:</span> <span class="num">100</span>,
+      <span class="kw">"message"</span><span class="op">:</span> <span class="str">"+100 points for completing level 5"</span>
+    &#125;,
+    &#123;
+      <span class="kw">"type"</span><span class="op">:</span> <span class="str">"BADGE"</span>,
+      <span class="kw">"data"</span><span class="op">:</span> &#123; <span class="kw">"id"</span><span class="op">:</span> <span class="num">3</span>, <span class="kw">"name"</span><span class="op">:</span> <span class="str">"Level Master"</span> &#125;,
+      <span class="kw">"message"</span><span class="op">:</span> <span class="str">"Badge unlocked: Level Master"</span>
+    &#125;
+  ]
+&#125;</pre>
+          </div>
+        </section>
+
+        <!-- ─── RULES ─────────────────────────────────────────────────────── -->
+        <section id="rules" class="doc-section">
+          <div class="section-eyebrow">Logic Engine</div>
+          <h1 class="section-h1">Rules &amp; Rewards</h1>
+          <p class="section-lead">Rules define exactly when and how your users are rewarded. Create them in the dashboard — no redeploy needed.</p>
+        </section>
+
+        <section id="rules-simple" class="doc-section">
+          <h2 class="section-h2">Simple Rules</h2>
+          <p class="section-p">
+            Simple rules trigger on a single event. Configure via <strong>Dashboard → Rules → New Rule</strong>.
+          </p>
+          <div class="concept-grid small">
+            <div class="concept-card mini">
+              <div class="concept-title">Trigger Event</div>
+              <div class="concept-desc">e.g. <code>completeLevel</code></div>
+            </div>
+            <div class="concept-card mini">
+              <div class="concept-title">Condition</div>
+              <div class="concept-desc">data.level &gt;= 5</div>
+            </div>
+            <div class="concept-card mini">
+              <div class="concept-title">Reward</div>
+              <div class="concept-desc">+100 points or badge</div>
+            </div>
+          </div>
+        </section>
+
+        <section id="rules-advanced" class="doc-section">
+          <h2 class="section-h2">Advanced Rules</h2>
+          <p class="section-p">Advanced rules support compound logic — multiple trigger events, cooldowns, max awards per user, and priority ordering.</p>
+
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>Feature</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Trigger Events</strong></td><td>One or more event names that activate this rule</td></tr>
+                <tr><td><strong>Conditions</strong></td><td>Filter by event data fields (e.g. <code>score &gt; 5000</code>)</td></tr>
+                <tr><td><strong>Max Awards/User</strong></td><td>Limit how many times one user can earn this reward</td></tr>
+                <tr><td><strong>Cooldown</strong></td><td>Minimum time between awards for the same user</td></tr>
+                <tr><td><strong>Priority</strong></td><td>Higher priority rules are evaluated first</td></tr>
+                <tr><td><strong>Actions</strong></td><td>Award points, grant badge, or both</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="rules-response" class="doc-section">
+          <h2 class="section-h2">Reward Response</h2>
+          <p class="section-p">Both simple and advanced rules return rewards in the same format inside <code>rewards[]</code>.</p>
+          <div class="callout info">
+            <svg viewBox="0 0 20 20" fill="none" width="16" height="16">
+              <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M10 9v5M10 7v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <div>If a rule's conditions are not met, or the user has already earned the max awards, it is silently skipped. An empty <code>rewards[]</code> array is returned.</div>
+          </div>
+        </section>
+
+        <!-- ─── BADGES ────────────────────────────────────────────────────── -->
+        <section id="badges" class="doc-section">
+          <div class="section-eyebrow">Rewards</div>
+          <h1 class="section-h1">Badges</h1>
+        </section>
+
+        <section id="badges-create" class="doc-section">
+          <h2 class="section-h2">Create a Badge</h2>
+          <p class="section-p">Badges are created in <strong>Dashboard → Badges → New Badge</strong> or via API:</p>
+          <div class="endpoint-pill">
+            <span class="method post">POST</span>
+            <span class="path">/api/badges?appId=&#123;appId&#125;</span>
+            <span class="auth-note">🔐 JWT</span>
+          </div>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">Request body</span>
+              <button class="copy-btn" (click)="copy('', 'badge-create')">Copy</button>
+            </div>
+            <pre class="code-pre">&#123;
+  <span class="kw">"name"</span><span class="op">:</span> <span class="str">"Level Master"</span>,
+  <span class="kw">"description"</span><span class="op">:</span> <span class="str">"Awarded for reaching level 10"</span>,
+  <span class="kw">"imageUrl"</span><span class="op">:</span> <span class="str">"https://cdn.example.com/badges/level-master.png"</span>,
+  <span class="kw">"hidden"</span><span class="op">:</span> <span class="num">false</span>,
+  <span class="kw">"maxAwardsPerUser"</span><span class="op">:</span> <span class="num">1</span>
+&#125;</pre>
+          </div>
+        </section>
+
+        <section id="badges-award" class="doc-section">
+          <h2 class="section-h2">Award Logic</h2>
+          <p class="section-p">
+            Badges are awarded automatically when a rule's conditions are met. Set
+            <code>maxAwardsPerUser: 1</code> to create one-time achievement badges.
+            Hidden badges don't appear in the user's badge list until earned.
+          </p>
+        </section>
+
+        <!-- ─── POINTS ────────────────────────────────────────────────────── -->
+        <section id="points" class="doc-section">
+          <div class="section-eyebrow">Rewards</div>
+          <h1 class="section-h1">Points</h1>
+        </section>
+
+        <section id="pts-balance" class="doc-section">
+          <h2 class="section-h2">Points Balance</h2>
+          <div class="endpoint-pill">
+            <span class="method get">GET</span>
+            <span class="path">/api/points/&#123;userId&#125;?appId=&#123;appId&#125;</span>
+            <span class="auth-note">🔑 X-API-Key</span>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">Response 200</span></div>
+            <pre class="code-pre">&#123;
+  <span class="kw">"userId"</span><span class="op">:</span> <span class="str">"user_123"</span>,
+  <span class="kw">"balance"</span><span class="op">:</span> <span class="num">2500</span>,
+  <span class="kw">"lifetimeEarned"</span><span class="op">:</span> <span class="num">8400</span>
+&#125;</pre>
+          </div>
+        </section>
+
+        <section id="pts-history" class="doc-section">
+          <h2 class="section-h2">Transactions</h2>
+          <p class="section-p">Every points award is recorded. Use the Analytics dashboard to view per-user and per-app totals.</p>
+        </section>
+
+        <!-- ─── FLUTTER SDK ────────────────────────────────────────────────── -->
+        <section id="flutter" class="doc-section">
+          <div class="section-eyebrow">Mobile</div>
+          <h1 class="section-h1">Flutter SDK</h1>
+          <p class="section-lead">The official Flutter SDK wraps the REST API with a clean, type-safe interface and built-in reward widgets.</p>
+        </section>
+
+        <section id="fl-setup" class="doc-section">
+          <h2 class="section-h2">Setup</h2>
+          <p class="section-p">Initialize once at app startup, typically in <code>main.dart</code>:</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">Dart</span>
+              <!-- FIX: was a multi-line backtick string in the attribute -->
+              <button class="copy-btn" (click)="copySnippet('fl-init')">
+                {{ copiedKey() === 'fl-init' ? '✓ Copied' : 'Copy' }}
+              </button>
+            </div>
+            <pre class="code-pre"><span class="kw">import</span> <span class="str">'package:gamify_sdk/gamify_sdk.dart'</span>;
+
+<span class="fn">void</span> main() <span class="kw">async</span> &#123;
+  WidgetsFlutterBinding.ensureInitialized();
+  <span class="kw">await</span> GamifySDK.<span class="fn">init</span>(apiKey<span class="op">:</span> <span class="str">'YOUR_API_KEY'</span>);
+  <span class="fn">runApp</span>(<span class="kw">const</span> MyApp());
+&#125;</pre>
+          </div>
+        </section>
+
+        <section id="fl-track" class="doc-section">
+          <h2 class="section-h2">Track Events</h2>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">Dart</span>
+              <!-- FIX: was a multi-line backtick string containing single quotes -->
+              <button class="copy-btn" (click)="copySnippet('fl-track')">
+                {{ copiedKey() === 'fl-track' ? '✓ Copied' : 'Copy' }}
+              </button>
+            </div>
+            <pre class="code-pre"><span class="fn">final</span> rewards <span class="op">=</span> <span class="kw">await</span> GamifySDK.<span class="fn">track</span>(
+  userId<span class="op">:</span> currentUser.id,
+  displayName<span class="op">:</span> currentUser.name,
+  eventName<span class="op">:</span> <span class="str">'completeLevel'</span>,
+  data<span class="op">:</span> &#123;<span class="str">'level'</span><span class="op">:</span> <span class="num">5</span>, <span class="str">'score'</span><span class="op">:</span> <span class="num">9800</span>&#125;,
+);
+
+<span class="kw">if</span> (rewards.isNotEmpty) &#123;
+  <span class="fn">showRewardDialog</span>(context, rewards);
+&#125;</pre>
+          </div>
+        </section>
+
+        <section id="fl-widgets" class="doc-section">
+          <h2 class="section-h2">UI Widgets</h2>
+          <p class="section-p">The SDK ships with pre-built Flutter widgets:</p>
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>Widget</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr><td><code>GamifyLeaderboard</code></td><td>Paginated leaderboard with rank badges</td></tr>
+                <tr><td><code>GamifyBadgeGrid</code></td><td>User badge collection with unlock animations</td></tr>
+                <tr><td><code>GamifyPointsBadge</code></td><td>Live points counter with animation</td></tr>
+                <tr><td><code>GamifyRewardToast</code></td><td>Auto-dismissing reward notification overlay</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ─── WEBHOOKS ──────────────────────────────────────────────────── -->
+        <section id="webhooks" class="doc-section">
+          <div class="section-eyebrow">Integrations</div>
+          <h1 class="section-h1">Webhooks</h1>
+          <p class="section-lead">Get notified in real-time when users earn rewards. Point any HTTPS endpoint at Gamify events.</p>
+        </section>
+
+        <section id="wh-setup" class="doc-section">
+          <h2 class="section-h2">Configuration</h2>
+          <p class="section-p">
+            Add webhook URLs in <strong>Dashboard → Apps → Webhooks</strong>.
+            Gamify will POST a JSON payload to your endpoint whenever a reward event fires.
+          </p>
+        </section>
+
+        <section id="wh-events" class="doc-section">
+          <h2 class="section-h2">Event Types</h2>
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead><tr><th>Event</th><th>Fires when…</th></tr></thead>
+              <tbody>
+                <tr><td><code>reward.points</code></td><td>A user earns points</td></tr>
+                <tr><td><code>reward.badge</code></td><td>A badge is awarded</td></tr>
+                <tr><td><code>rule.triggered</code></td><td>Any rule fires (simple or advanced)</td></tr>
+                <tr><td><code>user.levelup</code></td><td>A user reaches a new level threshold</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="wh-retry" class="doc-section">
+          <h2 class="section-h2">Retry Logic</h2>
+          <p class="section-p">
+            If your endpoint returns a non-2xx response, Gamify retries up to <strong>3 times</strong>
+            with exponential backoff: 1 min → 5 min → 30 min.
+            Failed webhooks appear in <strong>Dashboard → Overview → Flagged Issues</strong>.
+          </p>
+          <div class="callout info">
+            <svg viewBox="0 0 20 20" fill="none" width="16" height="16">
+              <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M10 9v5M10 7v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <div>Always respond with <code>200 OK</code> immediately and process the payload asynchronously to avoid timeouts.</div>
+          </div>
+        </section>
+
+        <!-- Bottom spacer -->
+        <div class="bottom-spacer"></div>
+
+      </div>
+    </main>
+
+  </div>
+</div>

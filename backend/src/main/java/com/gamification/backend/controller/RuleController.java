@@ -68,4 +68,7 @@ public class RuleController {
         ruleService.deleteRule(ruleId);
         return ResponseEntity.noContent().build();
     }
+
+
+    
 }

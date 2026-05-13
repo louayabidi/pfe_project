@@ -2,7 +2,6 @@ package com.gamification.backend.service;
  
 import com.gamification.backend.dto.gamifpage.*;
 import com.gamification.backend.dto.leaderboard.LeaderboardEntryDTO;
-import com.gamification.backend.dto.leaderboard.LeaderboardPageDTO;
 import com.gamification.backend.model.App;
 import com.gamification.backend.model.GamifPageConfig;
 import com.gamification.backend.repository.AppRepository;
@@ -17,8 +16,8 @@ import org.springframework.web.server.ResponseStatusException;
  
 import java.security.SecureRandom;
 import java.util.*;
-import java.util.stream.Collectors;
- 
+
+
 @Slf4j
 @Service
 @RequiredArgsConstructor

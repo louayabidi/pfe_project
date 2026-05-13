@@ -1,11 +1,9 @@
 // ── StreakConfigController.java ───────────────────────────────────────────────
 package com.gamification.backend.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamification.backend.model.*;
 import com.gamification.backend.repository.*;
 import com.gamification.backend.service.StreakService;
-import com.gamification.backend.service.LevelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -79,12 +77,16 @@ class StreakConfigController {
     // ── SDK: get user streaks ─────────────────────────────────────────────────
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Map<String, Object>>> getUserStreaks(
-            @PathVariable String userId,
-            @RequestParam Long appId) {
+public ResponseEntity<List<Map<String, Object>>> getUserStreaks(
+        @PathVariable String userId,
+        @RequestHeader("X-API-Key") String apiKey) {   
 
-        List<UserStreak> streaks = streakService.getUserStreaks(userId, appId);
-        List<StreakConfig> configs = streakConfigRepo.findByAppIdAndActiveTrue(appId);
+    App app = appRepo.findByApiKey(apiKey)
+            .orElseThrow(() -> new RuntimeException("Clé API invalide"));
+    Long appId = app.getId();                          
+
+    List<UserStreak> streaks = streakService.getUserStreaks(userId, appId);
+    List<StreakConfig> configs = streakConfigRepo.findByAppIdAndActiveTrue(appId);
 
         List<Map<String, Object>> result = new ArrayList<>();
 

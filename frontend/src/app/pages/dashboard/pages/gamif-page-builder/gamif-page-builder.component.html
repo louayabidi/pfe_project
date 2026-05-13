@@ -188,6 +188,48 @@
                   </div>
                 </div>
 
+                <!-- STREAK section -->
+                <div *ngIf="s.type === 'streak'" class="preview-card"
+                  [style.background]="theme.cardColor"
+                  [style.borderRadius.px]="theme.borderRadius">
+                  <div class="preview-card-title">{{ s.title }}</div>
+                  <div class="preview-streak">
+                    <div class="streak-row">
+                      <div class="streak-flame-wrap" [style.background]="theme.primaryColor + '22'">
+                        <span>🔥</span>
+                      </div>
+                      <div class="streak-info">
+                        <span class="streak-days" [style.color]="theme.primaryColor">7 days</span>
+                        <span class="streak-sub" [style.color]="theme.textColor + '66'">Best: 14 days</span>
+                      </div>
+                      <span class="streak-badge"
+                            [style.background]="theme.textColor + '0f'"
+                            [style.color]="theme.textColor + '77'">📅 Daily</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- LEVEL section -->
+                <div *ngIf="s.type === 'level'" class="preview-card"
+                  [style.background]="theme.cardColor"
+                  [style.borderRadius.px]="theme.borderRadius">
+                  <div class="preview-card-title">{{ s.title }}</div>
+                  <div class="preview-level">
+                    <div class="level-header">
+                      <div class="level-circle"
+                           [style.borderColor]="theme.accentColor"
+                           [style.color]="theme.accentColor">5</div>
+                      <div class="level-meta">
+                        <div class="level-xp" [style.color]="theme.textColor">450 / 1000 XP</div>
+                        <div class="level-pct" [style.color]="theme.accentColor">45%</div>
+                      </div>
+                    </div>
+                    <div class="level-bar-track">
+                      <div class="level-bar-fill" [style.background]="theme.accentColor" style="width:45%"></div>
+                    </div>
+                  </div>
+                </div>
+
                 <!-- STATS section -->
                 <div *ngIf="s.type === 'stats'" class="preview-card"
                   [style.background]="theme.cardColor"
@@ -298,6 +340,22 @@
               (change)="updateSectionConfig('showLocked', $any($event.target).checked)" />
               <span class="toggle-track"></span></label>
             <span class="config-label">Show locked badges</span>
+          </div>
+        </ng-container>
+
+        <!-- STREAK config -->
+        <ng-container *ngIf="selectedSection.type === 'streak'">
+          <div class="config-info">
+            <span class="info-icon">🔥</span>
+            <p>Streaks are auto-loaded from your configured streak systems. Configure them in the <strong>Engagement</strong> tab.</p>
+          </div>
+        </ng-container>
+
+        <!-- LEVEL config -->
+        <ng-container *ngIf="selectedSection.type === 'level'">
+          <div class="config-info">
+            <span class="info-icon">🎖️</span>
+            <p>Levels are auto-loaded from your configured level systems. Configure them in the <strong>Engagement</strong> tab.</p>
           </div>
         </ng-container>
 

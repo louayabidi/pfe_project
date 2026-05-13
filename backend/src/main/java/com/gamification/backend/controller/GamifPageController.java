@@ -3,7 +3,6 @@ package com.gamification.backend.controller;
 import com.gamification.backend.dto.gamifpage.*;
 import com.gamification.backend.service.GamifPageConfigService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;

@@ -11,7 +11,7 @@ import { environment } from 'src/environments/environment';
 
 // ── Section types ──────────────────────────────────────────────────────────
 
-export type SectionType = 'hero' | 'leaderboard' | 'badges' | 'stats' | 'activity';
+export type SectionType = 'hero' | 'leaderboard' | 'badges' | 'stats' | 'activity' | 'streak' | 'level';
 
 export interface PageSection {
   id       : string;
@@ -36,8 +36,14 @@ export interface PageTheme {
 
 const DEFAULT_SECTIONS: PageSection[] = [
   {
-    id: 's1', type: 'hero', enabled: true, title: 'My Progress',
-    config: { showStreak: true, showLifetime: true, showLevel: false }
+    id: 's1',
+    type: 'hero',
+    enabled: true,
+    title: 'My Progress',
+    config: {
+      showStreak  : true,
+      showLifetime: true,
+    }
   },
   {
     id: 's2', type: 'leaderboard', enabled: true, title: 'Leaderboard',
@@ -45,14 +51,22 @@ const DEFAULT_SECTIONS: PageSection[] = [
   },
   {
     id: 's3', type: 'badges', enabled: true, title: 'My Badges',
-    config: { columns: 3, showLocked: true, showNew: true }
+    config: { columns: 3, showLocked: true }
   },
   {
-    id: 's4', type: 'stats', enabled: false, title: 'Statistics',
+    id: 's4', type: 'streak', enabled: false, title: 'My Streaks',
+    config: {}
+  },
+  {
+    id: 's5', type: 'level', enabled: false, title: 'My Levels',
+    config: {}
+  },
+  {
+    id: 's6', type: 'stats', enabled: false, title: 'Statistics',
     config: { showEvents: true, showDays: true }
   },
   {
-    id: 's5', type: 'activity', enabled: false, title: 'Recent Activity',
+    id: 's7', type: 'activity', enabled: false, title: 'Recent Activity',
     config: { limit: 10 }
   },
 ];
@@ -71,11 +85,13 @@ const DEFAULT_THEME: PageTheme = {
 // ── Section metadata ──────────────────────────────────────────────────────
 
 export const SECTION_META: Record<SectionType, { icon: string; label: string; desc: string }> = {
-  hero       : { icon: '⭐', label: 'Points Hero',  desc: 'Large points display + streak' },
-  leaderboard: { icon: '🏆', label: 'Leaderboard',  desc: 'Top 3 podium + full ranking' },
-  badges     : { icon: '🏅', label: 'Badges Grid',  desc: 'Unlocked & locked achievements' },
-  stats      : { icon: '📊', label: 'Statistics',   desc: 'Events, active days, rules' },
+  hero       : { icon: '⭐', label: 'Points Hero',     desc: 'Large points display + streak' },
+  leaderboard: { icon: '🏆', label: 'Leaderboard',     desc: 'Top 3 podium + full ranking' },
+  badges     : { icon: '🏅', label: 'Badges Grid',     desc: 'Unlocked & locked achievements' },
+  stats      : { icon: '📊', label: 'Statistics',      desc: 'Events, active days, rules' },
   activity   : { icon: '⚡', label: 'Recent Activity', desc: 'Latest events feed' },
+  streak     : { icon: '🔥', label: 'Streaks',         desc: 'Active streak counters' },
+  level      : { icon: '🎖️', label: 'Levels',          desc: 'XP progress bars' },
 };
 
 @Component({
@@ -89,9 +105,9 @@ export class GamifPageBuilderComponent implements OnInit, OnDestroy {
   pageName   = 'My Rewards Page';
   sections   : PageSection[] = structuredClone(DEFAULT_SECTIONS);
 
-  /** Typed array used in the template — avoids TS2345 from inline string literals */
   readonly SECTION_TYPES: SectionType[] =
-    ['hero', 'leaderboard', 'badges', 'stats', 'activity'];
+    ['hero', 'leaderboard', 'badges', 'stats', 'activity', 'streak', 'level'];
+
   theme      : PageTheme     = structuredClone(DEFAULT_THEME);
   SECTION_META = SECTION_META;
 
@@ -171,15 +187,18 @@ export class GamifPageBuilderComponent implements OnInit, OnDestroy {
   // ── Section actions ────────────────────────────────────────────────────────
 
   toggleSection(s: PageSection) { s.enabled = !s.enabled; }
+
   selectSection(s: PageSection) {
     this.selectedSection = this.selectedSection?.id === s.id ? null : s;
   }
+
   updateSectionConfig(key: string, value: any) {
     if (!this.selectedSection) return;
     this.selectedSection.config = { ...this.selectedSection.config, [key]: value };
     const i = this.sections.findIndex(s => s.id === this.selectedSection!.id);
     if (i !== -1) this.sections[i] = { ...this.selectedSection };
   }
+
   addSection(type: SectionType) {
     const existing = this.sections.find(s => s.type === type);
     if (existing) { existing.enabled = true; return; }
@@ -245,6 +264,6 @@ export class GamifPageBuilderComponent implements OnInit, OnDestroy {
     (this.theme as any)[key] = value;
   }
 
-  getSectionIcon(type: SectionType): string { return SECTION_META[type]?.icon ?? '📦'; }
+  getSectionIcon(type: SectionType): string  { return SECTION_META[type]?.icon  ?? '📦'; }
   getSectionLabel(type: SectionType): string { return SECTION_META[type]?.label ?? type; }
 }

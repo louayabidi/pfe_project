@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { SplashComponent } from './pages/splash/splash.component';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
+import { DocsComponent } from './components/docs/docs.component';
 
 const routes: Routes = [
   // Splash
@@ -40,6 +41,15 @@ const routes: Routes = [
     import('./pages/admin-login/admin-login.module').then(m => m.AdminLoginModule)
 },
 
+
+
+ 
+
+{
+    path: 'docs',
+    component: DocsComponent,
+    data: { title: 'Documentation' }
+  },
 
 // ── Admin dashboard — fully isolated from user dashboard ──────────────────
   {
