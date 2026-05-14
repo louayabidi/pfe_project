@@ -289,3 +289,205 @@
 }
 
 .empty-events { padding: 12px; text-align: center; }
+
+
+// ── Custom threshold builder ──────────────────────────────────────────────────
+.threshold-list {
+  display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;
+}
+.threshold-row {
+  display: flex; align-items: center; gap: 10px;
+  .hint-inline { font-size: 10px; color: var(--text-3); }
+}
+.empty-thresholds {
+  padding: 10px 0;
+}
+
+
+// ── ADD TO END of engagement.component.scss ───────────────────────────────────
+
+// ── Card Style Picker ─────────────────────────────────────────────────────────
+
+.section-hint {
+  font-size: 12px; color: var(--text-3); margin: 0 0 16px;
+}
+
+.style-picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.style-card {
+  background: var(--s2);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 12px 12px;
+  cursor: pointer;
+  transition: all var(--t);
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  &:hover { border-color: var(--border-a); transform: translateY(-2px); }
+}
+
+// Per-style hover/selected tints
+.style-crystal {
+  &:hover, &.style-selected {
+    background: rgba(0, 212, 255, 0.06);
+    border-color: rgba(0, 212, 255, 0.4);
+    box-shadow: 0 4px 18px rgba(0, 212, 255, 0.15);
+  }
+}
+.style-inferno {
+  &:hover, &.style-selected {
+    background: rgba(255, 107, 0, 0.07);
+    border-color: rgba(255, 107, 0, 0.45);
+    box-shadow: 0 4px 18px rgba(255, 107, 0, 0.18);
+  }
+}
+.style-phantom {
+  &:hover, &.style-selected {
+    background: rgba(184, 69, 245, 0.07);
+    border-color: rgba(184, 69, 245, 0.4);
+    box-shadow: 0 4px 18px rgba(184, 69, 245, 0.18);
+  }
+}
+
+// Preview area
+.style-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.style-arc {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  filter: drop-shadow(0 0 6px rgba(0,0,0,0.5));
+}
+
+.style-bar-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.style-bar {
+  height: 6px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.style-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.style-bar-crystal {
+  background: linear-gradient(90deg, #00D4FF, #7FFFEF);
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.5);
+}
+.style-bar-inferno {
+  background: linear-gradient(90deg, #FF4500, #FFD700);
+  box-shadow: 0 0 8px rgba(255, 69, 0, 0.5);
+}
+.style-bar-phantom {
+  background: linear-gradient(90deg, #B845F5, #FF6FB8);
+  box-shadow: 0 0 8px rgba(184, 69, 245, 0.5);
+}
+
+.style-meta {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-3);
+}
+
+// Footer row (dot + name + checkmark)
+.style-footer {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.style-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.style-name {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-2);
+  flex: 1;
+}
+
+.style-check {
+  flex-shrink: 0;
+  animation: pop-in 0.2s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes pop-in {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+// Active hint below the picker
+.style-active-hint {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.style-active-badge {
+  font-weight: 700;
+  font-size: 10px;
+  padding: 2px 10px;
+  border-radius: 20px;
+  border: 1px solid;
+  background: transparent;
+  transition: all var(--t);
+}
+
+// ── Card list chip update — show style in config-card ─────────────────────────
+// Add this alongside the existing .ms-chip rules.
+// In the HTML config-card, add:
+//   <span class="chip chip-style-{{ cfg.cardStyle ?? 'crystal' }}">
+//     {{ cfg.cardStyle === 'inferno' ? '🔥' : cfg.cardStyle === 'phantom' ? '👻' : '💎' }}
+//     {{ cfg.cardStyle ?? 'Crystal' | titlecase }}
+//   </span>
+
+.chip-style-crystal {
+  background: rgba(0, 212, 255, 0.10);
+  color: #00D4FF;
+  border-color: rgba(0, 212, 255, 0.25);
+}
+.chip-style-inferno {
+  background: rgba(255, 107, 0, 0.10);
+  color: #FF8C00;
+  border-color: rgba(255, 107, 0, 0.25);
+}
+.chip-style-phantom {
+  background: rgba(184, 69, 245, 0.10);
+  color: #D070FF;
+  border-color: rgba(184, 69, 245, 0.25);
+}
+
+@media (max-width: 600px) {
+  .style-picker { grid-template-columns: 1fr; }
+  .style-arc    { width: 44px; height: 44px; }
+}

@@ -48,6 +48,7 @@ export interface LevelConfig {
   levelRewardsJson: string;
   maxLevel: number;
   active: boolean;
+  cardStyle?: 'crystal' | 'inferno' | 'phantom';  
   createdAt?: string;
   updatedAt?: string;
 }
@@ -106,8 +107,6 @@ export class EngagementService {
   // ── Event names (for dropdowns) ───────────────────────────────────────────
 
   getEventNames(appId: number): Observable<string[]> {
-    // ✅ JWT token ajouté automatiquement par l'intercepteur HTTP
-    // ✅ URL corrigée : /api/events/names (pas /rules/event-names)
     return this.http.get<string[]>(`${this.API}/api/events/names`, {
       params: { appId }
     });

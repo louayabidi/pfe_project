@@ -38,7 +38,10 @@ export class EngagementComponent implements OnInit, OnDestroy {
   streakMilestones: StreakMilestone[] = [];
   levelRewards:     LevelReward[]     = [];
   levelTitles:      string[]          = ['Rookie', 'Explorer', 'Veteran', 'Legend', 'Champion'];
+  cardStyleChoice: 'crystal' | 'inferno' | 'phantom' = 'crystal';
+ 
 
+  customThresholds: number[] = [];
   streakForm!: FormGroup;
   levelForm!:  FormGroup;
 
@@ -165,15 +168,18 @@ export class EngagementComponent implements OnInit, OnDestroy {
     this.editingLevel.set(null);
     this.levelRewards = [];
     this.levelTitles  = ['Rookie', 'Explorer', 'Veteran', 'Legend', 'Champion'];
+    this.customThresholds = [];   
     this.levelForm.reset({ name: '', thresholdType: 'FLAT', flatThreshold: 1000,
                             headStartPct: 15, maxLevel: 100 });
     this.showLevelForm.set(true);
+    this.cardStyleChoice = 'crystal';
   }
 
   editLevel(cfg: LevelConfig): void {
     this.editingLevel.set(cfg);
     this.levelRewards = this.svc.parseLevelRewards(cfg.levelRewardsJson);
     this.levelTitles  = this.svc.parseTitles(cfg.levelTitlesJson);
+    this.customThresholds = this.parseIntList(cfg.customThresholdsJson);
     if (!this.levelTitles.length) {
       this.levelTitles = ['Rookie', 'Explorer', 'Veteran', 'Legend', 'Champion'];
     }
@@ -185,6 +191,7 @@ export class EngagementComponent implements OnInit, OnDestroy {
       maxLevel:      cfg.maxLevel
     });
     this.showLevelForm.set(true);
+    this.cardStyleChoice = (cfg.cardStyle as any) ?? 'crystal';
   }
 
   saveLevel(): void {
@@ -197,12 +204,13 @@ export class EngagementComponent implements OnInit, OnDestroy {
       name:                 v.name,
       thresholdType:        v.thresholdType,
       flatThreshold:        v.flatThreshold ?? 1000,
-      customThresholdsJson: '[]',
+     customThresholdsJson: JSON.stringify(this.customThresholds),
       headStartPct:         v.headStartPct ?? 15,
       levelTitlesJson:      JSON.stringify(this.levelTitles.filter(t => t.trim())),
       levelRewardsJson:     JSON.stringify(this.levelRewards),
       maxLevel:             v.maxLevel ?? 100,
-      active:               true
+      active:               true,
+      cardStyle: this.cardStyleChoice,
     };
 
     this.saving.set(true);
@@ -231,6 +239,30 @@ export class EngagementComponent implements OnInit, OnDestroy {
       next: () => this.levelConfigs.update(l => l.filter(c => c.id !== id))
     });
   }
+
+ setCardStyle(s: 'crystal' | 'inferno' | 'phantom'): void {
+    this.cardStyleChoice = s;
+  }
+  
+  addThreshold(): void {
+  const last = this.customThresholds.length
+    ? this.customThresholds[this.customThresholds.length - 1]
+    : 500;
+  this.customThresholds = [...this.customThresholds, Math.round(last * 1.5)];
+}
+
+removeThreshold(i: number): void {
+  this.customThresholds = this.customThresholds.filter((_, idx) => idx !== i);
+}
+
+updateThreshold(i: number, value: number): void {
+  const copy = [...this.customThresholds]; copy[i] = value; this.customThresholds = copy;
+}
+
+private parseIntList(json: string | null | undefined): number[] {
+  if (!json) return [];
+  try { return JSON.parse(json); } catch { return []; }
+}
 
   toggleLevel(id: number): void {
     this.svc.toggleLevelConfig(id).pipe(takeUntil(this.destroy$)).subscribe({

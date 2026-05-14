@@ -313,10 +313,31 @@
                 <option value="CUSTOM">📊 Custom — different per level</option>
               </select>
             </div>
-            <div class="field" *ngIf="levelForm.get('thresholdType')?.value === 'FLAT'">
-              <label>XP per level</label>
-              <input class="inp" type="number" formControlName="flatThreshold" min="1" />
-            </div>
+           <div class="field" *ngIf="levelForm.get('thresholdType')?.value === 'FLAT'">
+  <label>XP per level</label>
+  <input class="inp" type="number" formControlName="flatThreshold" min="1" />
+</div>
+
+<!-- custom thresholds builder -->
+<div class="field" *ngIf="levelForm.get('thresholdType')?.value === 'CUSTOM'">
+  <label>XP thresholds per level <span class="hint-inline">(index 0 = XP to reach Lv 2)</span></label>
+  <div class="threshold-list">
+    <div class="threshold-row" *ngFor="let t of customThresholds; let i = index">
+      <span class="title-idx">Lv{{ i+1 }}→{{ i+2 }}</span>
+      <input class="inp-sm" type="number" [value]="t"
+             (input)="updateThreshold(i, +$any($event.target).value)"
+             min="1" placeholder="500" />
+      <span class="hint-inline">XP</span>
+      <button type="button" class="remove-btn" (click)="removeThreshold(i)">✕</button>
+    </div>
+    <div class="empty-thresholds" *ngIf="!customThresholds.length">
+      <span class="hint">No thresholds yet — add at least one.</span>
+    </div>
+  </div>
+  <button type="button" class="add-btn" (click)="addThreshold()">+ Add threshold</button>
+  <span class="hint">Beyond the last defined threshold, the last value is reused.</span>
+</div>
+
           </div>
         </div>
 
@@ -365,6 +386,169 @@
           <button type="button" class="add-btn" (click)="addLevelReward()">+ Add reward</button>
         </div>
 
+
+        <div class="form-section">
+  <div class="form-section-label">06 — Card Style</div>
+  <p class="section-hint">Choose the visual identity your users will see on their level card.</p>
+ 
+  <div class="style-picker">
+ 
+    <!-- ── Crystal ────────────────────────────────────────────────────── -->
+    <div class="style-card style-crystal"
+         [class.style-selected]="cardStyleChoice === 'crystal'"
+         (click)="setCardStyle('crystal')">
+ 
+      <div class="style-preview">
+        <!-- Simulated arc ring -->
+        <svg class="style-arc" viewBox="0 0 64 64" fill="none">
+          <circle cx="32" cy="32" r="26" stroke="rgba(0,212,255,0.12)" stroke-width="4"
+                  stroke-linecap="round"
+                  stroke-dasharray="122" stroke-dashoffset="0"
+                  transform="rotate(-135 32 32)"/>
+          <circle cx="32" cy="32" r="26" stroke="url(#cg1)" stroke-width="4"
+                  stroke-linecap="round"
+                  stroke-dasharray="122" stroke-dashoffset="35"
+                  transform="rotate(-135 32 32)"/>
+          <defs>
+            <linearGradient id="cg1" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%"   stop-color="#00D4FF"/>
+              <stop offset="100%" stop-color="#7B61FF"/>
+            </linearGradient>
+          </defs>
+          <text x="32" y="30" text-anchor="middle" fill="#00D4FF"
+                font-size="14" font-weight="900" dy="0">12</text>
+          <text x="32" y="40" text-anchor="middle" fill="rgba(255,255,255,0.4)"
+                font-size="6" font-weight="700" letter-spacing="1">LVL</text>
+        </svg>
+ 
+        <div class="style-bar-wrap">
+          <div class="style-bar">
+            <div class="style-bar-fill style-bar-crystal" style="width:68%"></div>
+          </div>
+          <div class="style-meta">
+            <span>6,800 / 10,000 XP</span>
+            <span style="color:#00D4FF">68%</span>
+          </div>
+        </div>
+      </div>
+ 
+      <div class="style-footer">
+        <span class="style-dot" style="background:#00D4FF"></span>
+        <span class="style-name">Crystal</span>
+        <svg *ngIf="cardStyleChoice === 'crystal'" width="14" height="14" viewBox="0 0 14 14" fill="none" class="style-check">
+          <circle cx="7" cy="7" r="7" fill="#00D4FF" fill-opacity="0.15"/>
+          <path d="M3.5 7l2.5 2.5 4.5-5" stroke="#00D4FF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+ 
+    <!-- ── Inferno ────────────────────────────────────────────────────── -->
+    <div class="style-card style-inferno"
+         [class.style-selected]="cardStyleChoice === 'inferno'"
+         (click)="setCardStyle('inferno')">
+ 
+      <div class="style-preview">
+        <svg class="style-arc" viewBox="0 0 64 64" fill="none">
+          <circle cx="32" cy="32" r="26" stroke="rgba(255,107,0,0.12)" stroke-width="4"
+                  stroke-linecap="round"
+                  stroke-dasharray="122" stroke-dashoffset="0"
+                  transform="rotate(-135 32 32)"/>
+          <circle cx="32" cy="32" r="26" stroke="url(#ig1)" stroke-width="4"
+                  stroke-linecap="round"
+                  stroke-dasharray="122" stroke-dashoffset="50"
+                  transform="rotate(-135 32 32)"/>
+          <defs>
+            <linearGradient id="ig1" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%"   stop-color="#FF6B00"/>
+              <stop offset="100%" stop-color="#FFD700"/>
+            </linearGradient>
+          </defs>
+          <text x="32" y="30" text-anchor="middle" fill="#FF8C00"
+                font-size="14" font-weight="900">7</text>
+          <text x="32" y="40" text-anchor="middle" fill="rgba(255,255,255,0.4)"
+                font-size="6" font-weight="700" letter-spacing="1">LVL</text>
+        </svg>
+ 
+        <div class="style-bar-wrap">
+          <div class="style-bar">
+            <div class="style-bar-fill style-bar-inferno" style="width:42%"></div>
+          </div>
+          <div class="style-meta">
+            <span>4,200 / 10,000 XP</span>
+            <span style="color:#FF8C00">42%</span>
+          </div>
+        </div>
+      </div>
+ 
+      <div class="style-footer">
+        <span class="style-dot" style="background:#FF6B00"></span>
+        <span class="style-name">Inferno</span>
+        <svg *ngIf="cardStyleChoice === 'inferno'" width="14" height="14" viewBox="0 0 14 14" fill="none" class="style-check">
+          <circle cx="7" cy="7" r="7" fill="#FF6B00" fill-opacity="0.15"/>
+          <path d="M3.5 7l2.5 2.5 4.5-5" stroke="#FF6B00" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+ 
+    <!-- ── Phantom ────────────────────────────────────────────────────── -->
+    <div class="style-card style-phantom"
+         [class.style-selected]="cardStyleChoice === 'phantom'"
+         (click)="setCardStyle('phantom')">
+ 
+      <div class="style-preview">
+        <svg class="style-arc" viewBox="0 0 64 64" fill="none">
+          <circle cx="32" cy="32" r="26" stroke="rgba(184,69,245,0.12)" stroke-width="4"
+                  stroke-linecap="round"
+                  stroke-dasharray="122" stroke-dashoffset="0"
+                  transform="rotate(-135 32 32)"/>
+          <circle cx="32" cy="32" r="26" stroke="url(#pg1)" stroke-width="4"
+                  stroke-linecap="round"
+                  stroke-dasharray="122" stroke-dashoffset="20"
+                  transform="rotate(-135 32 32)"/>
+          <defs>
+            <linearGradient id="pg1" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%"   stop-color="#B845F5"/>
+              <stop offset="100%" stop-color="#FF2D78"/>
+            </linearGradient>
+          </defs>
+          <text x="32" y="30" text-anchor="middle" fill="#D070FF"
+                font-size="14" font-weight="900">25</text>
+          <text x="32" y="40" text-anchor="middle" fill="rgba(255,255,255,0.4)"
+                font-size="6" font-weight="700" letter-spacing="1">LVL</text>
+        </svg>
+ 
+        <div class="style-bar-wrap">
+          <div class="style-bar">
+            <div class="style-bar-fill style-bar-phantom" style="width:84%"></div>
+          </div>
+          <div class="style-meta">
+            <span>8,400 / 10,000 XP</span>
+            <span style="color:#D070FF">84%</span>
+          </div>
+        </div>
+      </div>
+ 
+      <div class="style-footer">
+        <span class="style-dot" style="background:#B845F5"></span>
+        <span class="style-name">Phantom</span>
+        <svg *ngIf="cardStyleChoice === 'phantom'" width="14" height="14" viewBox="0 0 14 14" fill="none" class="style-check">
+          <circle cx="7" cy="7" r="7" fill="#B845F5" fill-opacity="0.15"/>
+          <path d="M3.5 7l2.5 2.5 4.5-5" stroke="#B845F5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+ 
+  </div>
+  <!-- Selected style chip -->
+  <div class="style-active-hint">
+    Currently selected:
+    <span class="style-active-badge"
+          [style.color]="cardStyleChoice === 'crystal' ? '#00D4FF' : cardStyleChoice === 'inferno' ? '#FF8C00' : '#D070FF'"
+          [style.borderColor]="cardStyleChoice === 'crystal' ? 'rgba(0,212,255,0.3)' : cardStyleChoice === 'inferno' ? 'rgba(255,107,0,0.3)' : 'rgba(184,69,245,0.3)'">
+      {{ cardStyleChoice | titlecase }}
+    </span>
+  </div>
+</div>
         <div class="form-footer">
           <button type="button" class="btn-ghost" (click)="showLevelForm.set(false)">Cancel</button>
           <button type="submit" class="btn-save" [disabled]="saving()">

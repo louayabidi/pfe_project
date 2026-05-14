@@ -45,6 +45,10 @@ public class LevelConfig {
     private Integer maxLevel = 100;
 
     @Builder.Default
+    @Column(name = "card_style", length = 20)
+    private String cardStyle = "crystal";
+
+    @Builder.Default
     private Boolean active = true;
 
     @CreationTimestamp private LocalDateTime createdAt;

@@ -50,6 +50,7 @@ public class LevelConfigController {
         existing.setLevelRewardsJson(req.getLevelRewardsJson());
         existing.setMaxLevel(req.getMaxLevel());
         existing.setActive(req.getActive());
+         existing.setCardStyle(req.getCardStyle());  
         return ResponseEntity.ok(levelConfigRepo.save(existing));
     }
 
@@ -109,6 +110,7 @@ public class LevelConfigController {
             dto.put("maxLevel",       config.getMaxLevel());
             dto.put("progressPct",    nextThreshold > 0
                     ? (int) (currentXp * 100.0 / nextThreshold) : 100);
+             dto.put("cardStyle", config.getCardStyle());
             result.add(dto);
         }
 
