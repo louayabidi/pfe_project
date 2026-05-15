@@ -17,20 +17,14 @@
     </div>
 
     <div style="display:flex; align-items:center; gap:16px;">
-    <app-selector></app-selector>
-    <div class="save-toast" [class.visible]="saved()">
-      <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-        <path d="M2 6.5l3.5 3.5 5.5-6" stroke="#39e07a" stroke-width="1.8"
-              stroke-linecap="round" stroke-linejoin="round" />
-      </svg>
-      Saved
-    </div>
-  </div>
-    <div class="save-toast" [class.visible]="saved()">
-      <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-        <path d="M2 6.5l3.5 3.5 5.5-6" stroke="#39e07a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-      </svg>
-      Saved
+      <app-selector></app-selector>
+      <div class="save-toast" [class.visible]="saved()">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+          <path d="M2 6.5l3.5 3.5 5.5-6" stroke="#39e07a" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        Saved
+      </div>
     </div>
   </header>
 
@@ -45,6 +39,7 @@
     </button>
   </div>
 
+  <!-- ═══════════════════════════ STREAKS TAB ═══════════════════════════ -->
   <div *ngIf="activeTab() === 'streaks'">
 
     <div class="section-actions">
@@ -52,12 +47,23 @@
         Define which events build a streak, set daily/rolling windows, milestones, and freeze tokens.
         One app can have multiple independent streaks (login streak + workout streak).
       </p>
-      <button class="btn-primary" (click)="openNewStreak()">
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-          <path d="M6.5 1v11M1 6.5h11" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-        </svg>
-        New streak
-      </button>
+
+      <!-- ✅ UPDATED btn-primary -->
+     <button class="btn-primary" (click)="openNewStreak()">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="36px" height="36px">
+    <rect width="36" height="36" x="0" y="0" fill="#fdd835"></rect>
+    <path fill="#e53935" d="M38.67,42H11.52C11.27,40.62,11,38.57,11,36c0-5,0-11,0-11s1.44-7.39,3.22-9.59 c1.67-2.06,2.76-3.48,6.78-4.41c3-0.7,7.13-0.23,9,1c2.15,1.42,3.37,6.67,3.81,11.29c1.49-0.3,5.21,0.2,5.5,1.28 C40.89,30.29,39.48,38.31,38.67,42z"></path>
+    <path fill="#b71c1c" d="M39.02,42H11.99c-0.22-2.67-0.48-7.05-0.49-12.72c0.83,4.18,1.63,9.59,6.98,9.79 c3.48,0.12,8.27,0.55,9.83-2.45c1.57-3,3.72-8.95,3.51-15.62c-0.19-5.84-1.75-8.2-2.13-8.7c0.59,0.66,3.74,4.49,4.01,11.7 c0.03,0.83,0.06,1.72,0.08,2.66c4.21-0.15,5.93,1.5,6.07,2.35C40.68,33.85,39.8,38.9,39.02,42z"></path>
+    <path fill="#212121" d="M35,27.17c0,3.67-0.28,11.2-0.42,14.83h-2C32.72,38.42,33,30.83,33,27.17 c0-5.54-1.46-12.65-3.55-14.02c-1.65-1.08-5.49-1.48-8.23-0.85c-3.62,0.83-4.57,1.99-6.14,3.92L15,16.32 c-1.31,1.6-2.59,6.92-3,8.96v10.8c0,2.58,0.28,4.61,0.54,5.92H10.5c-0.25-1.41-0.5-3.42-0.5-5.92l0.02-11.09 c0.15-0.77,1.55-7.63,3.43-9.94l0.08-0.09c1.65-2.03,2.96-3.63,7.25-4.61c3.28-0.76,7.67-0.25,9.77,1.13 C33.79,13.6,35,22.23,35,27.17z"></path>
+    <path fill="#01579b" d="M17.165,17.283c5.217-0.055,9.391,0.283,9,6.011c-0.391,5.728-8.478,5.533-9.391,5.337 c-0.913-0.196-7.826-0.043-7.696-5.337C9.209,18,13.645,17.32,17.165,17.283z"></path>
+    <path fill="#212121" d="M40.739,37.38c-0.28,1.99-0.69,3.53-1.22,4.62h-2.43c0.25-0.19,1.13-1.11,1.67-4.9 c0.57-4-0.23-11.79-0.93-12.78c-0.4-0.4-2.63-0.8-4.37-0.89l0.1-1.99c1.04,0.05,4.53,0.31,5.71,1.49 C40.689,24.36,41.289,33.53,40.739,37.38z"></path>
+    <path fill="#81d4fa" d="M10.154,20.201c0.261,2.059-0.196,3.351,2.543,3.546s8.076,1.022,9.402-0.554 c1.326-1.576,1.75-4.365-0.891-5.267C19.336,17.287,12.959,16.251,10.154,20.201z"></path>
+    <path fill="#212121" d="M17.615,29.677c-0.502,0-0.873-0.03-1.052-0.069c-0.086-0.019-0.236-0.035-0.434-0.06 c-5.344-0.679-8.053-2.784-8.052-6.255c0.001-2.698,1.17-7.238,8.986-7.32l0.181-0.002c3.444-0.038,6.414-0.068,8.272,1.818 c1.173,1.191,1.712,3,1.647,5.53c-0.044,1.688-0.785,3.147-2.144,4.217C22.785,29.296,19.388,29.677,17.615,29.677z M17.086,17.973 c-7.006,0.074-7.008,4.023-7.008,5.321c-0.001,3.109,3.598,3.926,6.305,4.27c0.273,0.035,0.48,0.063,0.601,0.089 c0.563,0.101,4.68,0.035,6.855-1.732c0.865-0.702,1.299-1.57,1.326-2.653c0.051-1.958-0.301-3.291-1.073-4.075 c-1.262-1.281-3.834-1.255-6.825-1.222L17.086,17.973z"></path>
+    <path fill="#e1f5fe" d="M15.078,19.043c1.957-0.326,5.122-0.529,4.435,1.304c-0.489,1.304-7.185,2.185-7.185,0.652 C12.328,19.467,15.078,19.043,15.078,19.043z"></path>
+  </svg>
+  <span class="btn-now">now!</span>
+  <span class="btn-play">New streak</span>
+</button>
     </div>
 
     <div class="loading-state" *ngIf="loading()">
@@ -71,7 +77,22 @@
       <span class="empty-icon">🔥</span>
       <h3>No streaks configured</h3>
       <p>Create your first streak to start driving daily engagement.</p>
-      <button class="btn-primary" (click)="openNewStreak()">Create first streak</button>
+      <!-- ✅ UPDATED btn-primary -->
+      <button class="btn-primary" (click)="openNewStreak()">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="36px" height="36px">
+    <rect width="36" height="36" x="0" y="0" fill="#fdd835"></rect>
+    <path fill="#e53935" d="M38.67,42H11.52C11.27,40.62,11,38.57,11,36c0-5,0-11,0-11s1.44-7.39,3.22-9.59 c1.67-2.06,2.76-3.48,6.78-4.41c3-0.7,7.13-0.23,9,1c2.15,1.42,3.37,6.67,3.81,11.29c1.49-0.3,5.21,0.2,5.5,1.28 C40.89,30.29,39.48,38.31,38.67,42z"></path>
+    <path fill="#b71c1c" d="M39.02,42H11.99c-0.22-2.67-0.48-7.05-0.49-12.72c0.83,4.18,1.63,9.59,6.98,9.79 c3.48,0.12,8.27,0.55,9.83-2.45c1.57-3,3.72-8.95,3.51-15.62c-0.19-5.84-1.75-8.2-2.13-8.7c0.59,0.66,3.74,4.49,4.01,11.7 c0.03,0.83,0.06,1.72,0.08,2.66c4.21-0.15,5.93,1.5,6.07,2.35C40.68,33.85,39.8,38.9,39.02,42z"></path>
+    <path fill="#212121" d="M35,27.17c0,3.67-0.28,11.2-0.42,14.83h-2C32.72,38.42,33,30.83,33,27.17 c0-5.54-1.46-12.65-3.55-14.02c-1.65-1.08-5.49-1.48-8.23-0.85c-3.62,0.83-4.57,1.99-6.14,3.92L15,16.32 c-1.31,1.6-2.59,6.92-3,8.96v10.8c0,2.58,0.28,4.61,0.54,5.92H10.5c-0.25-1.41-0.5-3.42-0.5-5.92l0.02-11.09 c0.15-0.77,1.55-7.63,3.43-9.94l0.08-0.09c1.65-2.03,2.96-3.63,7.25-4.61c3.28-0.76,7.67-0.25,9.77,1.13 C33.79,13.6,35,22.23,35,27.17z"></path>
+    <path fill="#01579b" d="M17.165,17.283c5.217-0.055,9.391,0.283,9,6.011c-0.391,5.728-8.478,5.533-9.391,5.337 c-0.913-0.196-7.826-0.043-7.696-5.337C9.209,18,13.645,17.32,17.165,17.283z"></path>
+    <path fill="#212121" d="M40.739,37.38c-0.28,1.99-0.69,3.53-1.22,4.62h-2.43c0.25-0.19,1.13-1.11,1.67-4.9 c0.57-4-0.23-11.79-0.93-12.78c-0.4-0.4-2.63-0.8-4.37-0.89l0.1-1.99c1.04,0.05,4.53,0.31,5.71,1.49 C40.689,24.36,41.289,33.53,40.739,37.38z"></path>
+    <path fill="#81d4fa" d="M10.154,20.201c0.261,2.059-0.196,3.351,2.543,3.546s8.076,1.022,9.402-0.554 c1.326-1.576,1.75-4.365-0.891-5.267C19.336,17.287,12.959,16.251,10.154,20.201z"></path>
+    <path fill="#212121" d="M17.615,29.677c-0.502,0-0.873-0.03-1.052-0.069c-0.086-0.019-0.236-0.035-0.434-0.06 c-5.344-0.679-8.053-2.784-8.052-6.255c0.001-2.698,1.17-7.238,8.986-7.32l0.181-0.002c3.444-0.038,6.414-0.068,8.272,1.818 c1.173,1.191,1.712,3,1.647,5.53c-0.044,1.688-0.785,3.147-2.144,4.217C22.785,29.296,19.388,29.677,17.615,29.677z M17.086,17.973 c-7.006,0.074-7.008,4.023-7.008,5.321c-0.001,3.109,3.598,3.926,6.305,4.27c0.273,0.035,0.48,0.063,0.601,0.089 c0.563,0.101,4.68,0.035,6.855-1.732c0.865-0.702,1.299-1.57,1.326-2.653c0.051-1.958-0.301-3.291-1.073-4.075 c-1.262-1.281-3.834-1.255-6.825-1.222L17.086,17.973z"></path>
+    <path fill="#e1f5fe" d="M15.078,19.043c1.957-0.326,5.122-0.529,4.435,1.304c-0.489,1.304-7.185,2.185-7.185,0.652 C12.328,19.467,15.078,19.043,15.078,19.043z"></path>
+  </svg>
+  <span class="btn-now">now!</span>
+  <span class="btn-play">Create first streak</span>
+</button>
     </div>
 
     <div class="config-grid" *ngIf="streakConfigs().length > 0">
@@ -225,25 +246,52 @@
     </div>
   </div>
 
+  <!-- ═══════════════════════════ LEVELS TAB ════════════════════════════ -->
   <div *ngIf="activeTab() === 'levels'">
 
     <div class="section-actions">
       <p class="section-desc">
         Configure XP thresholds, titles, and rewards. Users level up by earning points from any rule.
       </p>
+
+      <!-- ✅ UPDATED btn-primary -->
       <button class="btn-primary" (click)="openNewLevel()">
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-          <path d="M6.5 1v11M1 6.5h11" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-        </svg>
-        New level config
-      </button>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="36px" height="36px">
+    <rect width="36" height="36" x="0" y="0" fill="#fdd835"></rect>
+    <path fill="#e53935" d="M38.67,42H11.52C11.27,40.62,11,38.57,11,36c0-5,0-11,0-11s1.44-7.39,3.22-9.59 c1.67-2.06,2.76-3.48,6.78-4.41c3-0.7,7.13-0.23,9,1c2.15,1.42,3.37,6.67,3.81,11.29c1.49-0.3,5.21,0.2,5.5,1.28 C40.89,30.29,39.48,38.31,38.67,42z"></path>
+    <path fill="#b71c1c" d="M39.02,42H11.99c-0.22-2.67-0.48-7.05-0.49-12.72c0.83,4.18,1.63,9.59,6.98,9.79 c3.48,0.12,8.27,0.55,9.83-2.45c1.57-3,3.72-8.95,3.51-15.62c-0.19-5.84-1.75-8.2-2.13-8.7c0.59,0.66,3.74,4.49,4.01,11.7 c0.03,0.83,0.06,1.72,0.08,2.66c4.21-0.15,5.93,1.5,6.07,2.35C40.68,33.85,39.8,38.9,39.02,42z"></path>
+    <path fill="#212121" d="M35,27.17c0,3.67-0.28,11.2-0.42,14.83h-2C32.72,38.42,33,30.83,33,27.17 c0-5.54-1.46-12.65-3.55-14.02c-1.65-1.08-5.49-1.48-8.23-0.85c-3.62,0.83-4.57,1.99-6.14,3.92L15,16.32 c-1.31,1.6-2.59,6.92-3,8.96v10.8c0,2.58,0.28,4.61,0.54,5.92H10.5c-0.25-1.41-0.5-3.42-0.5-5.92l0.02-11.09 c0.15-0.77,1.55-7.63,3.43-9.94l0.08-0.09c1.65-2.03,2.96-3.63,7.25-4.61c3.28-0.76,7.67-0.25,9.77,1.13 C33.79,13.6,35,22.23,35,27.17z"></path>
+    <path fill="#01579b" d="M17.165,17.283c5.217-0.055,9.391,0.283,9,6.011c-0.391,5.728-8.478,5.533-9.391,5.337 c-0.913-0.196-7.826-0.043-7.696-5.337C9.209,18,13.645,17.32,17.165,17.283z"></path>
+    <path fill="#212121" d="M40.739,37.38c-0.28,1.99-0.69,3.53-1.22,4.62h-2.43c0.25-0.19,1.13-1.11,1.67-4.9 c0.57-4-0.23-11.79-0.93-12.78c-0.4-0.4-2.63-0.8-4.37-0.89l0.1-1.99c1.04,0.05,4.53,0.31,5.71,1.49 C40.689,24.36,41.289,33.53,40.739,37.38z"></path>
+    <path fill="#81d4fa" d="M10.154,20.201c0.261,2.059-0.196,3.351,2.543,3.546s8.076,1.022,9.402-0.554 c1.326-1.576,1.75-4.365-0.891-5.267C19.336,17.287,12.959,16.251,10.154,20.201z"></path>
+    <path fill="#212121" d="M17.615,29.677c-0.502,0-0.873-0.03-1.052-0.069c-0.086-0.019-0.236-0.035-0.434-0.06 c-5.344-0.679-8.053-2.784-8.052-6.255c0.001-2.698,1.17-7.238,8.986-7.32l0.181-0.002c3.444-0.038,6.414-0.068,8.272,1.818 c1.173,1.191,1.712,3,1.647,5.53c-0.044,1.688-0.785,3.147-2.144,4.217C22.785,29.296,19.388,29.677,17.615,29.677z M17.086,17.973 c-7.006,0.074-7.008,4.023-7.008,5.321c-0.001,3.109,3.598,3.926,6.305,4.27c0.273,0.035,0.48,0.063,0.601,0.089 c0.563,0.101,4.68,0.035,6.855-1.732c0.865-0.702,1.299-1.57,1.326-2.653c0.051-1.958-0.301-3.291-1.073-4.075 c-1.262-1.281-3.834-1.255-6.825-1.222L17.086,17.973z"></path>
+    <path fill="#e1f5fe" d="M15.078,19.043c1.957-0.326,5.122-0.529,4.435,1.304c-0.489,1.304-7.185,2.185-7.185,0.652 C12.328,19.467,15.078,19.043,15.078,19.043z"></path>
+  </svg>
+  <span class="btn-now">now!</span>
+  <span class="btn-play">New level config</span>
+</button>
     </div>
 
     <div class="empty-state" *ngIf="!loading() && levelConfigs().length === 0 && !showLevelForm()">
       <span class="empty-icon">🎖️</span>
       <h3>No level config yet</h3>
       <p>Add a level system so users always have a next goal to chase.</p>
-      <button class="btn-primary" (click)="openNewLevel()">Create level config</button>
+      <!-- ✅ UPDATED btn-primary -->
+     <button class="btn-primary" (click)="openNewLevel()">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="36px" height="36px">
+    <rect width="36" height="36" x="0" y="0" fill="#fdd835"></rect>
+    <path fill="#e53935" d="M38.67,42H11.52C11.27,40.62,11,38.57,11,36c0-5,0-11,0-11s1.44-7.39,3.22-9.59 c1.67-2.06,2.76-3.48,6.78-4.41c3-0.7,7.13-0.23,9,1c2.15,1.42,3.37,6.67,3.81,11.29c1.49-0.3,5.21,0.2,5.5,1.28 C40.89,30.29,39.48,38.31,38.67,42z"></path>
+    <path fill="#b71c1c" d="M39.02,42H11.99c-0.22-2.67-0.48-7.05-0.49-12.72c0.83,4.18,1.63,9.59,6.98,9.79 c3.48,0.12,8.27,0.55,9.83-2.45c1.57-3,3.72-8.95,3.51-15.62c-0.19-5.84-1.75-8.2-2.13-8.7c0.59,0.66,3.74,4.49,4.01,11.7 c0.03,0.83,0.06,1.72,0.08,2.66c4.21-0.15,5.93,1.5,6.07,2.35C40.68,33.85,39.8,38.9,39.02,42z"></path>
+    <path fill="#212121" d="M35,27.17c0,3.67-0.28,11.2-0.42,14.83h-2C32.72,38.42,33,30.83,33,27.17 c0-5.54-1.46-12.65-3.55-14.02c-1.65-1.08-5.49-1.48-8.23-0.85c-3.62,0.83-4.57,1.99-6.14,3.92L15,16.32 c-1.31,1.6-2.59,6.92-3,8.96v10.8c0,2.58,0.28,4.61,0.54,5.92H10.5c-0.25-1.41-0.5-3.42-0.5-5.92l0.02-11.09 c0.15-0.77,1.55-7.63,3.43-9.94l0.08-0.09c1.65-2.03,2.96-3.63,7.25-4.61c3.28-0.76,7.67-0.25,9.77,1.13 C33.79,13.6,35,22.23,35,27.17z"></path>
+    <path fill="#01579b" d="M17.165,17.283c5.217-0.055,9.391,0.283,9,6.011c-0.391,5.728-8.478,5.533-9.391,5.337 c-0.913-0.196-7.826-0.043-7.696-5.337C9.209,18,13.645,17.32,17.165,17.283z"></path>
+    <path fill="#212121" d="M40.739,37.38c-0.28,1.99-0.69,3.53-1.22,4.62h-2.43c0.25-0.19,1.13-1.11,1.67-4.9 c0.57-4-0.23-11.79-0.93-12.78c-0.4-0.4-2.63-0.8-4.37-0.89l0.1-1.99c1.04,0.05,4.53,0.31,5.71,1.49 C40.689,24.36,41.289,33.53,40.739,37.38z"></path>
+    <path fill="#81d4fa" d="M10.154,20.201c0.261,2.059-0.196,3.351,2.543,3.546s8.076,1.022,9.402-0.554 c1.326-1.576,1.75-4.365-0.891-5.267C19.336,17.287,12.959,16.251,10.154,20.201z"></path>
+    <path fill="#212121" d="M17.615,29.677c-0.502,0-0.873-0.03-1.052-0.069c-0.086-0.019-0.236-0.035-0.434-0.06 c-5.344-0.679-8.053-2.784-8.052-6.255c0.001-2.698,1.17-7.238,8.986-7.32l0.181-0.002c3.444-0.038,6.414-0.068,8.272,1.818 c1.173,1.191,1.712,3,1.647,5.53c-0.044,1.688-0.785,3.147-2.144,4.217C22.785,29.296,19.388,29.677,17.615,29.677z M17.086,17.973 c-7.006,0.074-7.008,4.023-7.008,5.321c-0.001,3.109,3.598,3.926,6.305,4.27c0.273,0.035,0.48,0.063,0.601,0.089 c0.563,0.101,4.68,0.035,6.855-1.732c0.865-0.702,1.299-1.57,1.326-2.653c0.051-1.958-0.301-3.291-1.073-4.075 c-1.262-1.281-3.834-1.255-6.825-1.222L17.086,17.973z"></path>
+    <path fill="#e1f5fe" d="M15.078,19.043c1.957-0.326,5.122-0.529,4.435,1.304c-0.489,1.304-7.185,2.185-7.185,0.652 C12.328,19.467,15.078,19.043,15.078,19.043z"></path>
+  </svg>
+  <span class="btn-now">now!</span>
+  <span class="btn-play">Create level config</span>
+</button>
     </div>
 
     <div class="config-grid" *ngIf="levelConfigs().length > 0">
@@ -313,31 +361,29 @@
                 <option value="CUSTOM">📊 Custom — different per level</option>
               </select>
             </div>
-           <div class="field" *ngIf="levelForm.get('thresholdType')?.value === 'FLAT'">
-  <label>XP per level</label>
-  <input class="inp" type="number" formControlName="flatThreshold" min="1" />
-</div>
+            <div class="field" *ngIf="levelForm.get('thresholdType')?.value === 'FLAT'">
+              <label>XP per level</label>
+              <input class="inp" type="number" formControlName="flatThreshold" min="1" />
+            </div>
 
-<!-- custom thresholds builder -->
-<div class="field" *ngIf="levelForm.get('thresholdType')?.value === 'CUSTOM'">
-  <label>XP thresholds per level <span class="hint-inline">(index 0 = XP to reach Lv 2)</span></label>
-  <div class="threshold-list">
-    <div class="threshold-row" *ngFor="let t of customThresholds; let i = index">
-      <span class="title-idx">Lv{{ i+1 }}→{{ i+2 }}</span>
-      <input class="inp-sm" type="number" [value]="t"
-             (input)="updateThreshold(i, +$any($event.target).value)"
-             min="1" placeholder="500" />
-      <span class="hint-inline">XP</span>
-      <button type="button" class="remove-btn" (click)="removeThreshold(i)">✕</button>
-    </div>
-    <div class="empty-thresholds" *ngIf="!customThresholds.length">
-      <span class="hint">No thresholds yet — add at least one.</span>
-    </div>
-  </div>
-  <button type="button" class="add-btn" (click)="addThreshold()">+ Add threshold</button>
-  <span class="hint">Beyond the last defined threshold, the last value is reused.</span>
-</div>
-
+            <div class="field" *ngIf="levelForm.get('thresholdType')?.value === 'CUSTOM'">
+              <label>XP thresholds per level <span class="hint-inline">(index 0 = XP to reach Lv 2)</span></label>
+              <div class="threshold-list">
+                <div class="threshold-row" *ngFor="let t of customThresholds; let i = index">
+                  <span class="title-idx">Lv{{ i+1 }}→{{ i+2 }}</span>
+                  <input class="inp-sm" type="number" [value]="t"
+                         (input)="updateThreshold(i, +$any($event.target).value)"
+                         min="1" placeholder="500" />
+                  <span class="hint-inline">XP</span>
+                  <button type="button" class="remove-btn" (click)="removeThreshold(i)">✕</button>
+                </div>
+                <div class="empty-thresholds" *ngIf="!customThresholds.length">
+                  <span class="hint">No thresholds yet — add at least one.</span>
+                </div>
+              </div>
+              <button type="button" class="add-btn" (click)="addThreshold()">+ Add threshold</button>
+              <span class="hint">Beyond the last defined threshold, the last value is reused.</span>
+            </div>
           </div>
         </div>
 
@@ -386,169 +432,153 @@
           <button type="button" class="add-btn" (click)="addLevelReward()">+ Add reward</button>
         </div>
 
-
         <div class="form-section">
-  <div class="form-section-label">06 — Card Style</div>
-  <p class="section-hint">Choose the visual identity your users will see on their level card.</p>
- 
-  <div class="style-picker">
- 
-    <!-- ── Crystal ────────────────────────────────────────────────────── -->
-    <div class="style-card style-crystal"
-         [class.style-selected]="cardStyleChoice === 'crystal'"
-         (click)="setCardStyle('crystal')">
- 
-      <div class="style-preview">
-        <!-- Simulated arc ring -->
-        <svg class="style-arc" viewBox="0 0 64 64" fill="none">
-          <circle cx="32" cy="32" r="26" stroke="rgba(0,212,255,0.12)" stroke-width="4"
-                  stroke-linecap="round"
-                  stroke-dasharray="122" stroke-dashoffset="0"
-                  transform="rotate(-135 32 32)"/>
-          <circle cx="32" cy="32" r="26" stroke="url(#cg1)" stroke-width="4"
-                  stroke-linecap="round"
-                  stroke-dasharray="122" stroke-dashoffset="35"
-                  transform="rotate(-135 32 32)"/>
-          <defs>
-            <linearGradient id="cg1" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%"   stop-color="#00D4FF"/>
-              <stop offset="100%" stop-color="#7B61FF"/>
-            </linearGradient>
-          </defs>
-          <text x="32" y="30" text-anchor="middle" fill="#00D4FF"
-                font-size="14" font-weight="900" dy="0">12</text>
-          <text x="32" y="40" text-anchor="middle" fill="rgba(255,255,255,0.4)"
-                font-size="6" font-weight="700" letter-spacing="1">LVL</text>
-        </svg>
- 
-        <div class="style-bar-wrap">
-          <div class="style-bar">
-            <div class="style-bar-fill style-bar-crystal" style="width:68%"></div>
+          <div class="form-section-label">06 — Card Style</div>
+          <p class="section-hint">Choose the visual identity your users will see on their level card.</p>
+
+          <div class="style-picker">
+
+            <!-- ── Crystal ── -->
+            <div class="style-card style-crystal"
+                 [class.style-selected]="cardStyleChoice === 'crystal'"
+                 (click)="setCardStyle('crystal')">
+              <div class="style-preview">
+                <svg class="style-arc" viewBox="0 0 64 64" fill="none">
+                  <circle cx="32" cy="32" r="26" stroke="rgba(0,212,255,0.12)" stroke-width="4"
+                          stroke-linecap="round" stroke-dasharray="122" stroke-dashoffset="0"
+                          transform="rotate(-135 32 32)"/>
+                  <circle cx="32" cy="32" r="26" stroke="url(#cg1)" stroke-width="4"
+                          stroke-linecap="round" stroke-dasharray="122" stroke-dashoffset="35"
+                          transform="rotate(-135 32 32)"/>
+                  <defs>
+                    <linearGradient id="cg1" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%"   stop-color="#00D4FF"/>
+                      <stop offset="100%" stop-color="#7B61FF"/>
+                    </linearGradient>
+                  </defs>
+                  <text x="32" y="30" text-anchor="middle" fill="#00D4FF"
+                        font-size="14" font-weight="900" dy="0">12</text>
+                  <text x="32" y="40" text-anchor="middle" fill="rgba(255,255,255,0.4)"
+                        font-size="6" font-weight="700" letter-spacing="1">LVL</text>
+                </svg>
+                <div class="style-bar-wrap">
+                  <div class="style-bar">
+                    <div class="style-bar-fill style-bar-crystal" style="width:68%"></div>
+                  </div>
+                  <div class="style-meta">
+                    <span>6,800 / 10,000 XP</span>
+                    <span style="color:#00D4FF">68%</span>
+                  </div>
+                </div>
+              </div>
+              <div class="style-footer">
+                <span class="style-dot" style="background:#00D4FF"></span>
+                <span class="style-name">Crystal</span>
+                <svg *ngIf="cardStyleChoice === 'crystal'" width="14" height="14" viewBox="0 0 14 14" fill="none" class="style-check">
+                  <circle cx="7" cy="7" r="7" fill="#00D4FF" fill-opacity="0.15"/>
+                  <path d="M3.5 7l2.5 2.5 4.5-5" stroke="#00D4FF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- ── Inferno ── -->
+            <div class="style-card style-inferno"
+                 [class.style-selected]="cardStyleChoice === 'inferno'"
+                 (click)="setCardStyle('inferno')">
+              <div class="style-preview">
+                <svg class="style-arc" viewBox="0 0 64 64" fill="none">
+                  <circle cx="32" cy="32" r="26" stroke="rgba(255,107,0,0.12)" stroke-width="4"
+                          stroke-linecap="round" stroke-dasharray="122" stroke-dashoffset="0"
+                          transform="rotate(-135 32 32)"/>
+                  <circle cx="32" cy="32" r="26" stroke="url(#ig1)" stroke-width="4"
+                          stroke-linecap="round" stroke-dasharray="122" stroke-dashoffset="50"
+                          transform="rotate(-135 32 32)"/>
+                  <defs>
+                    <linearGradient id="ig1" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%"   stop-color="#FF6B00"/>
+                      <stop offset="100%" stop-color="#FFD700"/>
+                    </linearGradient>
+                  </defs>
+                  <text x="32" y="30" text-anchor="middle" fill="#FF8C00"
+                        font-size="14" font-weight="900">7</text>
+                  <text x="32" y="40" text-anchor="middle" fill="rgba(255,255,255,0.4)"
+                        font-size="6" font-weight="700" letter-spacing="1">LVL</text>
+                </svg>
+                <div class="style-bar-wrap">
+                  <div class="style-bar">
+                    <div class="style-bar-fill style-bar-inferno" style="width:42%"></div>
+                  </div>
+                  <div class="style-meta">
+                    <span>4,200 / 10,000 XP</span>
+                    <span style="color:#FF8C00">42%</span>
+                  </div>
+                </div>
+              </div>
+              <div class="style-footer">
+                <span class="style-dot" style="background:#FF6B00"></span>
+                <span class="style-name">Inferno</span>
+                <svg *ngIf="cardStyleChoice === 'inferno'" width="14" height="14" viewBox="0 0 14 14" fill="none" class="style-check">
+                  <circle cx="7" cy="7" r="7" fill="#FF6B00" fill-opacity="0.15"/>
+                  <path d="M3.5 7l2.5 2.5 4.5-5" stroke="#FF6B00" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- ── Phantom ── -->
+            <div class="style-card style-phantom"
+                 [class.style-selected]="cardStyleChoice === 'phantom'"
+                 (click)="setCardStyle('phantom')">
+              <div class="style-preview">
+                <svg class="style-arc" viewBox="0 0 64 64" fill="none">
+                  <circle cx="32" cy="32" r="26" stroke="rgba(184,69,245,0.12)" stroke-width="4"
+                          stroke-linecap="round" stroke-dasharray="122" stroke-dashoffset="0"
+                          transform="rotate(-135 32 32)"/>
+                  <circle cx="32" cy="32" r="26" stroke="url(#pg1)" stroke-width="4"
+                          stroke-linecap="round" stroke-dasharray="122" stroke-dashoffset="20"
+                          transform="rotate(-135 32 32)"/>
+                  <defs>
+                    <linearGradient id="pg1" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%"   stop-color="#B845F5"/>
+                      <stop offset="100%" stop-color="#FF2D78"/>
+                    </linearGradient>
+                  </defs>
+                  <text x="32" y="30" text-anchor="middle" fill="#D070FF"
+                        font-size="14" font-weight="900">25</text>
+                  <text x="32" y="40" text-anchor="middle" fill="rgba(255,255,255,0.4)"
+                        font-size="6" font-weight="700" letter-spacing="1">LVL</text>
+                </svg>
+                <div class="style-bar-wrap">
+                  <div class="style-bar">
+                    <div class="style-bar-fill style-bar-phantom" style="width:84%"></div>
+                  </div>
+                  <div class="style-meta">
+                    <span>8,400 / 10,000 XP</span>
+                    <span style="color:#D070FF">84%</span>
+                  </div>
+                </div>
+              </div>
+              <div class="style-footer">
+                <span class="style-dot" style="background:#B845F5"></span>
+                <span class="style-name">Phantom</span>
+                <svg *ngIf="cardStyleChoice === 'phantom'" width="14" height="14" viewBox="0 0 14 14" fill="none" class="style-check">
+                  <circle cx="7" cy="7" r="7" fill="#B845F5" fill-opacity="0.15"/>
+                  <path d="M3.5 7l2.5 2.5 4.5-5" stroke="#B845F5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+
           </div>
-          <div class="style-meta">
-            <span>6,800 / 10,000 XP</span>
-            <span style="color:#00D4FF">68%</span>
+
+          <div class="style-active-hint">
+            Currently selected:
+            <span class="style-active-badge"
+                  [style.color]="cardStyleChoice === 'crystal' ? '#00D4FF' : cardStyleChoice === 'inferno' ? '#FF8C00' : '#D070FF'"
+                  [style.borderColor]="cardStyleChoice === 'crystal' ? 'rgba(0,212,255,0.3)' : cardStyleChoice === 'inferno' ? 'rgba(255,107,0,0.3)' : 'rgba(184,69,245,0.3)'">
+              {{ cardStyleChoice | titlecase }}
+            </span>
           </div>
         </div>
-      </div>
- 
-      <div class="style-footer">
-        <span class="style-dot" style="background:#00D4FF"></span>
-        <span class="style-name">Crystal</span>
-        <svg *ngIf="cardStyleChoice === 'crystal'" width="14" height="14" viewBox="0 0 14 14" fill="none" class="style-check">
-          <circle cx="7" cy="7" r="7" fill="#00D4FF" fill-opacity="0.15"/>
-          <path d="M3.5 7l2.5 2.5 4.5-5" stroke="#00D4FF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-    </div>
- 
-    <!-- ── Inferno ────────────────────────────────────────────────────── -->
-    <div class="style-card style-inferno"
-         [class.style-selected]="cardStyleChoice === 'inferno'"
-         (click)="setCardStyle('inferno')">
- 
-      <div class="style-preview">
-        <svg class="style-arc" viewBox="0 0 64 64" fill="none">
-          <circle cx="32" cy="32" r="26" stroke="rgba(255,107,0,0.12)" stroke-width="4"
-                  stroke-linecap="round"
-                  stroke-dasharray="122" stroke-dashoffset="0"
-                  transform="rotate(-135 32 32)"/>
-          <circle cx="32" cy="32" r="26" stroke="url(#ig1)" stroke-width="4"
-                  stroke-linecap="round"
-                  stroke-dasharray="122" stroke-dashoffset="50"
-                  transform="rotate(-135 32 32)"/>
-          <defs>
-            <linearGradient id="ig1" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%"   stop-color="#FF6B00"/>
-              <stop offset="100%" stop-color="#FFD700"/>
-            </linearGradient>
-          </defs>
-          <text x="32" y="30" text-anchor="middle" fill="#FF8C00"
-                font-size="14" font-weight="900">7</text>
-          <text x="32" y="40" text-anchor="middle" fill="rgba(255,255,255,0.4)"
-                font-size="6" font-weight="700" letter-spacing="1">LVL</text>
-        </svg>
- 
-        <div class="style-bar-wrap">
-          <div class="style-bar">
-            <div class="style-bar-fill style-bar-inferno" style="width:42%"></div>
-          </div>
-          <div class="style-meta">
-            <span>4,200 / 10,000 XP</span>
-            <span style="color:#FF8C00">42%</span>
-          </div>
-        </div>
-      </div>
- 
-      <div class="style-footer">
-        <span class="style-dot" style="background:#FF6B00"></span>
-        <span class="style-name">Inferno</span>
-        <svg *ngIf="cardStyleChoice === 'inferno'" width="14" height="14" viewBox="0 0 14 14" fill="none" class="style-check">
-          <circle cx="7" cy="7" r="7" fill="#FF6B00" fill-opacity="0.15"/>
-          <path d="M3.5 7l2.5 2.5 4.5-5" stroke="#FF6B00" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-    </div>
- 
-    <!-- ── Phantom ────────────────────────────────────────────────────── -->
-    <div class="style-card style-phantom"
-         [class.style-selected]="cardStyleChoice === 'phantom'"
-         (click)="setCardStyle('phantom')">
- 
-      <div class="style-preview">
-        <svg class="style-arc" viewBox="0 0 64 64" fill="none">
-          <circle cx="32" cy="32" r="26" stroke="rgba(184,69,245,0.12)" stroke-width="4"
-                  stroke-linecap="round"
-                  stroke-dasharray="122" stroke-dashoffset="0"
-                  transform="rotate(-135 32 32)"/>
-          <circle cx="32" cy="32" r="26" stroke="url(#pg1)" stroke-width="4"
-                  stroke-linecap="round"
-                  stroke-dasharray="122" stroke-dashoffset="20"
-                  transform="rotate(-135 32 32)"/>
-          <defs>
-            <linearGradient id="pg1" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%"   stop-color="#B845F5"/>
-              <stop offset="100%" stop-color="#FF2D78"/>
-            </linearGradient>
-          </defs>
-          <text x="32" y="30" text-anchor="middle" fill="#D070FF"
-                font-size="14" font-weight="900">25</text>
-          <text x="32" y="40" text-anchor="middle" fill="rgba(255,255,255,0.4)"
-                font-size="6" font-weight="700" letter-spacing="1">LVL</text>
-        </svg>
- 
-        <div class="style-bar-wrap">
-          <div class="style-bar">
-            <div class="style-bar-fill style-bar-phantom" style="width:84%"></div>
-          </div>
-          <div class="style-meta">
-            <span>8,400 / 10,000 XP</span>
-            <span style="color:#D070FF">84%</span>
-          </div>
-        </div>
-      </div>
- 
-      <div class="style-footer">
-        <span class="style-dot" style="background:#B845F5"></span>
-        <span class="style-name">Phantom</span>
-        <svg *ngIf="cardStyleChoice === 'phantom'" width="14" height="14" viewBox="0 0 14 14" fill="none" class="style-check">
-          <circle cx="7" cy="7" r="7" fill="#B845F5" fill-opacity="0.15"/>
-          <path d="M3.5 7l2.5 2.5 4.5-5" stroke="#B845F5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-    </div>
- 
-  </div>
-  <!-- Selected style chip -->
-  <div class="style-active-hint">
-    Currently selected:
-    <span class="style-active-badge"
-          [style.color]="cardStyleChoice === 'crystal' ? '#00D4FF' : cardStyleChoice === 'inferno' ? '#FF8C00' : '#D070FF'"
-          [style.borderColor]="cardStyleChoice === 'crystal' ? 'rgba(0,212,255,0.3)' : cardStyleChoice === 'inferno' ? 'rgba(255,107,0,0.3)' : 'rgba(184,69,245,0.3)'">
-      {{ cardStyleChoice | titlecase }}
-    </span>
-  </div>
-</div>
+
         <div class="form-footer">
           <button type="button" class="btn-ghost" (click)="showLevelForm.set(false)">Cancel</button>
           <button type="submit" class="btn-save" [disabled]="saving()">

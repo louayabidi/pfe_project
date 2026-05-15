@@ -2,7 +2,7 @@
 
   <div class="page-header">
     <div class="header-left">
-      <h1 class="page-title">Mes Applications</h1>
+      <h1 class="page-title">My Apps</h1>
       <p class="page-sub">
         Gérez vos apps
         <span class="sub-badge">{{ apps().length }} apps</span>
@@ -32,6 +32,7 @@
       [isCopied]="copiedKey() === app.id"
       (copy)="copyApiKey($event)"
       (delete)="deleteApp($event)"
+      (update)="onAppUpdated($event)"
       (rules)="goToRules($event)">
     </app-card>
   </div>

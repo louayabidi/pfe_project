@@ -1,6 +1,8 @@
 package com.gamification.backend.config;
 
 import com.gamification.backend.filter.JwtFilter;
+import com.gamification.backend.security.OAuth2SuccessHandler;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,13 +25,15 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
-
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/oauth2/**").permitAll()        
+                .requestMatchers("/login/oauth2/**").permitAll()
                 // ── Public owner/user auth ────────────────────────────────
                 .requestMatchers("/api/auth/**").permitAll()
 
@@ -59,6 +63,11 @@ public class SecurityConfig {
 
                 .anyRequest().authenticated()
             )
+
+            .oauth2Login(oauth2 -> oauth2
+                .successHandler(oAuth2SuccessHandler)
+            )
+            
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

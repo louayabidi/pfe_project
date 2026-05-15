@@ -1,0 +1,118 @@
+<div class="features-wrapper">
+  <!-- Hero Section -->
+  <section class="features-hero">
+    <div class="hero-content" @fadeInUp>
+      <h1 class="hero-title">Powerful Features for Gamification</h1>
+      <p class="hero-subtitle">Everything you need to build engaging, rewarding experiences for your users</p>
+    </div>
+
+    <!-- Animated Background -->
+    <div class="hero-background">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+    </div>
+  </section>
+
+  <!-- Category Filter -->
+  <section class="filter-section">
+    <div class="filter-container">
+      <h2 class="filter-title">Browse by Category</h2>
+      <div class="category-buttons">
+        <button 
+          *ngFor="let category of categories"
+          [class.active]="selectedCategory === category.value"
+          (click)="selectCategory(category.value)"
+          class="category-btn"
+          [@staggerItem]>
+          <span class="cat-icon">{{ category.icon }}</span>
+          <span class="cat-label">{{ category.name }}</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Grid -->
+  <section class="features-section">
+    <div class="features-container">
+      <div 
+        *ngFor="let feature of filteredFeatures; let i = index"
+        class="feature-card"
+        [@staggerItem]
+        [style.--feature-delay]="i * 0.1 + 's'">
+        
+        <!-- Feature Icon -->
+        <div class="feature-icon-wrapper">
+          <span class="feature-icon">{{ feature.icon }}</span>
+          <div class="icon-bg"></div>
+        </div>
+
+        <!-- Feature Content -->
+        <div class="feature-content">
+          <h3 class="feature-title">{{ feature.title }}</h3>
+          <p class="feature-description">{{ feature.description }}</p>
+
+          <!-- Feature Details -->
+          <ul class="feature-details">
+            <li *ngFor="let detail of feature.details" class="detail-item">
+              <span class="detail-icon">✓</span>
+              <span class="detail-text">{{ detail }}</span>
+            </li>
+          </ul>
+
+          <!-- Learn More -->
+          <a href="#" class="learn-more">Learn more →</a>
+        </div>
+
+        <!-- Category Badge -->
+        <div class="feature-category">
+          <span class="cat-icon">{{ getCategoryIcon(feature.category) }}</span>
+          <span class="cat-name">{{ feature.category | titlecase }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredFeatures.length === 0" class="empty-state">
+      <p>No features found for this category</p>
+    </div>
+  </section>
+
+  <!-- Comparison Section -->
+  <section class="comparison-section">
+    <h2 class="section-title">Feature Highlights</h2>
+    
+    <div class="highlight-grid">
+      <div class="highlight-card" *ngFor="let item of highlights; let i = index" [@fadeInUp] [style.--highlight-delay]="i * 0.15 + 's'">
+        <div class="highlight-icon">{{ item.icon }}</div>
+        <h3>{{ item.title }}</h3>
+        <p>{{ item.description }}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Integration Section -->
+  <section class="integration-section">
+    <h2 class="section-title">Seamless Integrations</h2>
+    <p class="section-subtitle">GamifKit works with your favorite tools</p>
+
+    <div class="integration-grid">
+      <div class="integration-card" *ngFor="let integration of integrations; let i = index" [@staggerItem] [style.--int-delay]="i * 0.12 + 's'">
+        <span class="int-icon">{{ integration.icon }}</span>
+        <span class="int-name">{{ integration.name }}</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="final-cta">
+    <div class="cta-content">
+      <h2>Ready to unlock your app's potential?</h2>
+      <p>Start building with GamifKit today</p>
+      <div class="cta-buttons">
+        <button class="btn-primary">Get Started Free</button>
+        <button class="btn-secondary">View Documentation</button>
+      </div>
+    </div>
+  </section>
+</div>

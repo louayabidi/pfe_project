@@ -11,9 +11,10 @@ public interface AppOwnerRepository extends JpaRepository<AppOwner, Long> {
 
     Optional<AppOwner> findByEmail(String email);
 
+    Optional<AppOwner> findByGoogleId(String googleId);
+
     boolean existsByEmail(String email);
 
-    // Used by AdminService for platform stats
     long countByActive(Boolean active);
 
     long countByVerified(Boolean verified);

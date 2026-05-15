@@ -43,18 +43,23 @@ export class RegisterComponent implements OnDestroy {
       return;
     }
 
+    
+
     this.loading.set(true);
     this.error.set(null);
 
-    this.authService.register(this.form.value)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: () => this.router.navigate(['/dashboard']),
-        error: (err: Error) => {
-          this.error.set(err.message);
-          this.loading.set(false);
-        }
-      });
+ this.authService.register(this.form.value)
+  .pipe(takeUntil(this.destroy$))
+  .subscribe({
+    next: () => {
+      this.loading.set(false);        
+      this.router.navigate(['/dashboard']);
+    },
+    error: (err: Error) => {
+      this.error.set(err.message);
+      this.loading.set(false);
+    }
+  });
   }
 
   get f() { return this.form.controls; }
@@ -63,4 +68,9 @@ export class RegisterComponent implements OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
+
+
+  loginWithGoogle(): void {
+  window.location.href = 'http://localhost:8081/oauth2/authorization/google';
+}
 }

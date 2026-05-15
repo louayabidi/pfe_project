@@ -15,6 +15,25 @@ const routes: Routes = [
     loadChildren: () =>
       import('./pages/home/home.module').then(m => m.HomeModule)
   },
+
+{
+  path: 'contact',
+  loadChildren: () =>
+    import('./pages/contact/contact.module').then(m => m.ContactModule)
+},
+
+  {
+  path: 'features',
+  loadChildren: () =>
+    import('./pages/features/features.module').then(m => m.FeaturesModule)
+},
+
+{
+  path: 'oauth2/callback',
+  loadChildren: () =>
+    import('./pages/oauth2-callback/oauth2-callback.module')
+      .then(m => m.OAuth2CallbackModule)
+},
   {
     path: 'login',
     loadChildren: () =>

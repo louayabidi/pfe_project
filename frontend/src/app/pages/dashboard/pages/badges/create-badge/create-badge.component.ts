@@ -1,5 +1,5 @@
 import { BadgeService } from './../../../../../services/badge.service';
-import {  Component, OnInit, OnDestroy, signal, inject, Injector } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject, Injector } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AppStateService } from 'src/app/services/app-state.service';
@@ -13,8 +13,12 @@ import { toObservable } from '@angular/core/rxjs-interop';
 })
 export class CreateBadgeComponent implements OnInit, OnDestroy {
   form!: FormGroup;
-  loading = signal(false);
-  error = signal<string | null>(null);
+  loading        = signal(false);
+  uploading      = signal(false);       // ← file upload in progress
+  error          = signal<string | null>(null);
+  uploadError    = signal<string | null>(null);
+  previewUrl     = signal<string | null>(null);  // ← local preview
+
   private readonly destroy$ = new Subject<void>();
   private injector = inject(Injector);
 
@@ -57,6 +61,67 @@ export class CreateBadgeComponent implements OnInit, OnDestroy {
       hidden:           [false],
       maxAwardsPerUser: [null]
     });
+
+    // When user types a URL manually, update the preview
+    this.form.get('imageUrl')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(url => {
+        this.previewUrl.set(url || null);
+        this.uploadError.set(null);
+      });
+  }
+
+  // ── File picker trigger ───────────────────────────────────────────────
+  triggerFilePicker(input: HTMLInputElement): void {
+    input.value = '';   // allow re-selecting same file
+    input.click();
+  }
+
+  // ── File selected from device ─────────────────────────────────────────
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file  = input.files?.[0];
+    if (!file) return;
+
+    // Client-side validation
+    const allowed = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
+    if (!allowed.includes(file.type)) {
+      this.uploadError.set('Type non supporté. Utilisez PNG, JPG, GIF ou WEBP.');
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      this.uploadError.set('Fichier trop volumineux (max 2 Mo).');
+      return;
+    }
+
+    // Show local preview immediately
+    const reader = new FileReader();
+    reader.onload = () => this.previewUrl.set(reader.result as string);
+    reader.readAsDataURL(file);
+
+    // Upload to backend
+    this.uploading.set(true);
+    this.uploadError.set(null);
+
+    this.badgeService.uploadImage(file)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (url) => {
+          this.form.get('imageUrl')!.setValue(url, { emitEvent: false });
+          this.uploading.set(false);
+        },
+        error: (err) => {
+          this.uploadError.set(err.error?.message || 'Échec du téléchargement.');
+          this.previewUrl.set(null);
+          this.uploading.set(false);
+        }
+      });
+  }
+
+  clearImage(): void {
+    this.form.get('imageUrl')!.setValue('');
+    this.previewUrl.set(null);
+    this.uploadError.set(null);
   }
 
   submit(): void {
@@ -76,9 +141,7 @@ export class CreateBadgeComponent implements OnInit, OnDestroy {
 
     this.badgeService.createBadge(appId, this.form.value).subscribe({
       next: () => {
-        this.router.navigate(['/dashboard/badges'], {
-          queryParams: { appId }
-        });
+        this.router.navigate(['/dashboard/badges'], { queryParams: { appId } });
       },
       error: (err) => {
         this.error.set(err.error?.message || 'Erreur lors de la création du badge');
@@ -87,9 +150,7 @@ export class CreateBadgeComponent implements OnInit, OnDestroy {
     });
   }
 
-  get appId(): number | null {
-    return this.appState.currentAppId();
-  }
+  get appId(): number | null { return this.appState.currentAppId(); }
 
   ngOnDestroy(): void {
     this.destroy$.next();

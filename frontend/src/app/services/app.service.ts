@@ -34,4 +34,8 @@ export class AppModelService {
    deleteApp(id: number): Observable<void> {
     return this.http.delete<void>(`${this.API}/${id}`);
   }
+
+  updateApp(id: number, payload: { name: string; description?: string }): Observable<AppModel> {
+  return this.http.put<AppModel>(`${this.API}/${id}`, payload);
+}
 }

@@ -106,32 +106,39 @@ public class AppService {
         return mapToResponse(app);
     }
     
-    @Transactional
-    public AppResponse updateApp(Long appId, CreateAppRequest request) {
-        AppOwner owner = getCurrentOwner();
-        
-        App app = appRepository.findById(appId)
-                .orElseThrow(() -> new RuntimeException("Application non trouvée avec ID: " + appId));
-        
-        // Vérifier que l'application appartient bien à l'owner connecté
-        if (!app.getOwner().getId().equals(owner.getId())) {
-            throw new RuntimeException("Vous n'êtes pas autorisé à modifier cette application");
-        }
-        
-        // Vérifier si le nouveau nom n'est pas déjà utilisé par une autre application du même owner
-        if (!app.getName().equals(request.getName()) && 
-            appRepository.existsByNameAndOwnerId(request.getName(), owner.getId())) {
-            throw new IllegalArgumentException("Une application avec ce nom existe déjà");
-        }
-        
-        app.setName(request.getName());
-        app.setDescription(request.getDescription());
-        
-        App updatedApp = appRepository.save(app);
-        log.info("Application mise à jour avec ID: {}", updatedApp.getId());
-        
-        return mapToResponse(updatedApp);
+   @Transactional
+public AppResponse updateApp(Long appId, CreateAppRequest request) {
+    AppOwner owner = getCurrentOwner();
+
+    // Use JOIN FETCH to avoid LazyInitializationException
+    App app = appRepository.findByIdWithOwner(appId)
+            .orElseThrow(() -> new RuntimeException("Application non trouvée avec ID: " + appId));
+
+    // Ownership check — throw SecurityException for 403 response
+    if (!app.getOwner().getId().equals(owner.getId())) {
+        throw new SecurityException("Vous n'êtes pas autorisé à modifier cette application");
     }
+
+    // Name uniqueness check — only if name actually changed
+    String newName = request.getName().trim();
+    if (!app.getName().equals(newName) &&
+        appRepository.existsByNameAndOwnerId(newName, owner.getId())) {
+        throw new IllegalArgumentException("Une application avec ce nom existe déjà");
+    }
+
+    // Apply changes
+    app.setName(newName);
+    app.setDescription(
+        request.getDescription() != null
+            ? request.getDescription().trim()
+            : null
+    );
+
+    App updated = appRepository.save(app);
+    log.info("Application mise à jour — id={} owner={}", updated.getId(), owner.getEmail());
+
+    return mapToResponse(updated);
+}
     
  @Transactional
 public void deleteApp(Long appId) {

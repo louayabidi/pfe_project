@@ -25,7 +25,8 @@ public class AppOwner {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(name = "password_hash", nullable = false)
+    // Nullable — Google users have no password
+    @Column(name = "password_hash" , nullable = true)
     private String password;
 
     @Column(name = "full_name")
@@ -34,6 +35,19 @@ public class AppOwner {
     @Column(name = "company_name")
     private String companyName;
 
+    // Profile picture URL from Google
+    @Column(name = "picture_url")
+    private String pictureUrl;
+
+    // AUTH_LOCAL | AUTH_GOOGLE
+    @Builder.Default
+    @Column(name = "auth_provider")
+    private String authProvider = "AUTH_LOCAL";
+
+    // Google's unique user ID — used to match returning Google users
+    @Column(name = "google_id", unique = true)
+    private String googleId;
+
     @Builder.Default
     @Column(name = "is_verified")
     private Boolean verified = false;
@@ -41,7 +55,6 @@ public class AppOwner {
     @Column(name = "verification_token")
     private String verificationToken;
 
-    // ── NEW: allows super admin to suspend an owner ───────────────────────────
     @Builder.Default
     @Column(name = "is_active")
     private Boolean active = true;
@@ -58,8 +71,8 @@ public class AppOwner {
     private LocalDateTime lastLogin;
 
     @Column(name = "verified_by_admin_email")
-private String verifiedByAdminEmail;
+    private String verifiedByAdminEmail;
 
-@Column(name = "verified_at")
-private LocalDateTime verifiedAt;
+    @Column(name = "verified_at")
+    private LocalDateTime verifiedAt;
 }

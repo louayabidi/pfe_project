@@ -46,4 +46,5 @@ public class SuperAdminInitializer implements ApplicationRunner {
         adminRepository.save(superAdmin);
         log.info("[SuperAdmin] ✅ Compte super admin créé: {}", superAdminEmail);
     }
+    
 }

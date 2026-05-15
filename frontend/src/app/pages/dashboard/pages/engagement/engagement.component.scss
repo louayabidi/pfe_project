@@ -187,12 +187,74 @@
 }
 
 // ── Buttons ───────────────────────────────────────────────────────────────────
+
+// ✅ UPDATED btn-primary — uiverse animated style
 .btn-primary {
-  display:inline-flex; align-items:center; gap:7px; padding:10px 20px;
-  background:var(--accent); color:#000; border:none; border-radius:var(--r);
-  font-family:var(--sans); font-size:13px; font-weight:600; cursor:pointer; transition:all var(--t);
-  &:hover{background:#33ddff;transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,212,255,.25);}
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 16px;
+  color: #000;
+  text-shadow: 1px 1px rgb(116, 116, 116);
+  text-transform: uppercase;
+  cursor: pointer;
+  border: solid 2px #000;
+  letter-spacing: 1px;
+  font-weight: 700;
+  font-size: 17px;
+  background-color: hsl(49deg 98% 60%);
+  border-radius: 50px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.5s ease;
+  font-family: var(--sans);
+  white-space: nowrap;
+
+  &:active {
+    transform: scale(0.9);
+    transition: all 100ms ease;
+  }
+
+  svg {
+    transition: all 0.5s ease;
+    z-index: 2;
+    flex-shrink: 0;
+   
+  }
+
+  .btn-play {
+    transition: all 0.5s ease;
+    transition-delay: 300ms;
+    z-index: 2;
+  }
+
+  .btn-now {
+    position: absolute;
+    left: 0;
+    transform: translateX(-100%);
+    transition: all 0.5s ease;
+    z-index: 2;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  &:hover svg {
+    transform: scale(3) translate(50%);
+  }
+
+  &:hover .btn-now {
+    transform: translateX(14px);
+    transition-delay: 300ms;
+  }
+
+  &:hover .btn-play {
+    transform: translateX(200%);
+    transition-delay: 300ms;
+  }
 }
+
 .btn-ghost {
   padding:9px 18px; background:transparent; border:1px solid var(--border-a); border-radius:var(--r);
   font-family:var(--sans); font-size:13px; color:var(--text-2); cursor:pointer; transition:all var(--t);
@@ -237,6 +299,7 @@
   .empty-icon{font-size:52px;animation:float 3s ease-in-out infinite;}
   h3{font-size:18px;font-weight:700;margin:0;color:var(--text-1);}
   p{font-size:13px;color:var(--text-2);margin:0;max-width:320px;}
+  .btn-primary { width: auto; }
 }
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 
@@ -246,7 +309,6 @@
   .config-grid{grid-template-columns:1fr;}
   .section-actions{flex-direction:column;align-items:flex-start;}
 }
-
 
 // ── Event picker ──────────────────────────────────────────────────────────────
 .selected-events {
@@ -290,7 +352,6 @@
 
 .empty-events { padding: 12px; text-align: center; }
 
-
 // ── Custom threshold builder ──────────────────────────────────────────────────
 .threshold-list {
   display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;
@@ -303,11 +364,7 @@
   padding: 10px 0;
 }
 
-
-// ── ADD TO END of engagement.component.scss ───────────────────────────────────
-
 // ── Card Style Picker ─────────────────────────────────────────────────────────
-
 .section-hint {
   font-size: 12px; color: var(--text-3); margin: 0 0 16px;
 }
@@ -334,7 +391,6 @@
   &:hover { border-color: var(--border-a); transform: translateY(-2px); }
 }
 
-// Per-style hover/selected tints
 .style-crystal {
   &:hover, &.style-selected {
     background: rgba(0, 212, 255, 0.06);
@@ -357,7 +413,6 @@
   }
 }
 
-// Preview area
 .style-preview {
   display: flex;
   align-items: center;
@@ -412,7 +467,6 @@
   color: var(--text-3);
 }
 
-// Footer row (dot + name + checkmark)
 .style-footer {
   display: flex;
   align-items: center;
@@ -443,7 +497,6 @@
   to   { transform: scale(1); opacity: 1; }
 }
 
-// Active hint below the picker
 .style-active-hint {
   font-family: var(--mono);
   font-size: 10px;
@@ -462,14 +515,6 @@
   background: transparent;
   transition: all var(--t);
 }
-
-// ── Card list chip update — show style in config-card ─────────────────────────
-// Add this alongside the existing .ms-chip rules.
-// In the HTML config-card, add:
-//   <span class="chip chip-style-{{ cfg.cardStyle ?? 'crystal' }}">
-//     {{ cfg.cardStyle === 'inferno' ? '🔥' : cfg.cardStyle === 'phantom' ? '👻' : '💎' }}
-//     {{ cfg.cardStyle ?? 'Crystal' | titlecase }}
-//   </span>
 
 .chip-style-crystal {
   background: rgba(0, 212, 255, 0.10);

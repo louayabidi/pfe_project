@@ -35,6 +35,10 @@ export class LoginComponent implements OnDestroy {
     });
   }
 
+  loginWithGoogle(): void {
+  window.location.href = 'http://localhost:8081/oauth2/authorization/google';
+}
+
   submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();

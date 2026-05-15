@@ -8,10 +8,20 @@ import com.gamification.backend.repository.AppRepository;
 import com.gamification.backend.repository.BadgeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -78,4 +88,50 @@ public class BadgeService {
                 .createdAt(badge.getCreatedAt())
                 .build();
     }
+
+
+   
+
+@Value("${app.upload-dir}")
+private String uploadDir;
+
+@Value("${app.base-url}")
+private String baseUrl;
+
+public String uploadImage(MultipartFile file) {
+    // Validate file type
+    String contentType = file.getContentType();
+    if (contentType == null ||
+        (!contentType.equals("image/png") &&
+         !contentType.equals("image/jpeg") &&
+         !contentType.equals("image/gif") &&
+         !contentType.equals("image/webp"))) {
+        throw new RuntimeException("Type de fichier non supporté. PNG, JPG, GIF, WEBP uniquement.");
+    }
+
+    // Validate file size (2 MB max)
+    if (file.getSize() > 2 * 1024 * 1024) {
+        throw new RuntimeException("Fichier trop volumineux. Maximum 2 Mo.");
+    }
+
+    try {
+        // Build unique filename
+        String ext = Objects.requireNonNull(file.getOriginalFilename())
+                            .replaceAll(".*\\.", ".");
+        String filename = UUID.randomUUID() + ext;
+
+        // Create directory if needed
+        Path dir = Paths.get(uploadDir).toAbsolutePath();
+        Files.createDirectories(dir);
+
+        // Save file
+        Path destination = dir.resolve(filename);
+        Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
+
+        return baseUrl + "/uploads/badges/" + filename;
+
+    } catch (IOException e) {
+        throw new RuntimeException("Échec de l'enregistrement du fichier", e);
+    }
+}
 }

@@ -1,0 +1,224 @@
+<div class="page" [class.loaded]="isLoaded">
+
+  <!-- ══════════════════════ AMBIENT ══════════════════════ -->
+  <div class="orb orb--violet"></div>
+  <div class="orb orb--rose"></div>
+  <div class="noise"></div>
+
+  <!-- ══════════════════════ HERO ══════════════════════════ -->
+  <section class="contact-hero">
+    <div class="container">
+
+      <div class="hero-eyebrow reveal" style="--d:0.05s">
+        <span class="eyebrow-pill">
+          <span class="live-dot"></span>
+          Support team online
+        </span>
+      </div>
+
+      <h1 class="hero-title reveal" style="--d:0.2s">
+        Let's talk.<br>
+        <span class="title-accent">We don't bite.</span>
+      </h1>
+
+      <p class="hero-sub reveal" style="--d:0.35s">
+        A question, a bug, an enterprise deal —<br>
+        whatever it is, we'll reply faster than you expect.
+      </p>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════ CHANNELS ══════════════════════ -->
+  <section class="channels-section">
+    <div class="container">
+      <div class="channels-grid">
+        <a *ngFor="let ch of channels; let i = index"
+           [href]="ch.href"
+           class="channel-card anim"
+           [style.--i]="i">
+          <span class="ch-icon">{{ ch.icon }}</span>
+          <div class="ch-body">
+            <span class="ch-label">{{ ch.label }}</span>
+            <span class="ch-detail">{{ ch.detail }}</span>
+          </div>
+          <span class="ch-tag">{{ ch.tag }}</span>
+          <svg class="ch-arrow" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor"
+                  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════ FORM ═══════════════════════════ -->
+  <section class="form-section">
+    <div class="container">
+      <div class="form-layout">
+
+        <!-- Left: info sidebar -->
+        <aside class="form-sidebar anim" style="--i:0">
+          <h2 class="sidebar-title">Send a message</h2>
+          <p class="sidebar-sub">
+            Fill in the form and we'll get back to you within
+            <strong>one business day</strong>. Usually much faster.
+          </p>
+
+          <ul class="sidebar-list">
+            <li>
+              <span class="sl-icon">🔒</span>
+              Your data is never shared or sold
+            </li>
+            <li>
+              <span class="sl-icon">🌍</span>
+              Support available in EN · FR · AR
+            </li>
+            <li>
+              <span class="sl-icon">⚙️</span>
+              SDK questions get dev-level answers
+            </li>
+          </ul>
+
+          <div class="sidebar-tag">GamifKit — built by developers</div>
+        </aside>
+
+        <!-- Right: the form -->
+        <div class="form-wrap anim" style="--i:1">
+
+          <!-- Success state -->
+          <div class="success-state" *ngIf="submitSuccess">
+            <div class="success-icon">✓</div>
+            <h3>Message received!</h3>
+            <p>We'll be in touch soon. Check your inbox.</p>
+            <button class="btn-ghost" (click)="submitSuccess = false">
+              Send another
+            </button>
+          </div>
+
+          <!-- Form -->
+          <form
+            *ngIf="!submitSuccess"
+            [formGroup]="contactForm"
+            (ngSubmit)="onSubmit()"
+            novalidate>
+
+            <!-- Name + Email row -->
+            <div class="field-row">
+
+              <div class="field" [class.field--error]="formSubmitted && f['name'].errors">
+                <label class="field-label" for="name">Full name</label>
+                <input
+                  id="name"
+                  class="field-input"
+                  type="text"
+                  placeholder="Ada Lovelace"
+                  formControlName="name"
+                  autocomplete="name">
+                <span class="field-err" *ngIf="formSubmitted && f['name'].errors">
+                  Please enter your name
+                </span>
+              </div>
+
+              <div class="field" [class.field--error]="formSubmitted && f['email'].errors">
+                <label class="field-label" for="email">Email address</label>
+                <input
+                  id="email"
+                  class="field-input"
+                  type="email"
+                  placeholder="ada@acme.io"
+                  formControlName="email"
+                  autocomplete="email">
+                <span class="field-err" *ngIf="formSubmitted && f['email'].errors">
+                  Valid email required
+                </span>
+              </div>
+
+            </div>
+
+            <!-- Topic -->
+            <div class="field">
+              <label class="field-label" for="topic">Topic</label>
+              <div class="select-wrap">
+                <select id="topic" class="field-select" formControlName="topic">
+                  <option *ngFor="let t of topics" [value]="t.value">{{ t.label }}</option>
+                </select>
+                <svg class="select-caret" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5"
+                        stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Message -->
+            <div class="field" [class.field--error]="formSubmitted && f['message'].errors">
+              <label class="field-label" for="message">Message</label>
+              <textarea
+                id="message"
+                class="field-textarea"
+                rows="5"
+                placeholder="Tell us what's on your mind…"
+                formControlName="message">
+              </textarea>
+              <span class="field-err" *ngIf="formSubmitted && f['message'].errors">
+                Message must be at least 10 characters
+              </span>
+            </div>
+
+            <!-- Submit -->
+            <button
+              type="submit"
+              class="btn-primary"
+              [class.btn--loading]="isSubmitting"
+              [disabled]="isSubmitting">
+              <span class="btn-text">
+                {{ isSubmitting ? 'Sending…' : 'Send message' }}
+              </span>
+              <span class="btn-icon" *ngIf="!isSubmitting">
+                <svg viewBox="0 0 20 20" fill="none">
+                  <path d="M4 10h12M12 6l4 4-4 4" stroke="currentColor"
+                        stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span class="btn-spinner" *ngIf="isSubmitting"></span>
+              <span class="btn-shine"></span>
+            </button>
+
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════ FAQ STRIP ═════════════════════ -->
+  <section class="faq-section anim" style="--i:0">
+    <div class="container">
+      <p class="faq-label">Common questions</p>
+      <div class="faq-grid">
+
+        <div class="faq-item">
+          <h4>How fast is the SDK?</h4>
+          <p>Event processing averages under 10 ms. Rewards are pushed back to the SDK via WebSocket instantly.</p>
+        </div>
+
+        <div class="faq-item">
+          <h4>Is there a free plan?</h4>
+          <p>Yes — free forever for indie projects up to 5 000 events/day. No credit card needed.</p>
+        </div>
+
+        <div class="faq-item">
+          <h4>Do you support React or Vue?</h4>
+          <p>Flutter is our primary SDK. REST API & webhooks let you wire any frontend in minutes.</p>
+        </div>
+
+        <div class="faq-item">
+          <h4>Where is data stored?</h4>
+          <p>PostgreSQL on EU servers by default. Custom regions available on Enterprise plans.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</div>

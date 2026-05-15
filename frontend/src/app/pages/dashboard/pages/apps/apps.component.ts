@@ -41,6 +41,14 @@ export class AppsComponent implements OnInit {
     });
   }
 
+
+
+  onAppUpdated(updated: AppModel): void {
+  this.apps.update(list =>
+    list.map(a => a.id === updated.id ? updated : a)
+  );
+}
+
   copyApiKey(app: AppModel): void {
     navigator.clipboard.writeText(app.apiKey);
     this.copiedKey.set(app.id);

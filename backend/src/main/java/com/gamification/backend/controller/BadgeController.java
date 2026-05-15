@@ -10,7 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.multipart.MultipartFile;
+import java.util.Map;
 import java.util.List;
 
 @RestController
@@ -62,4 +63,15 @@ public class BadgeController {
         badgeService.deleteBadge(badgeId);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/upload-image")
+public ResponseEntity<Map<String, String>> uploadImage(
+        @RequestHeader("Authorization") String token,
+        @RequestParam("file") MultipartFile file) {
+
+    extractEmail(token); // validates token is present and valid
+
+    String url = badgeService.uploadImage(file);
+    return ResponseEntity.ok(Map.of("url", url));
+}
 }

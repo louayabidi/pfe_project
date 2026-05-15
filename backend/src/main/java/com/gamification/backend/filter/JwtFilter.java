@@ -36,7 +36,9 @@ public class JwtFilter extends OncePerRequestFilter {
       "/api/levels/config/",      
     "/api/streaks/config/" ,
     "/api/levels/user/",    
-"/api/streaks/user/"    
+"/api/streaks/user/"    ,
+"/oauth2/",         
+    "/login/oauth2/" 
        
     );
 

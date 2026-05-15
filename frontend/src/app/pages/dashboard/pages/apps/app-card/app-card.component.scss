@@ -6,7 +6,7 @@
   background: #0f1117;
   border: 1px solid #1e2130;
   border-radius: 16px;
-  overflow: hidden;
+  overflow: visible; // ← changed from hidden so radial buttons don't get clipped
   display: flex;
   flex-direction: column;
   transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
@@ -127,22 +127,186 @@
   letter-spacing: 0.5px;
 }
 
-.toggle-btn,
-.copy-btn {
-  background: #1e2130;
-  border: 1px solid #2a2f45;
-  border-radius: 6px;
-  color: #94a3b8;
-  font-size: 11px;
-  cursor: pointer;
-  padding: 4px 8px;
-  transition: all 0.15s;
-  white-space: nowrap;
-  flex-shrink: 0;
+// ── LOCK TOGGLE ───────────────────────────────────
+.lock-input {
+  display: none;
+}
 
-  &:hover {
-    background: #2a2f45;
-    color: #f1f5f9;
+.btn-lock {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #6366f1;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+
+  svg {
+    fill: none;
+    transform: translate3d(0, 0, 0);
+  }
+
+  .bling {
+    stroke: #fff;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-dasharray: 3;
+    stroke-dashoffset: 15;
+    transition: all 0.3s ease;
+  }
+
+  .lock {
+    stroke: #fff;
+    stroke-width: 4;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    stroke-dasharray: 36;
+    transition: all 0.4s ease;
+  }
+
+  .lockb {
+    fill: #fff;
+    fill-rule: evenodd;
+    clip-rule: evenodd;
+    transform: rotate(8deg);
+    transform-origin: 14px 20px;
+    transition: all 0.2s ease;
+  }
+}
+
+.lock-input:checked + .btn-lock {
+  background: #22c55e;
+
+  .bling {
+    animation: bling6132 0.3s linear forwards;
+    animation-delay: 0.2s;
+  }
+
+  .lock {
+    stroke-dasharray: 48;
+    animation: locked 0.3s linear forwards;
+  }
+
+  .lockb {
+    transform: rotate(0);
+    transform-origin: 14px 22px;
+  }
+}
+
+@keyframes bling6132 {
+  50%  { stroke-dasharray: 3; stroke-dashoffset: 12; }
+  100% { stroke-dasharray: 3; stroke-dashoffset: 9; }
+}
+
+@keyframes locked {
+  50% { transform: translateY(1px); }
+}
+
+// ── COPY BUTTON ───────────────────────────────────
+.copy {
+  --button-bg: #1e2130;
+  --button-hover-bg: #6366f1;
+  --button-text-color: #94a3b8;
+  --button-hover-text-color: #fff;
+  --button-border-radius: 8px;
+  --button-diameter: 32px;
+  --tooltip-bg: #2a2f45;
+  --tooltip-font-family: 'Courier New', monospace;
+  --tooltip-font-size: 11px;
+  --tootip-text-color: #e2e8f0;
+  --tooltip-padding-x: 7px;
+  --tooltip-padding-y: 6px;
+  --tooltip-offset: 8px;
+
+  box-sizing: border-box;
+  width: var(--button-diameter);
+  height: var(--button-diameter);
+  border-radius: var(--button-border-radius);
+  background-color: var(--button-bg);
+  color: var(--button-text-color);
+  border: 1px solid #2a2f45;
+  cursor: pointer;
+  position: relative;
+  outline: none;
+  flex-shrink: 0;
+  transition: all 0.15s;
+
+  .tooltip {
+    position: absolute;
+    opacity: 0;
+    visibility: hidden;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: var(--tooltip-font-size);
+    font-family: var(--tooltip-font-family);
+    color: var(--tootip-text-color);
+    background: var(--tooltip-bg);
+    padding: var(--tooltip-padding-y) var(--tooltip-padding-x);
+    border-radius: 4px;
+    pointer-events: none;
+
+    &::before { content: attr(data-text-initial); }
+
+    &::after {
+      content: "";
+      position: absolute;
+      bottom: calc(var(--tooltip-padding-y) / 2 * -1);
+      width: var(--tooltip-padding-y);
+      height: var(--tooltip-padding-y);
+      background: inherit;
+      left: 50%;
+      transform: translateX(-50%) rotate(45deg);
+      z-index: -1;
+      pointer-events: none;
+    }
+  }
+
+  svg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .checkmark { display: none; }
+
+  &:hover .tooltip,
+  &:focus:not(:focus-visible) .tooltip {
+    opacity: 1;
+    visibility: visible;
+    top: calc((100% + var(--tooltip-offset)) * -1);
+  }
+
+  &:focus:not(:focus-visible) {
+    .tooltip::before { content: attr(data-text-end); }
+    .clipboard { display: none; }
+    .checkmark { display: block; }
+  }
+
+  &:hover,
+  &:focus {
+    background-color: var(--button-hover-bg);
+    color: var(--button-hover-text-color);
+  }
+
+  &:active {
+    outline: 1px solid #4f46e5;
+  }
+
+  &.copied {
+    background: rgba(34, 197, 94, 0.15);
+    border-color: rgba(34, 197, 94, 0.3);
+    color: #22c55e;
+
+    .clipboard { display: none; }
+    .checkmark { display: block; }
   }
 }
 
@@ -174,6 +338,8 @@
   align-items: center;
   justify-content: space-between;
   background: #0a0c12;
+  border-radius: 0 0 16px 16px;
+  overflow: visible;
 }
 
 .created-at {
@@ -181,51 +347,110 @@
   color: #475569;
 }
 
-.footer-actions {
+// ── RADIAL BUTTON BOX ─────────────────────────────
+.button-box {
+  position: relative;
+  width: 10rem;
+  height: 4rem;
   display: flex;
-  gap: 8px;
-  align-items: center;
 }
 
-.btn-rules {
-  background: rgba(99, 102, 241, 0.1);
-  border: 1px solid rgba(99, 102, 241, 0.25);
-  color: #818cf8;
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
+.button-box .button {
+  width: 2.6rem;
+  height: 2.6rem;
+  position: absolute;
+  left: 50%;
+  top: 50%;
   cursor: pointer;
-  transition: all 0.15s;
-
-  &:hover {
-    background: rgba(99, 102, 241, 0.2);
-    border-color: rgba(99, 102, 241, 0.5);
-    color: #a5b4fc;
-  }
-}
-
-.btn-del {
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  color: #f87171;
-  width: 32px;
-  height: 32px;
+  border: 2px solid rgba(0, 0, 0, 0.25);
   border-radius: 8px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.15s;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  opacity: 0.85;
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.4);
 
-  &:hover:not(:disabled) {
-    background: rgba(239, 68, 68, 0.15);
-    border-color: rgba(239, 68, 68, 0.4);
+  .icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.85;
+    transition: 0.25s;
   }
 
-  &:disabled {
+  &.deleting {
     opacity: 0.4;
     cursor: not-allowed;
   }
+}
+
+// Rules — indigo
+.button-box .btn-rules-radial {
+  transform: translate(-50%, -50%);
+  z-index: 30;
+  background: #6366f1;
+}
+
+// Edit — amber
+.button-box .btn-edit-radial {
+  transform: translate(-50%, -50%);
+  z-index: 40;
+  background: #f59e0b;
+}
+
+// Delete — red
+.button-box .btn-del-radial {
+  transform: translate(-50%, -50%);
+  z-index: 50;
+  background: #ef4444;
+}
+
+// ── Touch zones ───────────────────────────────────
+.button-box .touch {
+  position: relative;
+  z-index: 60;
+  height: 100%;
+  flex: 1;
+  cursor: pointer;
+}
+
+// Left → Rules fans out left
+.button-box .touch.left:hover ~ .btn-rules-radial {
+  opacity: 1;
+  transform: translate(-175%, -50%) scale(1.08);
+  .icon { width: 18px; opacity: 1; }
+}
+.button-box .touch.left:active ~ .btn-rules-radial {
+  transform: translate(-175%, -50%) scale(0.92);
+}
+
+// Right → Edit fans out right
+.button-box .touch.right:hover ~ .btn-edit-radial {
+  opacity: 1;
+  transform: translate(75%, -50%) scale(1.08);
+  .icon { width: 18px; opacity: 1; }
+}
+.button-box .touch.right:active ~ .btn-edit-radial {
+  transform: translate(75%, -50%) scale(0.92);
+}
+
+// Middle → Delete stays center but pops
+.button-box .touch.middle:hover ~ .btn-del-radial {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.08);
+  .icon { width: 18px; opacity: 1; }
+}
+.button-box .touch.middle:active ~ .btn-del-radial {
+  transform: translate(-50%, -50%) scale(0.92);
+}
+
+// ── Expand all on box hover ───────────────────────
+.button-box:hover .btn-rules-radial {
+  transform: translate(-175%, -50%);
+}
+.button-box:hover .btn-edit-radial {
+  transform: translate(75%, -50%);
+}
+.button-box:hover .btn-del-radial {
+  transform: translate(-50%, -50%);
 }

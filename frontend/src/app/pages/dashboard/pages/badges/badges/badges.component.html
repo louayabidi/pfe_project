@@ -1,16 +1,3 @@
-<!-- 
-  ============================================================================
-  BADGES COMPONENT TEMPLATE (UPDATED)
-  ============================================================================
-  Location: src/app/pages/dashboard/pages/badges/badges/badges.component.html
-  
-  Features:
-  - App chooser when multiple apps (first time)
-  - App selector in header when app is selected
-  - Loading, error, and empty states
-  - Badge cards grid
--->
-
 <div class="badges-page">
 
   <!-- ── AMBIENT ────────────────────────────────────────────────────────── -->
@@ -21,15 +8,15 @@
   <!-- ── CHOOSE APP STATE ───────────────────────────────────────────────── -->
   <app-chooser></app-chooser>
 
-  <!-- ── MAIN CONTENT (only when app is selected) ──────────────────────── -->
+  <!-- ── MAIN CONTENT ──────────────────────────────────────────────────── -->
   <ng-container *ngIf="appState.currentAppId()">
 
     <!-- ── HEADER ─────────────────────────────────────────────────────── -->
     <header class="page-header">
-      <button class="back-btn"
-              [routerLink]="['/dashboard/apps']">
+      <button class="back-btn" [routerLink]="['/dashboard/apps']">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-          <path d="M9 12L5 7l4-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M9 12L5 7l4-5" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         Retour aux applications
       </button>
@@ -39,7 +26,8 @@
           <div class="breadcrumb">
             <span class="mono accent">APP #{{ appState.currentAppId() }}</span>
             <svg width="10" height="10" viewBox="0 0 10 10">
-              <path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+              <path d="M3 2l4 3-4 3" stroke="currentColor" stroke-width="1.5"
+                    fill="none" stroke-linecap="round"/>
             </svg>
             <span class="mono accent">Badges</span>
           </div>
@@ -50,13 +38,12 @@
           <p class="page-subtitle">Gérez les badges de votre application</p>
         </div>
 
-        <!-- App Selector in header -->
         <div class="header-selectors">
           <app-selector></app-selector>
-          
           <button class="btn-primary" (click)="goToCreate()">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round"/>
             </svg>
             Créer un badge
           </button>
@@ -64,9 +51,100 @@
       </div>
     </header>
 
+    <!-- ── TEMPLATE TOGGLE BAR ───────────────────────────────────────────── -->
+    <div class="tpl-bar">
+
+      <button class="uv-button" (click)="showTemplates.set(!showTemplates())">
+        <svg stroke-linejoin="round" stroke-linecap="round" fill="none"
+             stroke-width="2" stroke="currentColor" height="18" width="18"
+             viewBox="0 0 24 24">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        Suggestions
+        <span class="uv-count">{{ templates.length }}</span>
+        <svg class="uv-chevron" [class.open]="showTemplates()"
+             width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <div class="tpl-success" *ngIf="tplSuccess()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M2 7l4 4 6-6" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {{ tplSuccess() }}
+      </div>
+
+    </div>
+
+    <!-- ── TEMPLATE PANEL ────────────────────────────────────────────────── -->
+    <div class="tpl-panel" *ngIf="showTemplates()">
+
+      <div class="tpl-cats">
+        <button *ngFor="let cat of allCategories"
+                class="tpl-cat"
+                [class.active]="activeCategory() === cat"
+                (click)="activeCategory.set(cat)">
+          {{ cat }}
+        </button>
+      </div>
+
+      <div class="tpl-grid">
+        <div class="tpl-card"
+             *ngFor="let tpl of filteredTemplates"
+             [class.added]="isAlreadyAdded(tpl)"
+             [class.creating]="creatingFromTpl() === tpl.name">
+
+          <div class="tpl-card-top">
+            <div class="tpl-emoji">{{ tpl.emoji }}</div>
+            <span class="tpl-cat-tag">{{ tpl.category }}</span>
+          </div>
+
+          <div class="tpl-card-body">
+            <h4>{{ tpl.name }}</h4>
+            <p>{{ tpl.description }}</p>
+          </div>
+
+          <button class="uv-add-btn"
+                  [class.is-added]="isAlreadyAdded(tpl)"
+                  [disabled]="isAlreadyAdded(tpl) || !!creatingFromTpl()"
+                  (click)="createFromTemplate(tpl)">
+            <span class="uv-add-label">
+              <ng-container *ngIf="isAlreadyAdded(tpl)">Added ✓</ng-container>
+              <ng-container *ngIf="creatingFromTpl() === tpl.name">Adding...</ng-container>
+              <ng-container *ngIf="!isAlreadyAdded(tpl) && creatingFromTpl() !== tpl.name">Add Badge</ng-container>
+            </span>
+            <span class="uv-add-icon">
+              <span *ngIf="creatingFromTpl() === tpl.name" class="btn-spinner"></span>
+              <svg *ngIf="isAlreadyAdded(tpl)"
+                   fill="none" height="18" stroke="currentColor"
+                   stroke-linecap="round" stroke-linejoin="round"
+                   stroke-width="2.5" viewBox="0 0 24 24" width="18">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              <svg *ngIf="!isAlreadyAdded(tpl) && creatingFromTpl() !== tpl.name"
+                   fill="none" height="18" stroke="currentColor"
+                   stroke-linecap="round" stroke-linejoin="round"
+                   stroke-width="2" viewBox="0 0 24 24" width="18">
+                <line x1="12" x2="12" y1="5" y2="19"/>
+                <line x1="5"  x2="19" y1="12" y2="12"/>
+              </svg>
+            </span>
+          </button>
+
+        </div>
+      </div>
+
+    </div>
+
     <!-- ── CONTENT ────────────────────────────────────────────────────── -->
     <div class="content">
-      
+
       <!-- Loading -->
       <div class="loading-state" *ngIf="loading()">
         <div class="spinner"></div>
@@ -77,7 +155,8 @@
       <div class="error-state" *ngIf="error() && !loading()">
         <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
           <circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="2"/>
-          <path d="M24 14v8M24 28v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M24 14v8M24 28v2" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round"/>
         </svg>
         <h2>Erreur</h2>
         <p>{{ error() }}</p>
@@ -89,24 +168,27 @@
       <!-- Empty state -->
       <div class="empty-state" *ngIf="badges().length === 0 && !loading() && !error()">
         <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-          <path d="M32 4l6 16h17l-14 10 5 16-14-11-14 11 5-16-14-10h17l6-16z" 
+          <path d="M32 4l6 16h17l-14 10 5 16-14-11-14 11 5-16-14-10h17l6-16z"
                 stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/>
         </svg>
         <h2>Aucun badge</h2>
         <p>Vous n'avez pas encore créé de badge</p>
         <button class="btn-primary" (click)="goToCreate()">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round"/>
           </svg>
           Créer le premier badge
         </button>
       </div>
 
-      <!-- Badges list -->
+      <!-- Badges grid -->
       <div class="badges-grid" *ngIf="badges().length > 0 && !loading()">
         <div class="badge-card" *ngFor="let badge of badges()">
+
           <div class="badge-header">
-            <div class="badge-image" [ngStyle]="{ 'background-image': 'url(' + badge.imageUrl + ')' }">
+            <div class="badge-image"
+                 [ngStyle]="{ 'background-image': badge.imageUrl ? 'url(' + badge.imageUrl + ')' : 'none' }">
               <div class="badge-placeholder" *ngIf="!badge.imageUrl">🏅</div>
             </div>
             <div class="badge-meta">
@@ -115,9 +197,7 @@
             </div>
           </div>
 
-          <p class="badge-desc" *ngIf="badge.description">
-            {{ badge.description }}
-          </p>
+          <p class="badge-desc" *ngIf="badge.description">{{ badge.description }}</p>
 
           <div class="badge-stats">
             <div class="stat" *ngIf="badge.maxAwardsPerUser">
@@ -127,17 +207,23 @@
             <div class="stat" *ngIf="badge.hidden" [class.hidden]="true">
               <span class="stat-label">Masqué</span>
               <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
-                <path d="M6 2C3.5 2 1.3 3.4 0.6 5.4c-.2.6-.2 1.2 0 1.8.7 2 2.9 3.4 5.4 3.4s4.7-1.4 5.4-3.4c.2-.6.2-1.2 0-1.8C10.7 3.4 8.5 2 6 2zm0 5c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
+                <path d="M6 2C3.5 2 1.3 3.4 0.6 5.4c-.2.6-.2 1.2 0 1.8.7 2 2.9 3.4
+                         5.4 3.4s4.7-1.4 5.4-3.4c.2-.6.2-1.2 0-1.8C10.7 3.4 8.5 2
+                         6 2zm0 5c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
               </svg>
             </div>
           </div>
 
-          <button class="btn-delete" (click)="deleteBadge(badge.id)" title="Supprimer ce badge">
+          <button class="btn-delete" (click)="deleteBadge(badge.id)"
+                  title="Supprimer ce badge">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M2 3h10M5.5 5v6M8.5 5v6M3 3l0.5 9c0 0.5 0.5 1 1 1h5c0.5 0 1-0.5 1-1l0.5-9" 
-                    stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 3h10M5.5 5v6M8.5 5v6M3 3l0.5 9c0 0.5 0.5 1 1 1h5
+                       c0.5 0 1-0.5 1-1l0.5-9"
+                    stroke="currentColor" stroke-width="1.2"
+                    stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </button>
+
         </div>
       </div>
 

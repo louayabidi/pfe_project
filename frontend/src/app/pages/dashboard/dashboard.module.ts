@@ -34,6 +34,7 @@ import { AiEngineComponent } from './pages/ai-engine/ai-engine.component';
 import { GamifPageBuilderComponent } from './pages/gamif-page-builder/gamif-page-builder.component';
 import { SettingsComponent } from './pages/settings/settings.component';
 import { EngagementComponent } from './pages/engagement/engagement.component';
+import { EditAppModalComponent } from './pages/apps/edit-app-modal/edit-app-modal.component';
 
 @NgModule({
   declarations: [
@@ -62,6 +63,7 @@ import { EngagementComponent } from './pages/engagement/engagement.component';
     GamifPageBuilderComponent,
     SettingsComponent,
     EngagementComponent,
+    EditAppModalComponent,
     
 
   ],
