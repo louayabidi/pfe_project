@@ -246,20 +246,36 @@
             </button>
 
             <!-- Custom dropdown menu -->
-            <div class="badge-menu" *ngIf="badgeDropdownOpen()">
-              <div class="badge-option" (click)="clearBadge()">
-                — Choisir un badge —
-              </div>
-              <div class="badge-option"
-                   *ngFor="let badge of availableBadges()"
-                   (click)="selectBadge(badge)"
-                   [class.selected]="form.get('badgeId')?.value === badge.id">
-                <span class="badge-option-thumb" *ngIf="badge.imageUrl">
-                  <img [src]="badge.imageUrl" alt="{{ badge.name }}" />
-                </span>
-                <span class="badge-option-name">{{ badge.name }}</span>
-              </div>
-            </div>
+           <!-- Custom dropdown menu -->
+<div class="badge-menu" *ngIf="badgeDropdownOpen()">
+  <div class="badge-option" (click)="clearBadge()">
+    — Choisir un badge —
+  </div>
+  <div class="badge-option"
+       *ngFor="let badge of availableBadges()"
+       (click)="selectBadge(badge)"
+       [class.selected]="form.get('badgeId')?.value === badge.id">
+
+    <span class="badge-option-thumb" *ngIf="badge.imageUrl">
+      <img [src]="badge.imageUrl" [alt]="badge.name" />
+    </span>
+
+    <span class="badge-option-info">
+      <span class="badge-option-name">{{ badge.name }}</span>
+      <span class="badge-option-id">#{{ badge.id }}</span>
+    </span>
+
+    <span class="badge-check">
+      <svg *ngIf="form.get('badgeId')?.value === badge.id"
+           width="10" height="10" viewBox="0 0 10 10" fill="none">
+        <path d="M1.5 5l2.5 2.5 4.5-4.5"
+              stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+
+  </div>
+</div>
           </div>
 
           <span class="hint">{{ availableBadges().length }} badge(s) disponible(s)</span>

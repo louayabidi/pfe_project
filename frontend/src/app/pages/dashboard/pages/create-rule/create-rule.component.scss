@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap');
 
-// ── TOKENS (identiques à rules.component.scss) ──────────────────────────
+// ── TOKENS ───────────────────────────────────────────────────────────────────
 :root {
   --bg:             #080c10;
   --surface:        #0e1318;
@@ -34,7 +34,7 @@
   position: relative;
 }
 
-// ── AMBIENT ──────────────────────────────────────────────────────────────
+// ── AMBIENT ──────────────────────────────────────────────────────────────────
 .ambient-grid {
   position: fixed;
   inset: 0;
@@ -56,10 +56,10 @@
   }
 }
 
-.mono  { font-family: var(--mono); }
+.mono   { font-family: var(--mono); }
 .accent { color: var(--accent); }
 
-// ── PAGE ─────────────────────────────────────────────────────────────────
+// ── PAGE ─────────────────────────────────────────────────────────────────────
 .create-rule-page {
   position: relative;
   z-index: 1;
@@ -74,7 +74,7 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-// ── HEADER ────────────────────────────────────────────────────────────────
+// ── HEADER ────────────────────────────────────────────────────────────────────
 .page-header {
   margin-bottom: 36px;
 }
@@ -110,8 +110,7 @@
   margin-bottom: 10px;
 
   span, svg { color: var(--text-3); }
-
-  .mono { font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; }
+  .mono  { font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; }
   .accent { color: var(--accent) !important; }
 }
 
@@ -145,18 +144,20 @@
   margin: 0;
 }
 
-// ── FORM CONTAINER ────────────────────────────────────────────────────────
+// ── FORM CONTAINER ────────────────────────────────────────────────────────────
+// overflow: visible is CRITICAL — hidden clips the dropdowns
 .rule-form {
   background: var(--surface);
   border: 1px solid var(--border-active);
   border-radius: 20px;
-  overflow: hidden;
+  overflow: visible;
 }
 
-// ── FORM BLOCKS ───────────────────────────────────────────────────────────
+// ── FORM BLOCKS ───────────────────────────────────────────────────────────────
 .form-block {
   padding: 28px;
   border-bottom: 1px solid var(--border);
+  overflow: visible;
 
   &:last-of-type { border-bottom: none; }
 }
@@ -190,7 +191,7 @@
   }
 }
 
-// ── FIELD ROWS ────────────────────────────────────────────────────────────
+// ── FIELD ROWS ────────────────────────────────────────────────────────────────
 .field-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -199,7 +200,7 @@
 
 .field-grow { min-width: 0; }
 
-// ── FIELDS ────────────────────────────────────────────────────────────────
+// ── FIELDS ────────────────────────────────────────────────────────────────────
 .field {
   display: flex;
   flex-direction: column;
@@ -228,7 +229,7 @@
   }
 }
 
-// ── INPUT WRAP ────────────────────────────────────────────────────────────
+// ── INPUT WRAP ────────────────────────────────────────────────────────────────
 .input-wrap {
   position: relative;
 
@@ -299,7 +300,7 @@
   color: var(--danger);
 }
 
-// ── WARN CARD ─────────────────────────────────────────────────────────────
+// ── WARN CARD ─────────────────────────────────────────────────────────────────
 .warn-card {
   display: flex;
   gap: 12px;
@@ -335,7 +336,7 @@
   }
 }
 
-// ── REWARD TOGGLE ─────────────────────────────────────────────────────────
+// ── REWARD TOGGLE ─────────────────────────────────────────────────────────────
 .reward-toggle {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -436,9 +437,10 @@
   }
 }
 
-// ── REWARD CONFIG ─────────────────────────────────────────────────────────
+// ── REWARD CONFIG ─────────────────────────────────────────────────────────────
 .reward-config {
   animation: slide-in 0.2s ease;
+  overflow: visible;
 }
 
 @keyframes slide-in {
@@ -446,7 +448,7 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-// ── POINTS CONTROL ────────────────────────────────────────────────────────
+// ── POINTS CONTROL ────────────────────────────────────────────────────────────
 .pts-control {
   display: flex;
   align-items: center;
@@ -543,7 +545,7 @@
   }
 }
 
-// ── FOOTER ────────────────────────────────────────────────────────────────
+// ── FOOTER ────────────────────────────────────────────────────────────────────
 .form-footer {
   display: flex;
   align-items: center;
@@ -552,6 +554,7 @@
   padding: 20px 28px;
   background: var(--surface-2);
   border-top: 1px solid var(--border);
+  border-radius: 0 0 20px 20px;
 }
 
 .error-banner {
@@ -626,17 +629,17 @@
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-// ── RESPONSIVE ────────────────────────────────────────────────────────────
+// ── RESPONSIVE ────────────────────────────────────────────────────────────────
 @media (max-width: 600px) {
-  .create-rule-page { padding: 24px 16px 60px; }
-  .field-row { grid-template-columns: 1fr; }
-  .reward-toggle { grid-template-columns: 1fr; }
-  .form-footer { flex-direction: column; align-items: stretch; }
-  .footer-btns { justify-content: flex-end; }
+  .create-rule-page  { padding: 24px 16px 60px; }
+  .field-row         { grid-template-columns: 1fr; }
+  .reward-toggle     { grid-template-columns: 1fr; }
+  .form-footer       { flex-direction: column; align-items: stretch; }
+  .footer-btns       { justify-content: flex-end; }
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-// ── CUSTOM SELECT DROPDOWN (FIXED VERSION) ──────────────────────────────────
+// ── CUSTOM EVENT SELECT DROPDOWN ─────────────────────────────────────────────
 // ═════════════════════════════════════════════════════════════════════════════
 
 .custom-select-wrapper {
@@ -670,7 +673,7 @@
   }
 }
 
-// ── SELECT TRIGGER BUTTON ──────────────────────────────────────────────────
+// ── SELECT TRIGGER ────────────────────────────────────────────────────────────
 .select-trigger {
   display: flex;
   align-items: center;
@@ -711,49 +714,41 @@
     border-color: var(--accent);
     box-shadow: 0 0 0 3px rgba(0,212,255,0.1);
 
-    .select-arrow {
-      transform: rotate(180deg);
-    }
+    .select-arrow { transform: rotate(180deg); }
   }
 }
 
-// ── DROPDOWN MENU ──────────────────────────────────────────────────────────
+// ── EVENT DROPDOWN MENU ───────────────────────────────────────────────────────
 .select-menu {
   position: absolute;
   top: calc(100% + 6px);
   left: 0;
   right: 0;
-  background: #0e1318;
-  border: 1px solid rgba(100, 200, 255, 0.18);
-  border-radius: 8px;
+  background: #0a0f14;
+  border: 1px solid rgba(0,212,255,0.22);
+  border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.95);
-  z-index: 1000;
-  animation: dropdown-open 0.15s ease;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.9), 0 0 0 1px rgba(0,212,255,0.04);
+  z-index: 9999;
+  animation: dropdown-open 0.18s cubic-bezier(0.16,1,0.3,1);
   max-height: 280px;
   overflow-y: auto;
 }
- 
+
 @keyframes dropdown-open {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-// ── DROPDOWN OPTIONS ───────────────────────────────────────────────────────
+// ── EVENT OPTIONS ─────────────────────────────────────────────────────────────
 .select-option {
-  padding: 12px 13px;
+  padding: 11px 13px;
   font-size: 13px;
   font-weight: 500;
-  color: #e8f4ff;
-  background: #0e1318;
+  color: var(--text-2);
+  background: transparent;
   cursor: pointer;
-  border-bottom: 1px solid rgba(100, 200, 255, 0.08);
+  border-bottom: 1px solid rgba(100,200,255,0.06);
   display: block;
   width: 100%;
   text-align: left;
@@ -764,53 +759,50 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: all 0.15s ease;
- 
-  &:last-child {
-    border-bottom: none;
+  transition: all 0.12s ease;
+
+  &:last-child { border-bottom: none; }
+
+  &:first-child {
+    color: var(--text-3);
+    font-style: italic;
+    font-size: 12px;
   }
- 
-  &:hover {
-    background: #141b22;
-    color: #00d4ff;
-    font-weight: 600;
-    padding-left: 15px;
+
+  &:hover:not(:first-child) {
+    background: rgba(0,212,255,0.05);
+    color: var(--accent);
+    padding-left: 17px;
   }
- 
+
   &.selected {
-    background: rgba(0, 212, 255, 0.12);
-    color: #00d4ff;
+    background: rgba(0,212,255,0.1);
+    color: var(--accent);
     font-weight: 700;
-    border-left: 3px solid #00d4ff;
-    padding-left: 10px;
- 
-    &:hover {
-      background: rgba(0, 212, 255, 0.18);
-      padding-left: 15px;
-    }
+    border-left: 2px solid var(--accent);
+    padding-left: 11px;
+
+    &:hover { background: rgba(0,212,255,0.15); }
   }
 }
 
-// ── CUSTOM SCROLLBAR ───────────────────────────────────────────────────────
-.select-menu::-webkit-scrollbar {
-  width: 8px;
-}
+// ── SCROLLBAR (shared) ────────────────────────────────────────────────────────
+.select-menu::-webkit-scrollbar,
+.badge-menu::-webkit-scrollbar { width: 5px; }
 
-.select-menu::-webkit-scrollbar-track {
-  background: var(--surface);
-}
+.select-menu::-webkit-scrollbar-track,
+.badge-menu::-webkit-scrollbar-track { background: transparent; }
 
-.select-menu::-webkit-scrollbar-thumb {
+.select-menu::-webkit-scrollbar-thumb,
+.badge-menu::-webkit-scrollbar-thumb {
   background: var(--border-active);
-  border-radius: 4px;
+  border-radius: 3px;
 
-  &:hover {
-    background: rgba(100, 200, 255, 0.3);
-  }
+  &:hover { background: rgba(100,200,255,0.3); }
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-// ── BADGE SELECT DROPDOWN ───────────────────────────────────────────────────
+// ── BADGE SELECT DROPDOWN ─────────────────────────────────────────────────────
 // ═════════════════════════════════════════════════════════════════════════════
 
 .badge-select {
@@ -843,7 +835,7 @@
   }
 }
 
-// ── BADGE TRIGGER BUTTON ───────────────────────────────────────────────────
+// ── BADGE TRIGGER BUTTON ──────────────────────────────────────────────────────
 .badge-trigger {
   display: flex;
   align-items: center;
@@ -853,13 +845,14 @@
   background: var(--surface-2);
   border: 1px solid var(--border-active);
   border-radius: var(--radius-sm);
-  padding: 10px 13px;
+  padding: 10px 14px;
   font-size: 13px;
   font-family: var(--sans);
   color: var(--text-1);
   cursor: pointer;
   transition: all var(--t);
   text-align: left;
+  min-height: 48px;
 
   .trigger-badge {
     flex: 1;
@@ -867,32 +860,37 @@
     align-items: center;
     gap: 10px;
     min-width: 0;
-    overflow: hidden;
 
     .badge-thumbnail {
-      width: 24px;
-      height: 24px;
-      border-radius: 6px;
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
       flex-shrink: 0;
       overflow: hidden;
       background: var(--surface-3);
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-active);
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
       img {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: contain;
+        padding: 2px;
       }
     }
 
-    span {
+    .trigger-name {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      color: var(--text-1);
     }
 
     .no-selection {
       color: var(--text-3);
+      font-style: italic;
     }
   }
 
@@ -911,112 +909,131 @@
     border-color: var(--accent);
     box-shadow: 0 0 0 3px rgba(0,212,255,0.1);
 
-    .select-arrow {
-      transform: rotate(180deg);
-    }
+    .select-arrow { transform: rotate(180deg); }
   }
 }
 
-// ── BADGE DROPDOWN MENU ────────────────────────────────────────────────────
+// ── BADGE DROPDOWN MENU ───────────────────────────────────────────────────────
 .badge-menu {
   position: absolute;
   top: calc(100% + 6px);
   left: 0;
   right: 0;
-  background: #0e1318;
-  border: 1px solid rgba(100, 200, 255, 0.18);
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.95);
-  z-index: 1000;
-  animation: dropdown-open 0.15s ease;
-  max-height: 320px;
+  background: #0a0f14;
+  border: 1px solid rgba(0,212,255,0.22);
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.9), 0 0 0 1px rgba(0,212,255,0.04);
+  z-index: 9999;
+  animation: dropdown-open 0.18s cubic-bezier(0.16,1,0.3,1);
+  max-height: 340px;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
-// ── BADGE OPTIONS ──────────────────────────────────────────────────────────
+// ── BADGE OPTIONS ─────────────────────────────────────────────────────────────
 .badge-option {
-  padding: 12px 13px;
+  padding: 10px 14px;
   font-size: 13px;
   font-weight: 500;
-  color: #e8f4ff;
-  background: #0e1318;
+  color: var(--text-2);
+  background: transparent;
   cursor: pointer;
-  border-bottom: 1px solid rgba(100, 200, 255, 0.08);
+  border-bottom: 1px solid rgba(100,200,255,0.06);
   display: flex;
   align-items: center;
-  gap: 10px;
-  width: 100%;
-  text-align: left;
-  position: relative;
-  z-index: 10;
-  line-height: 1.5;
-  letter-spacing: 0.3px;
-  transition: all 0.15s ease;
+  gap: 12px;
+  transition: all 0.12s ease;
 
-  .badge-option-thumb {
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
-    flex-shrink: 0;
-    overflow: hidden;
-    background: var(--surface-3);
-    border: 1px solid var(--border);
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-  }
-
-  .badge-option-name {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  // "— Choisir un badge —" placeholder row
+  &:first-child {
+    color: var(--text-3);
+    font-style: italic;
+    font-size: 12px;
+    padding: 12px 14px;
+    border-radius: 12px 12px 0 0;
   }
 
   &:last-child {
     border-bottom: none;
+    border-radius: 0 0 12px 12px;
   }
 
-  &:hover {
-    background: #141b22;
-    color: #00d4ff;
-    font-weight: 600;
-    padding-left: 15px;
+  // Badge image thumbnail
+  .badge-option-thumb {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    flex-shrink: 0;
+    overflow: hidden;
+    background: var(--surface-3);
+    border: 1px solid var(--border-active);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 3px;
+    }
+  }
+
+  // Name + ID stacked
+  .badge-option-info {
+    flex: 1;
+    min-width: 0;
+
+    .badge-option-name {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-1);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .badge-option-id {
+      display: block;
+      font-size: 10px;
+      font-family: var(--mono);
+      color: var(--text-3);
+      margin-top: 2px;
+    }
+  }
+
+  // Checkmark circle
+  .badge-check {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border-active);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: transparent;
+    transition: all var(--t);
+  }
+
+  &:hover:not(:first-child) {
+    background: rgba(0,212,255,0.05);
+    padding-left: 18px;
+
+    .badge-option-name { color: var(--accent); }
   }
 
   &.selected {
-    background: rgba(0, 212, 255, 0.12);
-    color: #00d4ff;
-    font-weight: 700;
-    border-left: 3px solid #00d4ff;
-    padding-left: 10px;
+    background: rgba(0,212,255,0.08);
+    border-left: 2px solid var(--accent);
 
-    &:hover {
-      background: rgba(0, 212, 255, 0.18);
-      padding-left: 15px;
+    .badge-option-name { color: var(--accent); }
+
+    .badge-check {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #000;
     }
-  }
-}
-
-// ── BADGE SCROLLBAR ────────────────────────────────────────────────────────
-.badge-menu::-webkit-scrollbar {
-  width: 8px;
-}
-
-.badge-menu::-webkit-scrollbar-track {
-  background: var(--surface);
-}
-
-.badge-menu::-webkit-scrollbar-thumb {
-  background: var(--border-active);
-  border-radius: 4px;
-
-  &:hover {
-    background: rgba(100, 200, 255, 0.3);
   }
 }

@@ -1,98 +1,160 @@
 <div class="analytics-page">
 
-  <!-- Header -->
-  <div class="analytics-header">
-    <div class="header-content">
-      <h1 class="page-title">📊 Analytics</h1>
-      <p class="page-subtitle">{{ currentAppName }}</p>
+  <!-- ── Top Bar ─────────────────────────────────────────────────────── -->
+  <div class="analytics-topbar">
+    <div class="topbar-left">
+      <div class="page-eyebrow">Dashboard</div>
+      <h1 class="page-title">Analytics</h1>
     </div>
 
-    <div class="day-selector">
-      <button
-        *ngFor="let d of dayOptions"
-        class="day-btn"
-        [class.active]="days === d"
-        (click)="changeDays(d)"
-        [attr.aria-label]="'Show last ' + d + ' days'">
-        {{ d === 365 ? '1Y' : d + 'D' }}
-      </button>
+    <div class="topbar-right">
+
+      <!-- App Selector -->
+      <div class="app-selector" *ngIf="appState.apps().length > 0">
+        <div class="selector-label">App</div>
+        <div class="selector-wrapper">
+          <select
+            class="app-select"
+            [value]="appState.currentAppId()"
+            (change)="onAppChange($event)">
+            <option
+              *ngFor="let app of appState.apps()"
+              [value]="app.id">
+              {{ app.name }}
+            </option>
+          </select>
+          <svg class="select-chevron" viewBox="0 0 16 16" fill="none">
+            <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Day Range Selector -->
+      <div class="day-selector">
+        <button
+          *ngFor="let d of dayOptions"
+          class="day-btn"
+          [class.active]="days === d"
+          (click)="changeDays(d)"
+          [attr.aria-label]="'Show last ' + d + ' days'">
+          {{ d === 365 ? '1Y' : d + 'D' }}
+        </button>
+      </div>
     </div>
   </div>
 
-  <!-- Loading State -->
-  <div class="analytics-loading" *ngIf="loading">
-    <div class="spinner"></div>
-    <p>Loading analytics...</p>
+  <!-- ── Loading ──────────────────────────────────────────────────────── -->
+  <div class="state-panel loading-panel" *ngIf="loading">
+    <div class="pulse-ring"></div>
+    <div class="pulse-ring delay-1"></div>
+    <div class="pulse-ring delay-2"></div>
+    <p class="state-label">Loading analytics…</p>
   </div>
 
-  <!-- Error State -->
-  <div class="analytics-error" *ngIf="error && !loading">
-    <svg class="error-icon" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-      <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-    </svg>
+  <!-- ── Error ────────────────────────────────────────────────────────── -->
+  <div class="state-panel error-panel" *ngIf="error && !loading">
+    <div class="error-icon-wrap">
+      <svg viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round"/>
+      </svg>
+    </div>
     <p>{{ error }}</p>
   </div>
 
-  <!-- Main Content -->
-  <div class="analytics-content" *ngIf="data && !loading">
+  <!-- ── Main Content ──────────────────────────────────────────────────── -->
+  <ng-container *ngIf="data && !loading">
 
+    <!-- Insight Banner -->
+    <div class="insight-banner" *ngIf="insight">
+      <span class="insight-pulse"></span>
+      <span class="insight-icon">▲</span>
+      <span class="insight-text" [innerHTML]="insight"></span>
+    </div>
+
+    <!-- KPI Grid -->
     <section class="kpi-section">
       <app-kpi-cards [data]="data!" />
     </section>
 
-    <section class="insight-section" *ngIf="insight">
-  <div class="insight-bar">
-    <span class="insight-icon">▲</span>
-    <span [innerHTML]="insight"></span>
-  </div>
-</section>
+    <!-- Charts Row 1: Events + Users -->
+    <section class="charts-row row-3-1">
+      <div class="chart-card span-3">
+        <div class="chart-card-header">
+          <div class="chart-card-title">
+            <span class="chart-icon">📈</span> Events Over Time
+          </div>
+          <div class="chart-card-badge">{{ days }}d</div>
+        </div>
+        <app-events-chart [series]="data!.eventsByDay" />
+      </div>
 
-    <section class="charts-section">
-      <div class="chart-row">
-        <div class="chart-container chart-wide">
-          <h3 class="chart-title">📈 Events Over Time</h3>
-          <app-events-chart [series]="data!.eventsByDay" />
+      <div class="chart-card span-1">
+        <div class="chart-card-header">
+          <div class="chart-card-title">
+            <span class="chart-icon">👥</span> New Users
+          </div>
         </div>
-        <div class="chart-container chart-narrow">
-          <h3 class="chart-title">👥 New Users</h3>
-          <app-users-chart [series]="data!.newUsersByDay" />
-        </div>
+        <app-users-chart [series]="data!.newUsersByDay" />
       </div>
     </section>
 
-    <section class="charts-section">
-      <div class="chart-row">
-        <div class="chart-container chart-half">
-          <h3 class="chart-title">⭐ Top Events</h3>
-          <app-top-events [items]="data!.topEvents" />
+    <!-- Charts Row 2: Top Events + Top Users -->
+    <section class="charts-row row-2">
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div class="chart-card-title">
+            <span class="chart-icon">⭐</span> Top Events
+          </div>
         </div>
-        <div class="chart-container chart-half">
-          <h3 class="chart-title">🏆 Top Users</h3>
-          <app-top-users [items]="data!.topUsers" />
+        <app-top-events [items]="data!.topEvents" />
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div class="chart-card-title">
+            <span class="chart-icon">🏆</span> Top Users
+          </div>
         </div>
+        <app-top-users [items]="data!.topUsers" />
       </div>
     </section>
 
-    <section class="charts-section">
-      <div class="chart-container chart-full">
-        <h3 class="chart-title">🔥 Activity Heatmap (Hour × Day)</h3>
+    <!-- Charts Row 3: Heatmap full width -->
+    <section class="charts-row row-full">
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div class="chart-card-title">
+            <span class="chart-icon">🔥</span> Activity Heatmap
+            <span class="chart-subtitle">Hour × Day of week</span>
+          </div>
+        </div>
         <app-heatmap [points]="data!.heatmap" />
       </div>
     </section>
 
-    <section class="charts-section">
-      <div class="chart-row">
-        <div class="chart-container chart-wide">
-          <h3 class="chart-title">📉 User Retention</h3>
-          <app-retention [matrix]="data!.retentionMatrix" />
+    <!-- Charts Row 4: Retention + Badges -->
+    <section class="charts-row row-3-1">
+      <div class="chart-card span-3">
+        <div class="chart-card-header">
+          <div class="chart-card-title">
+            <span class="chart-icon">📉</span> User Retention
+          </div>
         </div>
-        <div class="chart-container chart-narrow">
-          <h3 class="chart-title">🎖️ Badges</h3>
-          <app-badge-distribution [items]="data!.badgeDistribution" />
+        <app-retention [matrix]="data!.retentionMatrix" />
+      </div>
+
+      <div class="chart-card span-1">
+        <div class="chart-card-header">
+          <div class="chart-card-title">
+            <span class="chart-icon">🎖️</span> Badges
+          </div>
         </div>
+        <app-badge-distribution [items]="data!.badgeDistribution" />
       </div>
     </section>
 
-  </div>
+  </ng-container>
 </div>

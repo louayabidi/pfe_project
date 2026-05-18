@@ -43,11 +43,14 @@ public class JwtFilter extends OncePerRequestFilter {
     );
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        String path = request.getRequestURI();
-        // Skip JWT filter for public endpoints
-        return PUBLIC_PATHS.stream().anyMatch(path::startsWith);
-    }
+protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    String path = request.getRequestURI();
+    String method = request.getMethod();
+    
+    if ("OPTIONS".equalsIgnoreCase(method)) return true;
+    
+    return PUBLIC_PATHS.stream().anyMatch(path::startsWith);
+}
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,

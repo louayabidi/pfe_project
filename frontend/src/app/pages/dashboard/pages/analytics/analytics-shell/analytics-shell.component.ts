@@ -35,41 +35,38 @@ import { AppStateService } from 'src/app/services/app-state.service';
 })
 export class AnalyticsShellComponent implements OnInit, OnDestroy {
 
-  private readonly _data = signal<AnalyticsOverview | null>(null);
+  private readonly _data    = signal<AnalyticsOverview | null>(null);
   private readonly _loading = signal(true);
-  private readonly _error = signal<string | null>(null);
-  private readonly _days = signal(30);
+  private readonly _error   = signal<string | null>(null);
+  private readonly _days    = signal(30);
 
-  get data(): AnalyticsOverview | null { return this._data(); }
-  get loading(): boolean               { return this._loading(); }
-  get error(): string | null           { return this._error(); }
-  get days(): number                   { return this._days(); }
-  get currentAppName(): string         { return this.appState.currentApp()?.name || 'No app selected'; }
+  get data():    AnalyticsOverview | null { return this._data(); }
+  get loading(): boolean                 { return this._loading(); }
+  get error():   string | null           { return this._error(); }
+  get days():    number                  { return this._days(); }
 
+  get insight(): string | null {
+    const series = this.data?.eventsByDay;
+    if (!series?.length) return null;
 
+    const peak = series.reduce((a, b) => a.value > b.value ? a : b);
+    const avg  = Math.round(series.reduce((s, p) => s + p.value, 0) / series.length);
 
-get insight(): string | null {
-  const series = this.data?.eventsByDay;
-  if (!series?.length) return null;
-
-  const peak = series.reduce((a, b) => a.value > b.value ? a : b);
-  const avg = Math.round(series.reduce((s, p) => s + p.value, 0) / series.length);
-
-  if (peak.value > avg * 2) {
-    return `<strong>Activity spike on ${peak.date}</strong> — ${peak.value} events recorded,
-      ${Math.round(peak.value / avg)}× the daily average. Check if a campaign or feature release drove this.`;
+    if (peak.value > avg * 2) {
+      return `<strong>Activity spike on ${peak.date}</strong> — ${peak.value} events recorded,
+        ${Math.round(peak.value / avg)}× the daily average. Check if a campaign or feature release drove this.`;
+    }
+    return null;
   }
-  return null;
-}
 
   private readonly destroy$ = new Subject<void>();
-  private readonly appId$ = toObservable(this.appState.currentAppId);
+  private readonly appId$   = toObservable(this.appState.currentAppId);
 
   readonly dayOptions = [7, 14, 30, 90, 365];
 
   constructor(
     private analytics: AnalyticsService,
-    readonly appState: AppStateService
+    readonly appState: AppStateService,
   ) {}
 
   ngOnInit(): void {
@@ -96,18 +93,27 @@ get insight(): string | null {
           );
         })
       )
-     .subscribe(data => {
-  if (data) {
-    this._data.set({
-      ...data,
-      eventsByDay: [...(data.eventsByDay ?? [])],   
-      newUsersByDay: [...(data.newUsersByDay ?? [])],
-    });
-    this._loading.set(false);
-  }
-});
+      .subscribe(data => {
+        if (data) {
+          this._data.set({
+            ...data,
+            eventsByDay:  [...(data.eventsByDay  ?? [])],
+            newUsersByDay: [...(data.newUsersByDay ?? [])],
+          });
+          this._loading.set(false);
+        }
+      });
   }
 
+  // ── App selector handler ─────────────────────────────────────────────
+  onAppChange(event: Event): void {
+    const id = Number((event.target as HTMLSelectElement).value);
+    if (!id) return;
+    this.appState.selectApp(id);
+    // appId$ observable will fire → data reloads automatically
+  }
+
+  // ── Day range selector ───────────────────────────────────────────────
   changeDays(d: number): void {
     this._days.set(d);
     const appId = this.appState.currentAppId();
@@ -127,8 +133,7 @@ get insight(): string | null {
           this._data.set(data);
           this._loading.set(false);
         },
-        error: err => {
-          console.error('Failed to load analytics:', err);
+        error: () => {
           this._error.set('Failed to load analytics');
           this._loading.set(false);
         }
