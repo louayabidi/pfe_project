@@ -54,7 +54,7 @@
         <div class="input-wrap">
           <input id="password" formControlName="password"
                  [type]="showPass() ? 'text' : 'password'"
-                 placeholder="Min. 6 characters"
+                 placeholder="Min. 8 characters"
                  [class.invalid]="f['password'].touched && f['password'].invalid"/>
           <button type="button" class="toggle-pass"
                   (click)="showPass.set(!showPass())"
