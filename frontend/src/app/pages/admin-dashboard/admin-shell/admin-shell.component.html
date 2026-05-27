@@ -90,8 +90,10 @@
           <div class="user-email">{{ adminEmail() }}</div>
         </div>
       </div>
-
-      <div class="toggleWrapper">
+<div class="toggleWrapper">
+  <span class="toggle-label" *ngIf="!sidebarCollapsed()">
+    {{ theme() === 'dark' ? 'PM' : 'AM' }}
+  </span>
   <input class="input" id="dn" type="checkbox"
          [checked]="theme() === 'light'"
          (change)="toggleTheme()" />
@@ -108,8 +110,8 @@
     <span class="star star--5"></span>
     <span class="star star--6"></span>
   </label>
-  <span class="nav-label" *ngIf="!sidebarCollapsed()">
-    {{ theme() === 'dark' ? '' : '' }}
+  <span class="toggle-label" *ngIf="!sidebarCollapsed()">
+    {{ theme() === 'dark' ? 'AM' : 'PM' }}
   </span>
 </div>
 

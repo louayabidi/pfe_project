@@ -74,11 +74,11 @@ export class OwnersComponent implements OnInit {
   }
 
   onVerify(owner: OwnerSummary, e: Event): void {
-  e.stopPropagation();
-  const verify = !owner.verified;
-  this.adminApi.verifyOwner(owner.id, verify).subscribe({
-    next: updated =>
-      this.owners.update(list => list.map(o => o.id === updated.id ? updated : o))
-  });
-}
+    e.stopPropagation();
+    const verify = !owner.verified;
+    this.adminApi.verifyOwner(owner.id, verify).subscribe({
+      next: updated =>
+        this.owners.update(list => list.map(o => o.id === updated.id ? updated : o))
+    });
+  }
 }

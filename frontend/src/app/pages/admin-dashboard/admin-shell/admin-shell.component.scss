@@ -1,7 +1,11 @@
 @use '../../../../styles/admin-theme' as *;
 
 // ── HOST ──────────────────────────────────────────────────────────────────────
-:host { display: block; width: 100%; height: 100vh; }
+:host {
+  display: block;
+  width: 100%;
+  height: 100vh;
+}
 
 // ── SHELL ─────────────────────────────────────────────────────────────────────
 .admin-shell {
@@ -169,7 +173,7 @@
 .sidebar-nav {
   flex: 1;
   overflow-y: auto;
-  padding: 8px 8px;
+  padding: 8px;
   display: flex;
   flex-direction: column;
   gap: 1px;
@@ -336,20 +340,23 @@
   align-items: center;
   gap: 10px;
   padding: 9px 10px;
-  overflow: visible;
 
   .input {
     position: absolute;
     left: -99em;
   }
+}
 
-  .nav-label {
-    font-size: 13.5px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    white-space: nowrap;
-    overflow: hidden;
-  }
+// Label AM / PM affiché via HTML (*ngIf) — pas via ::before/::after CSS
+// ce qui évitait left:-50px / right:-48px qui débordaient hors du sidebar
+.toggle-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .toggle {
@@ -362,24 +369,8 @@
   background-color: #83d8ff;
   border-radius: 84px;
   transition: background-color 200ms cubic-bezier(0.445, 0.05, 0.55, 0.95);
-
-  &:before {
-    content: "AM";
-    position: absolute;
-    left: -50px;
-    top: 15px;
-    font-size: 18px;
-    color: #749ed7;
-  }
-
-  &:after {
-    content: "PM";
-    position: absolute;
-    right: -48px;
-    top: 15px;
-    font-size: 18px;
-    color: var(--text-secondary);
-  }
+  // Pas de &:before { left: -50px } ni &:after { right: -48px }
+  // Ces pseudo-éléments causaient l'overflow horizontal sur toute la page
 }
 
 .toggle__handler {
@@ -403,9 +394,9 @@
     transition: opacity 200ms ease-in-out;
     border-radius: 100%;
   }
-  .crater--1 { top: 18px; left: 10px; width: 4px; height: 4px; }
-  .crater--2 { top: 28px; left: 22px; width: 6px; height: 6px; }
-  .crater--3 { top: 10px; left: 25px; width: 8px; height: 8px; }
+  .crater--1 { top: 18px; left: 10px; width: 4px;  height: 4px; }
+  .crater--2 { top: 28px; left: 22px; width: 6px;  height: 6px; }
+  .crater--3 { top: 10px; left: 25px; width: 8px;  height: 8px; }
 }
 
 .star {
@@ -434,8 +425,6 @@
 }
 
 .input:checked + .toggle { background-color: #749dd6; }
-.input:checked + .toggle:before { color: #fff; }
-.input:checked + .toggle:after { color: #749ed7; }
 
 .input:checked + .toggle .toggle__handler {
   background-color: #ffe5b5;

@@ -9,6 +9,7 @@ import { AppStateService } from 'src/app/services/app-state.service';
 import { RuleService } from 'src/app/services/rule.service';
 import { BadgeService } from 'src/app/services/badge.service';
 import { EventService } from 'src/app/services/event.service';
+import { AnalyticsService } from 'src/app/services/analytics.service';
 
 export interface AppStat {
   app: AppModel;
@@ -46,6 +47,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
     private ruleService: RuleService,
     private badgeService: BadgeService,
     private eventService: EventService,
+    private analyticsService: AnalyticsService,
     private appState: AppStateService,
     private router: Router
   ) {}
@@ -79,27 +81,27 @@ export class OverviewComponent implements OnInit, OnDestroy {
   }
 
   private loadAppStats(app: AppModel, index: number): void {
-    forkJoin({
-      rules:  this.ruleService.getRules(app.id)
-                  .pipe(catchError(() => of([]))),
-      badges: this.badgeService.getBadges(app.id)
-                  .pipe(catchError(() => of([]))),
-      events: this.eventService.getIncomingEvents(app.id, { page: 0, size: 1 })
-                  .pipe(catchError(() => of({ content: [], totalElements: 0, totalPages: 0 }))),
-    })
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(({ rules, badges, events }) => {
-      this.appStats.update(stats => {
-        const next = [...stats];
-        next[index] = {
-          ...next[index],
-          ruleCount:  rules.length,
-          badgeCount: badges.length,
-          eventCount: (events as any).totalElements ?? 0,
-          loading:    false,
-        };
-        return next;
-      });
+  forkJoin({
+    rules:     this.ruleService.getRules(app.id)
+                   .pipe(catchError(() => of([]))),
+    badges:    this.badgeService.getBadges(app.id)
+                   .pipe(catchError(() => of([]))),
+    analytics: this.analyticsService.getOverview(app.id, 30)
+                   .pipe(catchError(() => of(null))),
+  })
+  .pipe(takeUntil(this.destroy$))
+  .subscribe(({ rules, badges, analytics }) => {
+    this.appStats.update(stats => {
+      const next = [...stats];
+      next[index] = {
+        ...next[index],
+        ruleCount:  rules.length,
+        badgeCount: badges.length,
+        eventCount: analytics?.totalEvents ?? 0,  // ← same field analytics uses
+        loading:    false,
+      };
+      return next;
+    });
     });
   }
 

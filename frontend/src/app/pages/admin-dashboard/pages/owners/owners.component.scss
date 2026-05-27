@@ -121,7 +121,6 @@
 
   &.expanded {
     background: rgba(108, 99, 255, 0.04);
-
     td { border-bottom-color: transparent; }
   }
 
@@ -227,8 +226,8 @@
   font-weight: 600;
   white-space: nowrap;
 
-  &.active  { background: rgba(16, 185, 129, 0.1); color: #10b981; .status-dot { background: #10b981; } }
-  &.suspended { background: rgba(239, 68, 68, 0.1); color: #ef4444; .status-dot { background: #ef4444; } }
+  &.active   { background: rgba(16, 185, 129, 0.1); color: #10b981; .status-dot { background: #10b981; } }
+  &.suspended { background: rgba(239, 68, 68, 0.1);  color: #ef4444; .status-dot { background: #ef4444; } }
 }
 
 .status-dot {
@@ -264,28 +263,46 @@
     color: #ef4444;
     border-color: rgba(239, 68, 68, 0.25);
   }
+
+  &.verify {
+    &:hover {
+      background: rgba(16, 185, 129, 0.08);
+      color: #10b981;
+      border-color: rgba(16, 185, 129, 0.25);
+    }
+    &.verified {
+      background: rgba(16, 185, 129, 0.08);
+      color: #10b981;
+      border-color: rgba(16, 185, 129, 0.25);
+    }
+  }
 }
 
 // ── EXPAND ROW ────────────────────────────────────────────────────────────────
 .expand-row {
-  > td { padding: 0; border-bottom: 1px solid var(--border); }
+  > td {
+    padding: 0;
+    border-bottom: 1px solid var(--border);
+  }
 
   .expand-panel {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
+    flex-wrap: wrap;        // ← empêche l'écrasement des colonnes
     gap: 0;
     border-top: 1px solid var(--border);
   }
 
   &.open .expand-panel {
-    max-height: 300px;
+    max-height: 600px;      // ← assez grand pour 3 sections + audit trail
   }
 }
 
+// ── EXPAND SECTIONS ───────────────────────────────────────────────────────────
 .expand-section {
-  flex: 1;
+  flex: 1 1 220px;          // ← min-width 220px, wrap si besoin
   padding: 20px 22px;
   display: flex;
   flex-direction: column;
@@ -369,7 +386,7 @@
   border-radius: 50%;
   background: var(--border-mid);
 
-  &.on { background: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
+  &.on     { background: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
   &.purple { background: #6C63FF; box-shadow: 0 0 8px rgba(108, 99, 255, 0.5); }
 }
 
@@ -403,6 +420,80 @@
     color: #10b981;
     &:hover { background: rgba(16, 185, 129, 0.15); }
   }
+
+  &.verify-btn {
+    &.verified {
+      background: rgba(16, 185, 129, 0.08);
+      border-color: rgba(16, 185, 129, 0.22);
+      color: #10b981;
+      &:hover { background: rgba(16, 185, 129, 0.15); }
+    }
+
+    &:not(.verified) {
+      background: rgba(108, 99, 255, 0.08);
+      border-color: rgba(108, 99, 255, 0.22);
+      color: #6C63FF;
+      &:hover { background: rgba(108, 99, 255, 0.15); }
+    }
+  }
+}
+
+// ── VERIFICATION SECTION ──────────────────────────────────────────────────────
+.verification-section {
+  min-width: 260px;
+}
+
+.verification-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.verify-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+
+  &.verified {
+    color: #10b981;
+    font-weight: 700;
+  }
+}
+
+// ── AUDIT TRAIL ───────────────────────────────────────────────────────────────
+.audit-trail {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+}
+
+.audit-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.audit-label {
+  color: var(--text-tertiary);
+  font-weight: 600;
+  min-width: 90px;
+  flex-shrink: 0;
+}
+
+.audit-value {
+  color: var(--text-secondary);
+  font-weight: 500;
+  flex: 1;
+  word-break: break-word;
 }
 
 // ── EMPTY STATE ───────────────────────────────────────────────────────────────
@@ -420,7 +511,7 @@
 // ── SKELETON ──────────────────────────────────────────────────────────────────
 @keyframes shimmer {
   0%   { background-position: -600px 0; }
-  100% { background-position: 600px 0; }
+  100% { background-position:  600px 0; }
 }
 
 .skeleton-wrap {
@@ -484,102 +575,4 @@
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-// ── Verify Button ─────────────────────────────────────────────────────────────
-.action-btn.verify {
-  &:hover {
-    background: rgba(16, 185, 129, 0.08);
-    color: #10b981;
-    border-color: rgba(16, 185, 129, 0.25);
-  }
-
-  &.verified {
-    background: rgba(16, 185, 129, 0.08);
-    color: #10b981;
-    border-color: rgba(16, 185, 129, 0.25);
-  }
-}
-
-// ── Verification Block ─────────────────────────────────────────────────────────
-.verification-block {
-  padding: 12px 14px;
-  background: rgba(108, 99, 255, 0.04);
-  border: 1px solid rgba(108, 99, 255, 0.15);
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.verification-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.verify-status {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-secondary);
-
-  &.verified {
-    color: #10b981;
-    font-weight: 700;
-  }
-}
-
-.ctrl-btn.verify-btn {
-  &.verified {
-    background: rgba(16, 185, 129, 0.08);
-    border-color: rgba(16, 185, 129, 0.22);
-    color: #10b981;
-    &:hover { background: rgba(16, 185, 129, 0.15); }
-  }
-
-  &:not(.verified) {
-    background: rgba(108, 99, 255, 0.08);
-    border-color: rgba(108, 99, 255, 0.22);
-    color: #6C63FF;
-    &:hover { background: rgba(108, 99, 255, 0.15); }
-  }
-}
-
-// ── Audit Trail ────────────────────────────────────────────────────────────────
-.audit-trail {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-top: 8px;
-  border-top: 1px solid rgba(108, 99, 255, 0.2);
-}
-
-.audit-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-}
-
-.audit-label {
-  color: var(--text-tertiary);
-  font-weight: 600;
-  min-width: 90px;
-}
-
-.audit-value {
-  color: var(--text-secondary);
-  font-weight: 500;
-  flex: 1;
-  word-break: break-word;
-}
-
-// Increase expand panel height for new content
-.expand-row.open .expand-panel {
-  max-height: 500px;
 }

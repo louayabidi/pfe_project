@@ -5,10 +5,10 @@
     <div class="header-left">
       <div class="title-row">
         <div class="page-icon">⚡</div>
-        <h1 class="page-title">Événements</h1>
+        <h1 class="page-title">Events</h1>
       </div>
       <p class="page-sub">
-        Historique complet des events trackés par le SDK
+        Full History of your tracked apps 
         <span class="sub-badge" *ngIf="!loading() && selectedAppId()">
           {{ totalElements() | number }} events
         </span>
@@ -50,7 +50,7 @@
     <span class="choose-icon">📱</span>
     <h3 class="choose-title">Choisissez une application</h3>
     <p class="choose-sub">
-      Sélectionnez une application pour voir ses événements
+     Select an application to view its tracked events history.
     </p>
     <div class="choose-apps">
       <button
@@ -86,26 +86,26 @@
       <div class="filter-group">
         <label class="filter-label">Utilisateur</label>
         <select class="filter-select" formControlName="userId">
-          <option value="">Tous les utilisateurs</option>
+          <option value="">All Users</option>
           <option *ngFor="let u of users()" [value]="u">{{ u }}</option>
         </select>
       </div>
 
       <div class="filter-group">
-        <label class="filter-label">Type d'event</label>
+        <label class="filter-label">Event Type</label>
         <select class="filter-select" formControlName="eventName">
-          <option value="">Tous les types</option>
+          <option value="">All</option>
           <option *ngFor="let n of eventNames()" [value]="n">{{ n }}</option>
         </select>
       </div>
 
       <div class="filter-group">
-        <label class="filter-label">Date début</label>
+        <label class="filter-label">Start Date</label>
         <input type="date" class="filter-input" formControlName="dateFrom">
       </div>
 
       <div class="filter-group">
-        <label class="filter-label">Date fin</label>
+        <label class="filter-label">End Date</label>
         <input type="date" class="filter-input" formControlName="dateTo">
       </div>
 
@@ -140,7 +140,7 @@
     <!-- ── LOADING ── -->
     <div class="loading-wrap" *ngIf="loading()">
       <div class="loading-bar"><div class="loading-fill"></div></div>
-      <span class="loading-text">Chargement des événements...</span>
+      <span class="loading-text">Loading events...</span>
     </div>
 
     <!-- ── EMPTY ── -->
@@ -229,7 +229,7 @@
                 <span class="status-badge"
                       [class.processed]="event.processed">
                   <span class="status-dot"></span>
-                  {{ event.processed ? 'Traité' : 'En attente' }}
+                  {{ event.processed ? 'Traité' : 'SUCCESS' }}
                 </span>
               </td>
 
