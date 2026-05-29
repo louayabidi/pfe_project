@@ -766,4 +766,29 @@ app-selector {
 .choose-app-name {
   flex: 1;
 }
+
+.btn-adv {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  background: rgba(245,200,66,0.08);
+  color: #f5c842;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid rgba(245,200,66,0.3);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--t);
+
+  &:hover {
+    background: rgba(245,200,66,0.15);
+    border-color: #f5c842;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245,200,66,0.15);
+  }
+
+  &:active { transform: translateY(0); }
+}
  

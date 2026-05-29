@@ -25,7 +25,7 @@ import { AppStateService } from 'src/app/services/app-state.service';
                 [value]="appState.currentAppId()"
                 (change)="onAppChange($event)"
                 [disabled]="appState.loading()">
-          <option value="">Choisir une application</option>
+          <option value="">Choose from your apps</option>
           <option *ngFor="let app of appState.apps()" [value]="app.id">
             {{ app.name }}
           </option>
@@ -37,67 +37,78 @@ import { AppStateService } from 'src/app/services/app-state.service';
       </div>
     </div>
   `,
-  styles: [`
-    .app-selector-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .selector-label {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-2);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .select-wrapper {
-      position: relative;
-      display: inline-block;
-    }
-
-    .app-select {
-      padding: 8px 12px;
-      padding-right: 28px;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      color: var(--text-1);
-      font-size: 13px;
-      font-family: var(--sans);
-      cursor: pointer;
-      transition: all var(--t);
-      appearance: none;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-    }
-
-    .app-select:hover:not(:disabled) {
-      border-color: var(--border-active);
-      background: var(--surface-3);
-    }
-
-    .app-select:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(0,212,255,0.1);
-    }
-
-    .app-select:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    .select-icon {
-      position: absolute;
-      top: 50%;
-      right: 8px;
-      transform: translateY(-50%);
-      pointer-events: none;
-      color: var(--text-2);
-    }
-  `],
+ styles: [`
+  :host {
+    --bg:            #080c10;
+    --surface:       #0e1318;
+    --surface-2:     #141b22;
+    --surface-3:     #1b242e;
+    --border:        rgba(100,200,255,0.08);
+    --border-active: rgba(100,200,255,0.18);
+    --accent:        #00d4ff;
+    --text-1:        #e8f4ff;
+    --text-2:        #7a9db8;
+    --sans:          'Outfit', sans-serif;
+    --radius-sm:     8px;
+    --t:             0.18s cubic-bezier(0.4,0,0.2,1);
+  }
+  .app-selector-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .selector-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-2);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .select-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+  .app-select {
+    padding: 8px 12px;
+    padding-right: 28px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-1);
+    font-size: 13px;
+    font-family: var(--sans);
+    cursor: pointer;
+    transition: all var(--t);
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+  }
+  .app-select option {
+    background: var(--surface-2);
+    color: var(--text-1);
+  }
+  .app-select:hover:not(:disabled) {
+    border-color: var(--border-active);
+    background: var(--surface-3);
+  }
+  .app-select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(0,212,255,0.1);
+  }
+  .app-select:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .select-icon {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--text-2);
+  }
+`],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppSelectorComponent implements OnInit {

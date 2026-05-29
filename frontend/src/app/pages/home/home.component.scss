@@ -63,7 +63,7 @@ $ff-mono:    'DM Mono', monospace;
   background: $bg;
   min-height: 100vh;
   overflow-x: hidden;
-  cursor: none; // native cursor hidden — custom cursor takes over on desktop
+
 
   &.loaded .reveal { animation-play-state: running; }
 }
@@ -102,6 +102,7 @@ $ff-mono:    'DM Mono', monospace;
 
   // Hide on touch devices (component also skips cursor init on touch)
   @media (pointer: coarse) { display: none; }
+  
 }
 
 .cursor-dot {
@@ -184,7 +185,7 @@ $ff-mono:    'DM Mono', monospace;
   align-items: center;
   justify-content: center;
   padding: 140px 32px 100px;
-  overflow: hidden;
+ 
 }
 
 .hero-canvas {

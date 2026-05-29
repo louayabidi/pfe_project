@@ -3,6 +3,7 @@ import {
 } from '@angular/core';
 import { trigger, transition, style, animate, state } from '@angular/animations';
 import { Subject, takeUntil, catchError, of, forkJoin } from 'rxjs';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { AiEngineService, UserSegment, SegmentStat } from 'src/app/services/ai-engine.service';
 import { AppStateService } from 'src/app/services/app-state.service';
 
@@ -43,7 +44,7 @@ import { AppStateService } from 'src/app/services/app-state.service';
 export class AiEngineComponent implements OnInit, OnDestroy {
 
   private aiService  = inject(AiEngineService);
-  private appState   = inject(AppStateService);
+  readonly appState = inject(AppStateService);
   private destroy$   = new Subject<void>();
 
   // ── state ──────────────────────────────────────────────────────────────────
@@ -56,7 +57,6 @@ export class AiEngineComponent implements OnInit, OnDestroy {
   successMsg   = signal<string | null>(null);
 
   readonly selectedAppId = this.appState.currentAppId;
-  readonly apps          = this.appState.apps;
 
   // ── computed ───────────────────────────────────────────────────────────────
   segmentCounts = computed(() => {
@@ -73,13 +73,15 @@ export class AiEngineComponent implements OnInit, OnDestroy {
 
   // ── lifecycle ──────────────────────────────────────────────────────────────
   ngOnInit() {
-    const appId = this.selectedAppId();
-    if (appId) this.loadData(appId);
-  }
-
-  selectApp(appId: number) {
-    this.appState.selectApp(appId);
-    this.loadData(appId);
+    toObservable(this.appState.currentAppId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(appId => {
+        if (appId) this.loadData(appId);
+        else {
+          this.segments.set([]);
+          this.stats.set([]);
+        }
+      });
   }
 
   // ── data ───────────────────────────────────────────────────────────────────

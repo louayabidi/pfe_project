@@ -1,6 +1,195 @@
-@import '../rules.component.scss';
+// ── TOKENS (duplicated locally so no global bleed) ─────────────────────────
+:host {
+  display: block;
+  font-family: 'Outfit', sans-serif;
+  background: #080c10;
+  min-height: 100vh;
+  color: #e8f4ff;
+  position: relative;
+  overflow-x: hidden;
+}
 
+// ── AMBIENT GRID ───────────────────────────────────────────────────────────
+.ambient-grid {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  display: flex;
+  justify-content: space-around;
+  overflow: hidden;
+
+  .grid-line {
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(0,212,255,0.04) 30%,
+      rgba(0,212,255,0.04) 70%,
+      transparent 100%
+    );
+  }
+}
+
+// ── PAGE ───────────────────────────────────────────────────────────────────
 .adv-rules-page {
-  position: relative; z-index: 1;
-  max-width: 1100px; margin: 0 auto; padding: 48px 28px 80px;
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 28px 80px;
+}
+
+// ── HEADER ─────────────────────────────────────────────────────────────────
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 48px;
+  flex-wrap: wrap;
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.page-title {
+  font-size: 30px;
+  font-weight: 700;
+  margin: 0;
+  color: #e8f4ff;
+}
+
+.page-subtitle {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: #7a9db8;
+  margin: 0;
+}
+
+// ── BUTTONS ────────────────────────────────────────────────────────────────
+.btn-create {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  background: #00d4ff;
+  color: #000;
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.4,0,0.2,1);
+
+  &:hover {
+    background: #33ddff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,212,255,0.3);
+  }
+}
+
+.btn-ghost {
+  padding: 10px 18px;
+  background: transparent;
+  border: 1px solid rgba(100,200,255,0.18);
+  border-radius: 7px;
+  font-size: 13px;
+  font-family: 'Outfit', sans-serif;
+  color: #7a9db8;
+  cursor: pointer;
+  transition: all 0.18s;
+
+  &:hover {
+    background: #1b242e;
+    color: #e8f4ff;
+  }
+}
+
+// ── LOADING ────────────────────────────────────────────────────────────────
+.loading-state {
+  padding: 60px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: #7a9db8;
+}
+
+.loading-bar {
+  width: 200px;
+  height: 2px;
+  background: #1b242e;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.loading-fill {
+  height: 100%;
+  background: #00d4ff;
+  border-radius: 2px;
+  animation: loading-scan 1.2s ease-in-out infinite;
+}
+
+@keyframes loading-scan {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(300%); }
+}
+
+// ── ERROR ──────────────────────────────────────────────────────────────────
+.error-state {
+  text-align: center;
+  padding: 48px;
+  color: #ff4d6d;
+  font-size: 14px;
+
+  p { margin: 0 0 16px; }
+}
+
+// ── EMPTY STATE ────────────────────────────────────────────────────────────
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 80px 40px;
+  text-align: center;
+  background: #0e1318;
+  border: 1px dashed rgba(100,200,255,0.18);
+  border-radius: 20px;
+
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    color: #e8f4ff;
+  }
+
+  p {
+    font-size: 14px;
+    color: #7a9db8;
+    margin: 0;
+    max-width: 320px;
+  }
+}
+
+// ── RULES GRID ─────────────────────────────────────────────────────────────
+.rules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+// ── RESPONSIVE ─────────────────────────────────────────────────────────────
+@media (max-width: 640px) {
+  .adv-rules-page { padding: 24px 16px 60px; }
+  .page-header { flex-direction: column; align-items: flex-start; }
+  .rules-grid { grid-template-columns: 1fr; }
 }

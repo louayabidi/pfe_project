@@ -19,29 +19,21 @@
         </div>
       </div>
 
-      <div class="header-right" *ngIf="apps().length > 1 && selectedAppId()">
-        <div class="app-selector-container">
-          <label class="selector-label">Select App</label>
-          <select class="app-selector" [value]="selectedAppId()" (change)="selectApp(+$any($event.target).value)">
-            <option *ngFor="let app of apps()" [value]="app.id">{{ app.name }}</option>
-          </select>
-          <svg class="selector-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M7 10l5 5 5-5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
+      <div class="header-right">
+        <app-selector></app-selector>
       </div>
     </div>
   </div>
 
   <!-- ── CHOOSE APP STATE ── -->
-  <div class="choose-app-state" *ngIf="!loading() && apps().length > 1 && !selectedAppId()">
+  <div class="choose-app-state" *ngIf="!loading() && appState.hasMultipleApps() && !selectedAppId()">
     <div class="choose-content">
       <div class="choose-icon">📱</div>
       <h2 class="choose-title">No Application Selected</h2>
       <p class="choose-description">Select an application below to view and manage its AI engagement engine</p>
-      
+
       <div class="choose-grid">
-        <button *ngFor="let app of apps()" class="app-card-button" (click)="selectApp(app.id)">
+        <button *ngFor="let app of appState.apps()" class="app-card-button" (click)="appState.selectApp(app.id)">
           <div class="card-inner">
             <span class="card-icon">✨</span>
             <span class="card-name">{{ app.name }}</span>
@@ -54,7 +46,7 @@
 
   <!-- ── ERROR & SUCCESS MESSAGES ── -->
   <div class="alert-container" *ngIf="error() || successMsg()">
-    <div class="alert" [class.alert-error]="error()" [class.alert-success]="successMsg()" [@slideIn]>
+    <div class="alert" [class.alert-error]="error()" [class.alert-success]="successMsg()" [@slideInDown]>
       <div class="alert-content">
         <span class="alert-icon">{{ error() ? '⚠️' : '✅' }}</span>
         <div class="alert-text">
@@ -115,9 +107,9 @@
             [style.--seg-color]="getSegmentColor(seg)"
             [style.animation-delay.ms]="i * 50"
             [@slideUp]>
-            
+
             <div class="card-gradient-bg"></div>
-            
+
             <div class="segment-header">
               <div class="segment-icon-wrapper">
                 <span class="segment-icon">{{ getSegmentIcon(seg) }}</span>
@@ -131,7 +123,7 @@
             <p class="segment-description">{{ getSegmentDescription(seg) }}</p>
 
             <div class="segment-bar-container">
-              <div class="segment-bar" 
+              <div class="segment-bar"
                    [style.width.%]="totalUsers() > 0 ? ((segmentCounts()[seg] || 0) / totalUsers() * 100) : 0">
               </div>
             </div>

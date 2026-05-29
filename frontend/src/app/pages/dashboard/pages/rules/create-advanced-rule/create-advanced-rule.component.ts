@@ -12,14 +12,14 @@ import { EventService } from 'src/app/services/event.service';
 import { AppStateService } from 'src/app/services/app-state.service';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { Subject, takeUntil } from 'rxjs';
-import { ViewEncapsulation } from '@angular/core';
+
 
 @Component({
   selector: 'app-create-advanced-rule',
   templateUrl: './create-advanced-rule.component.html',
   styleUrls: ['./create-advanced-rule.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None
+  
 })
 export class CreateAdvancedRuleComponent implements OnInit, OnDestroy {
   form!: FormGroup;

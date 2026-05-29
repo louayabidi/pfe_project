@@ -109,14 +109,16 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   // ─────────────────────────────────────────────────────────────────────────────
   constructor(private cdr: ChangeDetectorRef, private zone: NgZone) {}
 
-  ngOnInit(): void {
-    this.isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
-
-    requestAnimationFrame(() => {
+ ngOnInit(): void {
+  this.isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
+ 
+  requestAnimationFrame(() => {
+    this.zone.run(() => {
       this.isLoaded = true;
       this.cdr.markForCheck();
     });
-  }
+  });
+}
 
   ngAfterViewInit(): void {
     this.zone.runOutsideAngular(() => {
@@ -315,23 +317,22 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   // ═══════════════════════════════════════════════════════════════════════════
   //  SCROLL ANIMATIONS
   // ═══════════════════════════════════════════════════════════════════════════
-
-  private initScrollAnimations(): void {
+private initScrollAnimations(): void {
+  setTimeout(() => {
     this.scrollObserver = new IntersectionObserver(
       entries => entries.forEach(e => {
         if (e.isIntersecting) {
           e.target.classList.add('in-view');
-          this.scrollObserver.unobserve(e.target); // fire once, then stop watching
+          this.scrollObserver.unobserve(e.target);
         }
       }),
       { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
     );
 
-    const host = document.querySelector('app-home') ?? document;
-    host.querySelectorAll<Element>('.animate-on-scroll')
-        .forEach(el => this.scrollObserver.observe(el));
-  }
-
+    document.querySelectorAll<Element>('.animate-on-scroll')
+      .forEach(el => this.scrollObserver.observe(el));
+  }, 100);
+}
   // ═══════════════════════════════════════════════════════════════════════════
   //  CARD TILT — pure DOM manipulation, zero Angular re-render
   // ═══════════════════════════════════════════════════════════════════════════
