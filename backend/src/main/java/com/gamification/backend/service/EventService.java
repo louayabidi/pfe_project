@@ -12,6 +12,9 @@ import com.gamification.backend.repository.IncomingEventSpecification;
 import com.gamification.backend.repository.RegisteredEventRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;           
 import org.springframework.data.domain.PageRequest;    
 import org.springframework.data.domain.Pageable;       
@@ -53,7 +56,8 @@ public void saveEvent(App app, TrackEventRequest request) {
             status);
 }
 
-    @Transactional
+@CacheEvict(value = "registeredEvents", key = "#appId")    
+@Transactional
     public void registerEvents(String apiKey, List<String> eventNames) {
         App app = appRepository.findByApiKey(apiKey)
                 .orElseThrow(() -> new RuntimeException("API Key invalide"));
@@ -73,6 +77,7 @@ public void saveEvent(App app, TrackEventRequest request) {
         log.info("{} events enregistrés pour app {}", eventNames.size(), app.getName());
     }
 
+    @Cacheable(value = "registeredEvents", key = "#appId")
     public List<String> getRegisteredEvents(Long appId) {
         return registeredEventRepository.findByAppId(appId)
                 .stream()

@@ -90,8 +90,15 @@
 <!-- ══════════════════════════════════════════════════════════════════════════
      ADD ADMIN MODAL
 ══════════════════════════════════════════════════════════════════════════ -->
-<div class="modal-backdrop" [class.open]="modalOpen()" (click)="closeModal()">
-  <div class="modal-panel" [class.open]="modalOpen()" (click)="$event.stopPropagation()">
+<div class="modal-backdrop" 
+     [class.open]="modalOpen()" 
+     (click)="closeModal()"
+     (keydown.escape)="closeModal()"
+     aria-label="Close modal">
+  <div class="modal-panel" 
+       [class.open]="modalOpen()" 
+       (click)="$event.stopPropagation()"
+       (keydown)="$event.stopPropagation()">
 
     <div class="modal-header">
       <div class="modal-title-wrap">
@@ -116,7 +123,7 @@
     <div class="modal-body">
 
       <div class="form-field">
-        <label class="form-label">Full Name</label>
+        <label class="form-label" for="fullName">Full Name</label>
         <input
           class="form-input"
           type="text"
@@ -128,7 +135,7 @@
       </div>
 
       <div class="form-field">
-        <label class="form-label">Email Address</label>
+       <label class="form-label" for="email">Email Address</label>
         <input
           class="form-input"
           type="email"
@@ -140,7 +147,7 @@
       </div>
 
       <div class="form-field">
-        <label class="form-label">Password</label>
+        <label class="form-label" for="password">Password</label>
         <div class="input-wrap">
           <input
             class="form-input"

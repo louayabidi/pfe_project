@@ -52,11 +52,10 @@
       </div>
     </div>
 
-    <!-- 02 Trigger Events (multi-select) -->
+    <!-- 02 Trigger Events -->
     <div class="form-block">
       <div class="block-label"><span class="block-num">02</span><span>Événements déclencheurs</span></div>
 
-      <!-- Selected event tags -->
       <div class="trigger-tags">
         <span class="trigger-tag" *ngFor="let ev of triggerEvents.controls; let i=index">
           <span class="tag-name">{{ ev.value }}</span>
@@ -67,7 +66,6 @@
         </span>
       </div>
 
-      <!-- Dropdown to add events -->
       <div class="custom-select-wrapper">
         <div class="custom-select">
           <button type="button" class="select-trigger" (click)="toggleDropdown()" [class.open]="dropdownOpen()">
@@ -129,14 +127,102 @@
 
       <div class="action-list" formArrayName="actions">
         <div class="action-row" *ngFor="let act of actions.controls; let i=index" [formGroupName]="i">
-          <select class="inp-sm" formControlName="type">
+
+          <!-- Type selector — always shown -->
+          <select class="inp-sm type-select" formControlName="type" (change)="onActionTypeChange(i)">
             <option *ngFor="let at of actionTypes" [value]="at">{{ at }}</option>
           </select>
-          <input class="inp-sm" formControlName="value" placeholder="valeur (pts / badgeId / multiplicateur)"/>
-          <input class="inp-sm" formControlName="description" placeholder="message (optionnel)"/>
-          <button type="button" class="remove-btn" (click)="removeAction(i)" [disabled]="actions.length===1">✕</button>
+
+          <!-- ── POINTS: numeric input ── -->
+          <ng-container *ngIf="getActionType(i) === 'POINTS'">
+            <div class="action-value-wrap">
+              <span class="action-unit-prefix">pts</span>
+              <input class="inp-sm value-input" type="number" formControlName="value"
+                     placeholder="ex: 100" min="1"/>
+            </div>
+            <div class="pts-presets-inline">
+              <button type="button" class="pts-preset"
+                *ngFor="let p of [10, 50, 100, 250, 500]"
+                [class.active]="act.get('value')?.value == p"
+                (click)="act.get('value')?.setValue(p)">
+                {{ p }}
+              </button>
+            </div>
+          </ng-container>
+
+          <!-- ── BADGE: dropdown selector ── -->
+          <ng-container *ngIf="getActionType(i) === 'BADGE'">
+            <div class="action-badge-select">
+              <button type="button" class="badge-trigger-btn"
+                      (click)="toggleBadgeDropdown(i)"
+                      [class.open]="isBadgeDropdownOpen(i)">
+                <span class="badge-trigger-inner">
+                  <span class="badge-thumb" *ngIf="getSelectedBadgeImageUrl(i) as url">
+                    <img [src]="url" alt="badge"/>
+                  </span>
+                  <span class="badge-trigger-name">{{ getSelectedBadgeName(i) }}</span>
+                </span>
+                <svg class="select-arrow" width="10" height="10" viewBox="0 0 12 12">
+                  <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+              </button>
+
+              <div class="badge-dropdown-menu" *ngIf="isBadgeDropdownOpen(i)">
+                <div class="badge-empty-hint" *ngIf="availableBadges().length === 0">
+                  Aucun badge disponible
+                </div>
+                <div class="badge-drop-option"
+                     *ngFor="let badge of availableBadges()"
+                     [class.selected]="act.get('value')?.value === badge.id"
+                     (click)="selectBadge(i, badge)">
+                  <span class="badge-opt-thumb" *ngIf="badge.imageUrl">
+                    <img [src]="badge.imageUrl" [alt]="badge.name"/>
+                  </span>
+                  <span class="badge-opt-info">
+                    <span class="badge-opt-name">{{ badge.name }}</span>
+                    <span class="badge-opt-id">#{{ badge.id }}</span>
+                  </span>
+                  <svg *ngIf="act.get('value')?.value === badge.id"
+                       class="badge-opt-check" width="10" height="10" viewBox="0 0 10 10">
+                    <path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="currentColor" stroke-width="1.8"
+                          stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- ── MULTIPLIER: decimal input ── -->
+          <ng-container *ngIf="getActionType(i) === 'MULTIPLIER'">
+            <div class="action-value-wrap">
+              <span class="action-unit-prefix">×</span>
+              <input class="inp-sm value-input" type="number" formControlName="value"
+                     placeholder="ex: 2.0" min="1.1" step="0.1"/>
+            </div>
+            <div class="pts-presets-inline">
+              <button type="button" class="pts-preset"
+                *ngFor="let m of [1.5, 2, 3, 5]"
+                [class.active]="act.get('value')?.value == m"
+                (click)="act.get('value')?.setValue(m)">
+                ×{{ m }}
+              </button>
+            </div>
+          </ng-container>
+
+          <!-- ── CUSTOM: free text ── -->
+          <ng-container *ngIf="getActionType(i) === 'CUSTOM'">
+            <input class="inp-sm" formControlName="value" placeholder="valeur personnalisée"/>
+          </ng-container>
+
+          <!-- Description — always shown -->
+          <input class="inp-sm desc-input" formControlName="description"
+                 placeholder="message (optionnel)"/>
+
+          <button type="button" class="remove-btn" (click)="removeAction(i)"
+                  [disabled]="actions.length === 1">✕</button>
         </div>
       </div>
+
       <button type="button" class="add-btn" (click)="addAction()">+ Ajouter une action</button>
     </div>
 
@@ -144,7 +230,9 @@
     <div class="form-footer">
       <div class="error-banner" *ngIf="error()">{{ error() }}</div>
       <div class="footer-btns">
-        <button type="button" class="btn-ghost" [routerLink]="['/dashboard/rules']" [queryParams]="{appId:appId,tab:'advanced'}">Annuler</button>
+        <button type="button" class="btn-ghost"
+                [routerLink]="['/dashboard/rules']"
+                [queryParams]="{appId:appId,tab:'advanced'}">Annuler</button>
         <button type="submit" class="btn-submit" [disabled]="loading()">
           <span class="spinner" *ngIf="loading()"></span>
           {{ loading() ? 'Création...' : 'Créer la règle avancée' }}

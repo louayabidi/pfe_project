@@ -5,10 +5,12 @@ import com.gamification.backend.dto.leaderboard.LeaderboardEntryDTO;
 import com.gamification.backend.dto.leaderboard.LeaderboardPageDTO;
 import com.gamification.backend.repository.AnalyticsRepository;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,8 +25,9 @@ public class AnalyticsService {
 
     private final AnalyticsRepository analyticsRepo;
 
+    // ✅ Cache : 10 requêtes BDD lourdes → une seule fois par (appId + days)
+    @Cacheable(value = "analytics", key = "#appId + '-' + #days")
     public AnalyticsOverviewDTO getOverview(Long appId, int days) {
-        // Calcul du since pour éviter null
         LocalDateTime since = LocalDateTime.now().minusDays(days);
 
         long totalEvents  = analyticsRepo.countTotalEvents(appId);
@@ -32,31 +35,24 @@ public class AnalyticsService {
         long active7d     = analyticsRepo.countActiveUsersSince(appId, LocalDateTime.now().minusDays(7));
         long active30d    = analyticsRepo.countActiveUsersSince(appId, LocalDateTime.now().minusDays(30));
 
-        // Utilisation des méthodes mappers pour transformer les résultats
         List<TimeSeriesPoint> eventsByDay = toTimeSeries(
             analyticsRepo.findEventsByDay(appId, since)
         );
-
         List<TimeSeriesPoint> newUsersByDay = toTimeSeries(
             analyticsRepo.findNewUsersByDay(appId, since)
         );
-
         List<CategoryPoint> topEvents = toCategoryList(
             analyticsRepo.findTopEvents(appId, since)
         );
-
         List<CategoryPoint> topUsers = toCategoryList(
             analyticsRepo.findTopUsers(appId, since)
         );
-
         List<HourlyHeatmapPoint> heatmap = toHeatmap(
             analyticsRepo.findHeatmap(appId, since)
         );
-
         List<RetentionRow> retention = toRetention(
             analyticsRepo.findRetentionCohorts(appId)
         );
-
         List<CategoryPoint> badges = toCategoryList(
             analyticsRepo.findBadgeDistribution(appId)
         );
@@ -79,6 +75,59 @@ public class AnalyticsService {
             .retentionMatrix(retention)
             .heatmap(heatmap)
             .build();
+    }
+
+    // ✅ Cache : JOIN triple lourd → par (appId + page + size + sortBy)
+    @Cacheable(value = "leaderboard", key = "#appId + '-' + #page + '-' + #size + '-' + #sortBy")
+    public LeaderboardPageDTO getLeaderboard(Long appId, int page, int size, String sortBy) {
+        page = Math.max(0, page);
+        size = Math.min(100, Math.max(1, size));
+        int offset = page * size;
+
+        List<Object[]> rows = switch (sortBy) {
+            case "events" -> analyticsRepo.findLeaderboardByEvents(appId, size, offset);
+            case "days"   -> analyticsRepo.findLeaderboardByDays(appId, size, offset);
+            case "rules"  -> analyticsRepo.findLeaderboardByRules(appId, size, offset);
+            default       -> analyticsRepo.findLeaderboardByPoints(appId, size, offset);
+        };
+
+        long totalCount = analyticsRepo.countLeaderboardUsers(appId);
+        long totalPages = (totalCount + size - 1) / size;
+
+        List<LeaderboardEntryDTO> entries = rows.stream()
+            .map(row -> LeaderboardEntryDTO.builder()
+                .rank(((Number) row[6]).longValue())
+                .userId((String) row[0])
+                .lifetimePoints(((Number) row[1]).longValue())
+                .totalEvents(((Number) row[2]).longValue())
+                .activeDaysCount(((Number) row[3]).longValue())
+                .rulesTriggered(((Number) row[4]).longValue())
+                .lastEventAt(row[5] != null
+                    ? ((java.sql.Timestamp) row[5]).toLocalDateTime()
+                    : null)
+                .build())
+            .collect(Collectors.toList());
+
+        return LeaderboardPageDTO.builder()
+            .entries(entries)
+            .totalCount(totalCount)
+            .page(page)
+            .size(size)
+            .totalPages(totalPages)
+            .build();
+    }
+
+    // ✅ Vider tout le cache analytics d'une app (à appeler après un nouvel event)
+    @CacheEvict(value = {"analytics", "leaderboard"}, allEntries = true)
+    public void evictCacheForApp(Long appId) {
+        log.info("Cache analytics + leaderboard vidé pour app {}", appId);
+    }
+
+    // ✅ Vider automatiquement le cache toutes les 5 min (sécurité)
+    @Scheduled(fixedRate = 300_000)
+    @CacheEvict(value = {"analytics", "leaderboard"}, allEntries = true)
+    public void evictAllCachesScheduled() {
+        log.debug("Cache analytics auto-vidé (scheduled)");
     }
 
     // ── Mappers ──────────────────────────────────────────────────────────────
@@ -139,50 +188,6 @@ public class AnalyticsService {
             }
             result.add(new RetentionRow(entry.getKey(), rates));
         }
-
         return result;
     }
-
-
-
-
-
-public LeaderboardPageDTO getLeaderboard(Long appId, int page, int size, String sortBy) {
-    page = Math.max(0, page);
-    size = Math.min(100, Math.max(1, size));
-    int offset = page * size;
-
-    List<Object[]> rows = switch (sortBy) {
-        case "events" -> analyticsRepo.findLeaderboardByEvents(appId, size, offset);
-        case "days"   -> analyticsRepo.findLeaderboardByDays(appId, size, offset);
-        case "rules"  -> analyticsRepo.findLeaderboardByRules(appId, size, offset);
-        default       -> analyticsRepo.findLeaderboardByPoints(appId, size, offset);
-    };
-
-    long totalCount = analyticsRepo.countLeaderboardUsers(appId);
-    long totalPages = (totalCount + size - 1) / size;
-
-    List<LeaderboardEntryDTO> entries = rows.stream()
-        .map(row -> LeaderboardEntryDTO.builder()
-            .rank(((Number) row[6]).longValue())
-            .userId((String) row[0])
-            .lifetimePoints(((Number) row[1]).longValue())
-            .totalEvents(((Number) row[2]).longValue())
-            .activeDaysCount(((Number) row[3]).longValue())
-            .rulesTriggered(((Number) row[4]).longValue())
-            .lastEventAt(row[5] != null
-                ? ((java.sql.Timestamp) row[5]).toLocalDateTime()
-                : null)
-            .build())
-        .collect(Collectors.toList());
-
-    return LeaderboardPageDTO.builder()
-        .entries(entries)
-        .totalCount(totalCount)
-        .page(page)
-        .size(size)
-        .totalPages(totalPages)
-        .build();
-}
-
 }

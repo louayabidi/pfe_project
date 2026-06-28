@@ -123,7 +123,12 @@
     </aside>
 
     <!-- Mobile backdrop -->
-    <div class="sidebar-backdrop" *ngIf="mobileNavOpen()" (click)="mobileNavOpen.set(false)"></div>
+<button class="sidebar-backdrop" 
+     *ngIf="mobileNavOpen()" 
+     (click)="mobileNavOpen.set(false)"
+     (keydown.escape)="mobileNavOpen.set(false)"
+     aria-label="Close navigation">
+</button>
 
     <!-- ══ CONTENT ══════════════════════════════════════════════════════════ -->
     <main class="docs-content">

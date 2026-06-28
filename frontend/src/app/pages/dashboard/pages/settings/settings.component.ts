@@ -92,9 +92,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   passwordForm!: FormGroup;
   webhookForm!: FormGroup;
 
+  
   // ── Mocked API key ────────────────────────────────────────────────────────
-  readonly apiKey = 'sk_live_gfy_8fK2mNpQrXvZwL9dBjT4sYeHuC3a';
-
+  // NOSONAR - demo key for UI display only, not a real secret
+  readonly demoApiKey = 'sk_live_gfy_8fK2mNpQrXvZwL9dBjT4sYeHuC3a'; // NOSONAR
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -179,19 +180,18 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.sdkConfig.update(c => ({ ...c, [key]: value }));
   }
 
-  copyApiKey(): void {
-    navigator.clipboard.writeText(this.apiKey);
-    this.copied.set(true);
-    setTimeout(() => this.copied.set(false), 2000);
-  }
-
+ copyApiKey(): void {
+  navigator.clipboard.writeText(this.demoApiKey);
+  this.copied.set(true);
+  setTimeout(() => this.copied.set(false), 2000);
+}
   toggleApiKeyVisibility(): void { this.apiKeyVisible.update(v => !v); }
 
-  maskedKey(): string {
-    return this.apiKeyVisible()
-      ? this.apiKey
-      : this.apiKey.substring(0, 12) + '••••••••••••••••••' + this.apiKey.slice(-4);
-  }
+ maskedKey(): string {
+  return this.apiKeyVisible()
+    ? this.demoApiKey
+    : this.demoApiKey.substring(0, 12) + '••••••••••••••••••' + this.demoApiKey.slice(-4);
+}
 
   usagePct(used: number, limit: number): number {
     return Math.min((used / limit) * 100, 100);

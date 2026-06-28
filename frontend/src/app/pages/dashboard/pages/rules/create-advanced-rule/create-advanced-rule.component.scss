@@ -598,3 +598,210 @@ select.inp-sm { cursor: pointer; }
   .footer-btns { justify-content: flex-end; }
   .condition-row, .action-row { flex-direction: column; align-items: stretch; }
 }
+
+// ── ACTION TYPE SPECIFIC WRAPPERS ──────────────────────────────────────────
+.action-value-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 100px;
+  max-width: 160px;
+
+  .action-unit-prefix {
+    font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    color: #00d4ff;
+    white-space: nowrap;
+  }
+
+  .value-input { flex: 1; min-width: 0; }
+}
+
+.pts-presets-inline {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+
+  .pts-preset {
+    padding: 4px 8px;
+    font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    background: #141b22;
+    border: 1px solid rgba(100,200,255,0.18);
+    border-radius: 5px;
+    color: #7a9db8;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+
+    &:hover { border-color: rgba(100,200,255,0.35); color: #e8f4ff; }
+
+    &.active {
+      background: rgba(0,212,255,0.12);
+      border-color: #00d4ff;
+      color: #00d4ff;
+    }
+  }
+}
+
+// ── BADGE SELECTOR ─────────────────────────────────────────────────────────
+.action-badge-select {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.badge-trigger-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  background: #141b22;
+  border: 1px solid rgba(100,200,255,0.18);
+  border-radius: 7px;
+  padding: 8px 10px;
+  font-size: 12px;
+  font-family: 'Outfit', sans-serif;
+  color: #e8f4ff;
+  cursor: pointer;
+  transition: all 0.18s;
+  text-align: left;
+
+  &:hover { border-color: rgba(100,200,255,0.35); background: #1b242e; }
+
+  &.open {
+    border-color: #00d4ff;
+    box-shadow: 0 0 0 3px rgba(0,212,255,0.1);
+    .select-arrow { transform: rotate(180deg); }
+  }
+
+  .select-arrow { flex-shrink: 0; color: #3a566e; transition: transform 0.18s; }
+}
+
+.badge-trigger-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+
+  .badge-trigger-name {
+    color: #7a9db8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.badge-thumb {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img { width: 100%; height: 100%; object-fit: cover; }
+}
+
+.badge-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: #0a0f14;
+  border: 1px solid rgba(0,212,255,0.22);
+  border-radius: 10px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.9);
+  z-index: 9999;
+  max-height: 220px;
+  overflow-y: auto;
+  animation: dropdown-open 0.18s cubic-bezier(0.16,1,0.3,1);
+
+  &::-webkit-scrollbar { width: 5px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(100,200,255,0.18);
+    border-radius: 3px;
+  }
+}
+
+.badge-empty-hint {
+  padding: 14px;
+  font-size: 12px;
+  color: #3a566e;
+  text-align: center;
+  font-style: italic;
+}
+
+.badge-drop-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(100,200,255,0.06);
+  transition: background 0.12s;
+
+  &:last-child { border-bottom: none; }
+
+  &:hover { background: rgba(0,212,255,0.05); }
+
+  &.selected {
+    background: rgba(0,212,255,0.08);
+    border-left: 2px solid #00d4ff;
+    padding-left: 10px;
+  }
+
+  .badge-opt-check { margin-left: auto; flex-shrink: 0; color: #00d4ff; }
+}
+
+.badge-opt-thumb {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #141b22;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img { width: 100%; height: 100%; object-fit: cover; }
+}
+
+.badge-opt-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+  flex: 1;
+
+  .badge-opt-name {
+    font-size: 12px;
+    color: #e8f4ff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .badge-opt-id {
+    font-size: 10px;
+    color: #3a566e;
+    font-family: 'Space Mono', monospace;
+  }
+}
+
+// ── TYPE SELECT WIDTH FIX ──────────────────────────────────────────────────
+.type-select {
+  flex: 0 0 120px;
+  min-width: 0;
+}
+
+.desc-input {
+  flex: 1;
+  min-width: 100px;
+}

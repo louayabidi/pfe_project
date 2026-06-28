@@ -1,9 +1,13 @@
-import { Component, OnInit, OnDestroy, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { 
+  Component, OnInit, OnDestroy, signal, computed, 
+  ChangeDetectionStrategy, ChangeDetectorRef 
+} from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AdvancedRuleService, AdvancedRule } from 'src/app/services/advanced-rule.service';
 import { AppStateService } from 'src/app/services/app-state.service';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { Subject, takeUntil } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-advanced-rules',
@@ -25,52 +29,84 @@ export class AdvancedRulesComponent implements OnInit, OnDestroy {
     private svc: AdvancedRuleService,
     private router: Router,
     private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef,
     readonly appState: AppStateService
   ) {}
 
   ngOnInit(): void {
-    this.appId$.pipe(takeUntil(this.destroy$)).subscribe(id => {
-      if (id) this.load(id);
-    });
+    // 1. Sync appId from URL FIRST, before subscribing to appId$
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(p => {
       const id = p['appId'] ? Number(p['appId']) : null;
-      if (id && !this.appState.currentAppId()) this.appState.selectApp(id);
+      if (id) {
+        // Use syncFromUrl — no-op if already selected, no router.navigate loop
+        this.appState.syncFromUrl(id);
+      }
+    });
+
+    // 2. React to appId changes — filter(Boolean) skips null emissions
+    this.appId$.pipe(
+      filter((id): id is number => !!id),
+      takeUntil(this.destroy$)
+    ).subscribe(id => {
+      this.load(id);
     });
   }
 
   load(appId: number): void {
-    this.loading.set(true); this.error.set(null);
+    this.loading.set(true);
+    this.error.set(null);
     this.svc.getRules(appId).subscribe({
-      next: r => { this.rules.set(r); this.loading.set(false); },
-      error: () => { this.error.set('Impossible de charger les règles avancées'); this.loading.set(false); }
+      next: r => {
+        this.rules.set(r);
+        this.loading.set(false);
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.error.set('Impossible de charger les règles avancées');
+        this.loading.set(false);
+        this.cdr.markForCheck();
+      }
     });
   }
 
   toggle(rule: AdvancedRule): void {
-    const appId = this.appState.currentAppId(); if (!appId) return;
+    const appId = this.appState.currentAppId();
+    if (!appId) return;
     this.svc.toggleRule(rule.id, !rule.active, appId).subscribe({
-      next: u => this.rules.update(l => l.map(r => r.id === u.id ? u : r))
+      next: u => {
+        this.rules.update(l => l.map(r => r.id === u.id ? u : r));
+        this.cdr.markForCheck();
+      }
     });
   }
 
   delete(ruleId: number): void {
     if (this.confirmingId() !== ruleId) {
       this.confirmingId.set(ruleId);
-      setTimeout(() => { if (this.confirmingId() === ruleId) this.confirmingId.set(null); }, 3000);
+      setTimeout(() => {
+        if (this.confirmingId() === ruleId) this.confirmingId.set(null);
+      }, 3000);
       return;
     }
-    const appId = this.appState.currentAppId(); if (!appId) return;
+    const appId = this.appState.currentAppId();
+    if (!appId) return;
     this.svc.deleteRule(ruleId, appId).subscribe({
-      next: () => { this.rules.update(l => l.filter(r => r.id !== ruleId)); this.confirmingId.set(null); }
+      next: () => {
+        this.rules.update(l => l.filter(r => r.id !== ruleId));
+        this.confirmingId.set(null);
+        this.cdr.markForCheck();
+      }
     });
   }
 
   newRule(): void {
-    this.router.navigate(['/dashboard/rules/advanced/new'], { queryParams: { appId: this.appState.currentAppId() } });
+    this.router.navigate(
+      ['/dashboard/rules/advanced/new'],
+      { queryParams: { appId: this.appState.currentAppId() } }
+    );
   }
 
   trackById = (_: number, r: AdvancedRule) => r.id;
-
   get appId() { return this.appState.currentAppId(); }
   ngOnDestroy(): void { this.destroy$.next(); this.destroy$.complete(); }
 }

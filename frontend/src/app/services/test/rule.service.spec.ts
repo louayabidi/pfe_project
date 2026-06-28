@@ -88,14 +88,12 @@ describe('RuleService', () => {
 
     it('should invalidate cache after creating a rule', () => {
       service.getRules(42).subscribe();
-      http.expectOne(r => r.url === API && r.request.method === 'GET').flush([mockRule]);
-
+      http.expectOne(r => r.url === API && r.method === 'GET').flush([mockRule]);
       service.createRule(42, mockCreateRequest).subscribe();
-      http.expectOne(r => r.url === API && r.request.method === 'POST').flush(mockRule);
+     http.expectOne(r => r.url === API && r.method === 'POST').flush(mockRule);
 
       service.getRules(42).subscribe();
-      http.expectOne(r => r.url === API && r.request.method === 'GET').flush([mockRule]);
-    });
+      http.expectOne(r => r.url === API && r.method === 'GET').flush([mockRule]);    });
   });
 
   // ── toggleRule ───────────────────────────────────────────────────────
@@ -126,7 +124,7 @@ describe('RuleService', () => {
   // ── deleteRule ───────────────────────────────────────────────────────
   describe('deleteRule()', () => {
     it('should DELETE a rule with appId query param', () => {
-      service.deleteRule(1, 42).subscribe(res => expect(res).toBeUndefined());
+      service.deleteRule(1, 42).subscribe(res => expect(res).toBeNull());
 
       const req = http.expectOne(r => r.url === `${API}/1` && r.params.get('appId') === '42');
       expect(req.request.method).toBe('DELETE');

@@ -150,12 +150,19 @@ export class AdvancedRuleService {
     );
   }
  
-  toggleRule(ruleId: number, active: boolean, appId: number): Observable<AdvancedRule> {
-    const params = new HttpParams().set('appId', appId);
-    return this.http.patch<AdvancedRule>(`${this.API}/${ruleId}/toggle`, { active }, { params }).pipe(
-      tap(() => this.cache.delete(appId))
-    );
-  }
+ toggleRule(ruleId: number, active: boolean, appId: number): Observable<AdvancedRule> {
+  const params = new HttpParams().set('appId', appId);
+  return this.http.patch<AdvancedRule>(`${this.API}/${ruleId}/toggle`, { active }, { params }).pipe(
+    tap((updated) => {
+      this.cache.delete(appId);
+      // Met à jour le cache en place si déjà chargé
+      const cached = this.cache.get(appId);
+      if (cached) {
+        this.cache.set(appId, cached.map(r => r.id === updated.id ? updated : r));
+      }
+    })
+  );
+}
  
   deleteRule(ruleId: number, appId: number): Observable<void> {
     const params = new HttpParams().set('appId', appId);

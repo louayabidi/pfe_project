@@ -10,6 +10,8 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +23,8 @@ import java.util.Map;
 @AllArgsConstructor
 @Entity
 @Table(name = "rules_advanced")
+@JsonIgnoreProperties(ignoreUnknown = true)
+
 public class AdvancedRule {
 
     @Id
@@ -134,6 +138,7 @@ private List<String> triggerEvents;
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class AdvancedCondition {
         private String type; // EVENT, EVENT_COUNT, TIME_PERIOD, DATA_FIELD
         private String field;
@@ -180,6 +185,7 @@ private List<String> triggerEvents;
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true) 
     public static class AdvancedAction {
         private String type; // POINTS, BADGE, MULTIPLIER, CUSTOM
         private Object value;

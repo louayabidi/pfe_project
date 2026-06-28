@@ -1,5 +1,5 @@
 import {
-  Component, ChangeDetectionStrategy, signal, OnDestroy, HostListener
+  Component, ChangeDetectionStrategy, signal, OnDestroy, OnInit, HostListener
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -12,17 +12,15 @@ import { AuthService } from '../../services/auth.service';
   styleUrls: ['./login.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class LoginComponent implements OnDestroy {
+export class LoginComponent implements OnInit, OnDestroy {
   form: FormGroup;
   loading = signal(false);
   error = signal<string | null>(null);
   showPass = signal(false);
-  
-  // Lockout tracking
+
   isLockedOut = signal(false);
   lockoutTimeRemaining = signal<number | null>(null);
   private lockoutTimer: any = null;
-
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -30,14 +28,16 @@ export class LoginComponent implements OnDestroy {
     private authService: AuthService,
     private router: Router
   ) {
-    if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/dashboard']);
-    }
-
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
     });
+  }
+
+  ngOnInit(): void {
+    if (this.authService.isLoggedIn()) {
+      this.router.navigate(['/dashboard']);
+    }
   }
 
   loginWithGoogle(): void {

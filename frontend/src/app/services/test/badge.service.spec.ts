@@ -84,18 +84,17 @@ describe('BadgeService', () => {
 
       // Create badge — should clear cache
       service.createBadge(42, { name: 'New' }).subscribe();
-      http.expectOne(r => r.url === API && r.request.method === 'POST').flush(mockBadge);
+     http.expectOne(r => r.url === API && r.method === 'POST').flush(mockBadge);
 
       // Next getBadges call should hit the network again
       service.getBadges(42).subscribe();
-      http.expectOne(r => r.url === API && r.request.method === 'GET').flush([mockBadge]);
-    });
+http.expectOne(r => r.url === API && r.method === 'GET').flush([mockBadge]);    });
   });
 
   // ── deleteBadge ──────────────────────────────────────────────────────
   describe('deleteBadge()', () => {
     it('should DELETE a badge with appId query param', () => {
-      service.deleteBadge(1, 42).subscribe(res => expect(res).toBeUndefined());
+      service.deleteBadge(1, 42).subscribe(res => expect(res).toBeNull());
 
       const req = http.expectOne(r => r.url === `${API}/1` && r.params.get('appId') === '42');
       expect(req.request.method).toBe('DELETE');

@@ -111,7 +111,7 @@ describe('AuthService', () => {
     it('should POST to register endpoint and save token', () => {
       spyOn(tokenService, 'saveToken').and.callThrough();
 
-      service.register({ email: 'new@test.com', password: 'pass', fullName: 'New', companyName: 'Co' }).subscribe();
+service.register({ email: 'new@test.com', password: 'pass', fullName: 'New' }).subscribe();
       const req = http.expectOne(`${environment.apiUrl}/api/auth/register`);
       expect(req.request.method).toBe('POST');
       req.flush(mockAuthResponse);

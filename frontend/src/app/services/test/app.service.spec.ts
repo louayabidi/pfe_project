@@ -63,7 +63,7 @@ describe('AppModelService', () => {
   // ── deleteApp ────────────────────────────────────────────────────────
   describe('deleteApp()', () => {
     it('should DELETE the app with the given id', () => {
-      service.deleteApp(1).subscribe(res => expect(res).toBeUndefined());
+service.deleteApp(1).subscribe(res => expect(res).toBeNull());
 
       const req = http.expectOne(`${API}/1`);
       expect(req.request.method).toBe('DELETE');

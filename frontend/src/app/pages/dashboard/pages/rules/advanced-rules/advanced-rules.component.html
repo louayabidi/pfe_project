@@ -3,42 +3,65 @@
     <div class="grid-line" *ngFor="let n of [1,2,3,4,5,6]"></div>
   </div>
 
-  <header class="page-header">
-    <div class="header-left">
-      <h1 class="page-title">🧠 Règles avancées</h1>
-      <p class="page-subtitle">
-        {{ rules().length }} règle(s) — {{ activeCount() }} active(s)
-      </p>
+  <!-- App chooser when no app is selected (mirrors rules page) -->
+  <app-chooser></app-chooser>
+
+  <ng-container *ngIf="appState.currentAppId()">
+
+    <header class="page-header">
+      <div class="header-left">
+        <div class="breadcrumb">
+          <span class="breadcrumb-app">APP #{{ appState.currentAppId() }}</span>
+          <svg width="12" height="12" viewBox="0 0 12 12">
+            <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5"
+                  fill="none" stroke-linecap="round"/>
+          </svg>
+          <span>Règles avancées</span>
+        </div>
+        <h1 class="page-title">🧠 Règles avancées</h1>
+        <p class="page-subtitle">
+          {{ rules().length }} règle(s) — {{ activeCount() }} active(s)
+        </p>
+      </div>
+
+      <div class="header-right">
+        <!-- App selector (only shown when multiple apps exist) -->
+        <app-selector></app-selector>
+
+        <button class="btn-create" (click)="newRule()">
+          <svg width="14" height="14" viewBox="0 0 14 14">
+            <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Nouvelle règle avancée
+        </button>
+      </div>
+    </header>
+
+    <div class="loading-state" *ngIf="loading()">
+      <div class="loading-bar"><div class="loading-fill"></div></div>
+      <span>Chargement...</span>
     </div>
-    <button class="btn-create" (click)="newRule()">
-      <svg width="14" height="14" viewBox="0 0 14 14"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      Nouvelle règle avancée
-    </button>
-  </header>
 
-  <div class="loading-state" *ngIf="loading()">
-    <div class="loading-bar"><div class="loading-fill"></div></div>
-    <span>Chargement...</span>
-  </div>
+    <div class="error-state" *ngIf="error() && !loading()">
+      <p>{{ error() }}</p>
+      <button class="btn-ghost" (click)="load(appId!)">Réessayer</button>
+    </div>
 
-  <div class="error-state" *ngIf="error() && !loading()">
-    <p>{{ error() }}</p>
-    <button class="btn-ghost" (click)="load(appId!)">Réessayer</button>
-  </div>
+    <div class="empty-state" *ngIf="!loading() && !error() && rules().length === 0">
+      <h3>Aucune règle avancée</h3>
+      <p>Crée ta première règle avec conditions, cooldown et multiplicateurs.</p>
+      <button class="btn-create" (click)="newRule()">Créer</button>
+    </div>
 
-  <div class="empty-state" *ngIf="!loading() && !error() && rules().length === 0">
-    <h3>Aucune règle avancée</h3>
-    <p>Crée ta première règle avec conditions, cooldown et multiplicateurs.</p>
-    <button class="btn-create" (click)="newRule()">Créer</button>
-  </div>
+    <div class="rules-grid" *ngIf="!loading() && !error() && rules().length > 0">
+      <app-advanced-rule-card
+        *ngFor="let rule of rules(); trackBy: trackById"
+        [rule]="rule"
+        [confirmingId]="confirmingId()"
+        (toggled)="toggle($event)"
+        (deleted)="delete($event)">
+      </app-advanced-rule-card>
+    </div>
 
-  <div class="rules-grid" *ngIf="!loading() && rules().length > 0">
-    <app-advanced-rule-card
-      *ngFor="let rule of rules(); trackBy: trackById"
-      [rule]="rule"
-      [confirmingId]="confirmingId()"
-      (toggled)="toggle($event)"
-      (deleted)="delete($event)">
-    </app-advanced-rule-card>
-  </div>
+  </ng-container>
 </div>

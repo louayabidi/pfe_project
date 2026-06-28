@@ -83,18 +83,22 @@
   font-family: var(--mono);
   font-size: 10px;
   font-weight: 700;
-  color: var(--text-3);
   letter-spacing: 0.08em;
   transition: color var(--t);
+  color: var(--danger);              // rouge par défaut (OFF)
+}
+
+.toggle-wrap:has(.toggle-btn.on) .toggle-label {
+  color: var(--success);             // vert quand ON
 }
 
 .toggle-btn {
   position: relative;
-  width: 36px;
-  height: 20px;
-  border-radius: 10px;
-  background: var(--surface-3);
-  border: 1px solid var(--border-active);
+  width: 44px;          // plus large
+  height: 24px;         // plus haut
+  border-radius: 12px;
+  background: var(--danger-dim);
+  border: 1px solid var(--danger);   // rouge quand OFF
   cursor: pointer;
   transition: all var(--t);
   padding: 0;
@@ -102,10 +106,10 @@
 
   .toggle-thumb {
     position: absolute;
-    top: 2px; left: 2px;
-    width: 14px; height: 14px;
+    top: 3px; left: 3px;
+    width: 16px; height: 16px;
     border-radius: 50%;
-    background: var(--text-3);
+    background: var(--danger);       // thumb rouge quand OFF
     transition: all var(--t);
   }
 
@@ -114,7 +118,7 @@
     border-color: var(--success);
 
     .toggle-thumb {
-      transform: translateX(16px);
+      transform: translateX(20px);   // ajusté pour 44px
       background: var(--success);
       box-shadow: 0 0 8px var(--success);
     }

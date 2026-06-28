@@ -9,25 +9,33 @@ import {
   RULE_TEMPLATES, RuleTemplate
 } from 'src/app/services/advanced-rule.service';
 import { EventService } from 'src/app/services/event.service';
+import { BadgeService } from 'src/app/services/badge.service';
 import { AppStateService } from 'src/app/services/app-state.service';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { Subject, takeUntil } from 'rxjs';
 
+export interface BadgeOption {
+  id: number;
+  name: string;
+  imageUrl?: string;
+}
 
 @Component({
   selector: 'app-create-advanced-rule',
   templateUrl: './create-advanced-rule.component.html',
   styleUrls: ['./create-advanced-rule.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  
 })
 export class CreateAdvancedRuleComponent implements OnInit, OnDestroy {
   form!: FormGroup;
-  availableEvents = signal<string[]>([]);
-  loading         = signal(false);
-  error           = signal<string | null>(null);
-  dropdownOpen    = signal(false);
-  templates       = RULE_TEMPLATES;
+  availableEvents  = signal<string[]>([]);
+  availableBadges  = signal<BadgeOption[]>([]);
+  loading          = signal(false);
+  error            = signal<string | null>(null);
+  dropdownOpen     = signal(false);
+  // per-action badge dropdowns: index → open state
+  badgeDropdowns   = signal<Record<number, boolean>>({});
+  templates        = RULE_TEMPLATES;
 
   private readonly destroy$ = new Subject<void>();
   private readonly appId$   = toObservable(this.appState.currentAppId);
@@ -42,6 +50,7 @@ export class CreateAdvancedRuleComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private advancedRuleService: AdvancedRuleService,
     private eventService: EventService,
+    private badgeService: BadgeService,
     private router: Router,
     private route: ActivatedRoute,
     readonly appState: AppStateService
@@ -54,7 +63,10 @@ export class CreateAdvancedRuleComponent implements OnInit, OnDestroy {
       if (id && !this.appState.currentAppId()) this.appState.selectApp(id);
     });
     this.appId$.pipe(takeUntil(this.destroy$)).subscribe(id => {
-      if (id) this.loadEvents(id);
+      if (id) {
+        this.loadEvents(id);
+        this.loadBadges(id);
+      }
     });
   }
 
@@ -62,7 +74,7 @@ export class CreateAdvancedRuleComponent implements OnInit, OnDestroy {
     this.form = this.fb.group({
       name:            ['', [Validators.required, Validators.minLength(2)]],
       description:     [''],
-      triggerEvents:   this.fb.array([], Validators.required), // ← now an array
+      triggerEvents:   this.fb.array([], Validators.required),
       conditionLogic:  ['AND'],
       conditions:      this.fb.array([]),
       actions:         this.fb.array([]),
@@ -73,22 +85,19 @@ export class CreateAdvancedRuleComponent implements OnInit, OnDestroy {
     this.addAction();
   }
 
-  // ── Trigger Events ──
+  // ── Trigger Events ──────────────────────────────────────────────────────
   get triggerEvents(): FormArray { return this.form.get('triggerEvents') as FormArray; }
 
   addTriggerEvent(ev: string): void {
-    // prevent duplicates
     if (!this.triggerEvents.value.includes(ev)) {
       this.triggerEvents.push(this.fb.control(ev, Validators.required));
     }
     this.dropdownOpen.set(false);
   }
 
-  removeTriggerEvent(i: number): void {
-    this.triggerEvents.removeAt(i);
-  }
+  removeTriggerEvent(i: number): void { this.triggerEvents.removeAt(i); }
 
-  // ── Conditions ──
+  // ── Conditions ──────────────────────────────────────────────────────────
   get conditions(): FormArray { return this.form.get('conditions') as FormArray; }
 
   addCondition(): void {
@@ -106,7 +115,7 @@ export class CreateAdvancedRuleComponent implements OnInit, OnDestroy {
     return this.conditions.at(i).get('type')?.value === 'TIME_PERIOD';
   }
 
-  // ── Actions ──
+  // ── Actions ─────────────────────────────────────────────────────────────
   get actions(): FormArray { return this.form.get('actions') as FormArray; }
 
   addAction(): void {
@@ -118,10 +127,63 @@ export class CreateAdvancedRuleComponent implements OnInit, OnDestroy {
   }
 
   removeAction(i: number): void {
-    if (this.actions.length > 1) this.actions.removeAt(i);
+    if (this.actions.length > 1) {
+      this.actions.removeAt(i);
+      // close badge dropdown for removed action and reindex
+      const current = { ...this.badgeDropdowns() };
+      delete current[i];
+      this.badgeDropdowns.set(current);
+    }
   }
 
-  // ── Events dropdown ──
+  getActionType(i: number): string {
+    return this.actions.at(i).get('type')?.value ?? 'POINTS';
+  }
+
+  // Called when action type select changes — reset value to sensible default
+  onActionTypeChange(i: number): void {
+    const type = this.getActionType(i);
+    const defaultValue = type === 'POINTS' ? 100 : type === 'MULTIPLIER' ? 2.0 : null;
+    this.actions.at(i).get('value')?.setValue(defaultValue);
+    // close badge dropdown if switching away from BADGE
+    if (type !== 'BADGE') {
+      const current = { ...this.badgeDropdowns() };
+      current[i] = false;
+      this.badgeDropdowns.set(current);
+    }
+  }
+
+  // ── Badge dropdown per action row ───────────────────────────────────────
+  isBadgeDropdownOpen(i: number): boolean {
+    return this.badgeDropdowns()[i] ?? false;
+  }
+
+  toggleBadgeDropdown(i: number): void {
+    const current = { ...this.badgeDropdowns() };
+    current[i] = !current[i];
+    this.badgeDropdowns.set(current);
+  }
+
+  selectBadge(i: number, badge: BadgeOption): void {
+    this.actions.at(i).get('value')?.setValue(badge.id);
+    const current = { ...this.badgeDropdowns() };
+    current[i] = false;
+    this.badgeDropdowns.set(current);
+  }
+
+  getSelectedBadgeName(i: number): string {
+    const id = this.actions.at(i).get('value')?.value;
+    if (!id) return '— Choisir un badge —';
+    return this.availableBadges().find(b => b.id === id)?.name ?? '— Choisir un badge —';
+  }
+
+  getSelectedBadgeImageUrl(i: number): string | null {
+    const id = this.actions.at(i).get('value')?.value;
+    if (!id) return null;
+    return this.availableBadges().find(b => b.id === id)?.imageUrl ?? null;
+  }
+
+  // ── Data loading ────────────────────────────────────────────────────────
   private loadEvents(appId: number): void {
     this.eventService.getRegisteredEvents(appId).subscribe({
       next: e => this.availableEvents.set(e),
@@ -129,51 +191,63 @@ export class CreateAdvancedRuleComponent implements OnInit, OnDestroy {
     });
   }
 
+  private loadBadges(appId: number): void {
+    this.badgeService.getBadges(appId).subscribe({
+      next: badges => this.availableBadges.set(
+        badges.map(b => ({ id: b.id, name: b.name, imageUrl: b.imageUrl }))
+      ),
+      error: () => {} // non-blocking — badge dropdown will just be empty
+    });
+  }
+
+  // ── Events dropdown ─────────────────────────────────────────────────────
   toggleDropdown(): void { this.dropdownOpen.update(v => !v); }
 
   @HostListener('document:click', ['$event'])
   onDocClick(e: MouseEvent): void {
-    if (!(e.target as HTMLElement).closest('.custom-select')) {
-      this.dropdownOpen.set(false);
+    const t = e.target as HTMLElement;
+    if (!t.closest('.custom-select'))     this.dropdownOpen.set(false);
+    if (!t.closest('.action-badge-select')) {
+      const closed: Record<number, boolean> = {};
+      Object.keys(this.badgeDropdowns()).forEach(k => closed[+k] = false);
+      this.badgeDropdowns.set(closed);
     }
   }
 
-  // ── Templates ──
+  // ── Templates ───────────────────────────────────────────────────────────
   applyTemplate(t: RuleTemplate): void {
     if (t.rule.conditionLogic) this.form.get('conditionLogic')?.setValue(t.rule.conditionLogic);
     if (t.rule.cooldownMinutes) this.form.get('cooldownMinutes')?.setValue(t.rule.cooldownMinutes);
 
-    // reset trigger events
     while (this.triggerEvents.length) this.triggerEvents.removeAt(0);
-    (t.rule.triggerEvents ?? []).forEach((ev: string) => {
-      this.triggerEvents.push(this.fb.control(ev, Validators.required));
-    });
+    (t.rule.triggerEvents ?? []).forEach((ev: string) =>
+      this.triggerEvents.push(this.fb.control(ev, Validators.required))
+    );
 
-    // reset conditions
     while (this.conditions.length) this.conditions.removeAt(0);
-    (t.rule.conditions ?? []).forEach((c: any) => {
+    (t.rule.conditions ?? []).forEach((c: any) =>
       this.conditions.push(this.fb.group({
         type: [c.type], field: [c.field ?? ''],
         operator: [c.operator], value: [c.value]
-      }));
-    });
+      }))
+    );
 
-    // reset actions
     while (this.actions.length) this.actions.removeAt(0);
-    (t.rule.actions ?? []).forEach((a: any) => {
+    (t.rule.actions ?? []).forEach((a: any) =>
       this.actions.push(this.fb.group({
         type: [a.type], value: [a.value], description: [a.description ?? '']
-      }));
-    });
+      }))
+    );
+
+    this.badgeDropdowns.set({});
   }
 
-  // ── Submit ──
+  // ── Submit ──────────────────────────────────────────────────────────────
   submit(): void {
     if (this.form.invalid || this.triggerEvents.length === 0) {
       this.form.markAllAsTouched();
-      if (this.triggerEvents.length === 0) {
+      if (this.triggerEvents.length === 0)
         this.error.set('Sélectionnez au moins un événement déclencheur');
-      }
       return;
     }
     const appId = this.appState.currentAppId();
@@ -186,7 +260,7 @@ export class CreateAdvancedRuleComponent implements OnInit, OnDestroy {
     const payload: CreateAdvancedRuleRequest = {
       name:             v.name,
       description:      v.description,
-      triggerEvents:    v.triggerEvents,   // ← array of strings
+      triggerEvents:    v.triggerEvents,
       conditionLogic:   v.conditionLogic,
       conditions:       v.conditions,
       actions:          v.actions,

@@ -193,3 +193,22 @@
   .page-header { flex-direction: column; align-items: flex-start; }
   .rules-grid { grid-template-columns: 1fr; }
 }
+
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: #3a566e;
+  margin-bottom: 10px;
+
+  .breadcrumb-app { color: #00d4ff; letter-spacing: 0.05em; }
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}

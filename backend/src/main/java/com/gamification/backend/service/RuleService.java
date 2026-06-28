@@ -8,6 +8,9 @@ import com.gamification.backend.repository.AppRepository;
 import com.gamification.backend.repository.RuleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +27,8 @@ public class RuleService {
     private final RuleRepository ruleRepository;
     private final AppRepository appRepository;
     
+
+    @CacheEvict(value = "rules", key = "#appId")
     @Transactional
     public RuleResponse createRule(Long appId, CreateRuleRequest request) {
         log.info("=== RuleService.createRule appId={} ===", appId);
@@ -70,6 +75,8 @@ public class RuleService {
         return mapToResponse(savedRule);
     }
     
+
+    @Cacheable(value = "rules", key = "#appId")
     public List<RuleResponse> getRulesByAppId(Long appId) {
         return ruleRepository.findByAppId(appId)
                 .stream()
@@ -77,6 +84,7 @@ public class RuleService {
                 .collect(Collectors.toList());
     }
     
+   @CacheEvict(value = "rules", key = "#ruleId")
     @Transactional
     public RuleResponse toggleRule(Long ruleId, Boolean active) {
         Rule rule = ruleRepository.findById(ruleId)
@@ -87,6 +95,7 @@ public class RuleService {
         return mapToResponse(updatedRule);
     }
     
+   @CacheEvict(value = "rules", allEntries = true)
     @Transactional
     public void deleteRule(Long ruleId) {
         Rule rule = ruleRepository.findById(ruleId)

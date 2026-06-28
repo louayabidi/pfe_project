@@ -10,6 +10,6 @@ import java.util.Optional;
 public interface GamifPageConfigRepository extends JpaRepository<GamifPageConfig, Long> {
     List<GamifPageConfig>   findByAppId(Long appId);
     Optional<GamifPageConfig> findByPublishableKey(String publishableKey);
-    Optional<GamifPageConfig> findByAppIdAndName(Long appId, String name);
+    Optional<GamifPageConfig> findByAppIdAndName(Long appId, String name); // yestaamlha ki ybadel les valeurs ( couleurs ; options ..)
     void deleteByAppId(Long appId);
 }

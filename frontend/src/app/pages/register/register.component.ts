@@ -1,5 +1,6 @@
 import {
-  Component, ChangeDetectionStrategy, signal, OnDestroy
+  Component, ChangeDetectionStrategy, signal, OnDestroy,
+  OnInit
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -12,12 +13,11 @@ import { AuthService } from '../../services/auth.service';
   styleUrls: ['./register.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class RegisterComponent implements OnDestroy {
+export class RegisterComponent implements OnInit, OnDestroy {
   form: FormGroup;
   loading  = signal(false);
   error    = signal<string | null>(null);
   showPass = signal(false);
-
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -25,16 +25,17 @@ export class RegisterComponent implements OnDestroy {
     private authService: AuthService,
     private router: Router
   ) {
-    // Redirect if already logged in
-    if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/dashboard']);
-    }
-
     this.form = this.fb.group({
       fullName: ['', [Validators.required, Validators.minLength(2)]],
       email:    ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
+  }
+
+  ngOnInit(): void {
+    if (this.authService.isLoggedIn()) {
+      this.router.navigate(['/dashboard']);
+    }
   }
 
   submit(): void {
